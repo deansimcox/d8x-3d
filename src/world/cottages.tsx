@@ -5,8 +5,8 @@ import {useExperience} from '../store';
 import {Shape} from 'three';
 import {YardToys} from './yard';
 import {KitchenGarden} from './kitchenGarden';
-import {CodeDisplay} from './codeDisplay';
-import {DeskChair,MonitorFrame,OfficeShelves,TaskLamp,WritingDesk} from './workshopFurniture';
+import {DeveloperScreens} from './codeDisplay';
+import {DeskChair,WritingDesk} from './workshopFurniture';
 
 const plaster='#e0c8a4',wood='#78543e',stone='#9d947a';
 const gable=new Shape().moveTo(-3.9,-.7).lineTo(3.9,-.7).lineTo(0,1.61).closePath();
@@ -44,26 +44,18 @@ export function Workshop(){
     <Roof/>
     <WritingDesk/>
     <DeskChair/>
-    <MonitorFrame/>
-    <CodeDisplay onSelect={active?()=>useExperience.getState().openArchive('office'):undefined}/>
-    <Model name="computerKeyboard" position={[.95,2.096,-.72]} width={.78} tint="#d5c5ae"/>
-    <Model name="computerMouse" position={[1.55,2.096,-.67]} width={.17} tint="#a5a594"/>
-    <Model name="speakerSmall" position={[1.69,2.08,-1.43]} height={.28}/>
-    <Model name="sideTableDrawers" position={[-2.97,.43,-.90]} height={.74}/>
-    <TaskLamp/>
-    <OfficeShelves/>
-    <Model name="pottedPlant" position={[-2.82,.43,2.42]} height={1.38}/>
-    <Model name="rugRectangle" position={[.12,.44,1.6]} width={4.25} tint="#b9a48e"/>
-    <Model name="laptop" position={[-.27,2.09,-1.39]} width={.78} rotation={.22}/>
-    <Model name="plantSmall2" position={[-2.65,3.283,-2.82]} height={.39}/>
-    <Model name="cup-coffee" position={[1.85,2.09,-.67]} height={.19}/>
-    <Model name="kitchenCoffeeMachine" position={[-2.91,1.17,-.86]} height={.62} rotation={-.35}/>
+    <DeveloperScreens onSelect={active?()=>useExperience.getState().openArchive('office'):undefined}/>
+    <Model name="computerKeyboard" position={[.85,2.08,-.63]} width={.78} tint="#d5c5ae"/>
+    <Model name="computerMouse" position={[1.47,2.08,-.62]} width={.17} tint="#a5a594"/>
+    <Model name="officePlantPalm" position={[-2.72,.43,-2.53]} height={2.54} rotation={.58}/>
+    <Model name="officePlantZZ" position={[3.12,.43,-2.3]} height={2.22} rotation={2.5}/>
+    <Block position={[-1.76,.56,-2.74]} size={[.53,.27,.53]} color="#9d7357"/>
+    <Model name="officePlantPothos" position={[-1.64,.43,-2.61]} height={1.17} rotation={1.6}/>
+    <Model name="officePlantZZ" position={[-2.82,.43,1.5]} height={1.73} rotation={1.2}/>
+    <Block position={[3.44,.565,.21]} size={[.55,.28,.55]} color="#9d7357"/>
+    <Model name="officePlantPothos" position={[3.26,.43,.18]} height={1.22} rotation={-.8}/>
     <Model name="Prop_Vine1" position={[-4.23,.38,2.97]} height={2.85} rotation={-Math.PI/2}/>
-    <Block position={[2.81,2.91,-3.26]} size={[1.13,.64,.06]} color={wood}/>
-    <Block position={[2.81,2.91,-3.22]} size={[.98,.49,.035]} color="#dbc39a"/>
-    <Block position={[2.81,2.81,-3.19]} size={[.81,.16,.024]} color="#7a9277"/>
-    <Block position={[2.59,2.99,-3.19]} size={[.16,.14,.024]} color="#b67d57"/>
-    <pointLight position={[1.92,2.55,-1.16]} intensity={3.1} color="#ffd09d" distance={3.4}/>
+    <pointLight position={[1.9,3.25,.2]} intensity={2.6} color="#ffd09d" distance={5}/>
     <Block position={[0,3.86,0]} size={[8.1,.1,6.75]} color="#bc9b73"/>
     <Lamp position={[4.4,0,4.9]} short/>
     <Planting/>

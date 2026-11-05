@@ -87,5 +87,18 @@ for pack, names in selection.items():
         manifest.append({'file': destination.name, 'pack': pack, 'bytes': destination.stat().st_size})
     licence = next(p for p in folder.rglob('*.txt') if 'licen' in p.name.lower())
     shutil.copyfile(licence, OUT / (pack + '-LICENSE.txt'))
+for name, model_id in (
+    ('officePlantPalm', 'VtJh4Irl4w'),
+    ('officePlantPothos', 'JVoJ2itVzh'),
+    ('officePlantZZ', '0uJQPU1oAK'),
+):
+    destination = OUT / (name + '.glb')
+    manifest.append({
+        'file': destination.name,
+        'pack': 'poly-pizza-houseplants',
+        'bytes': destination.stat().st_size,
+        'source': f'https://poly.pizza/m/{model_id}',
+        'license': 'CC0-1.0',
+    })
 (OUT / 'manifest.json').write_text(json.dumps(manifest, indent=2))
 print(f'{len(manifest)} GLBs, {sum(x["bytes"] for x in manifest) / 1024**2:.2f} MiB')

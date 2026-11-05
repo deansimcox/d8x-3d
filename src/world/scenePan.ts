@@ -15,10 +15,11 @@ export function useScenePan(){
       return ready&&(mode==='overview'||mode==='scene');
     };
     const shift=(x:number,y:number)=>{
-      const indoor=useExperience.getState().destination==='office';
-      const limit=indoor?.105:.19;
-      angles.current.yaw=MathUtils.clamp(angles.current.yaw+x,-limit,limit);
-      angles.current.pitch=MathUtils.clamp(angles.current.pitch+y,-limit*.62,limit*.62);
+      const inScene=useExperience.getState().mode==='scene';
+      const yaw=angles.current.yaw+x;
+      const pitchLimit=inScene?.78:.19*.62;
+      angles.current.yaw=inScene?MathUtils.euclideanModulo(yaw+Math.PI,Math.PI*2)-Math.PI:MathUtils.clamp(yaw,-.19,.19);
+      angles.current.pitch=MathUtils.clamp(angles.current.pitch+y,-pitchLimit,pitchLimit);
       invalidate();
     };
     const reset=()=>{angles.current.yaw=0;angles.current.pitch=0;invalidate()};
@@ -49,7 +50,7 @@ export function useScenePan(){
     };
     const key=(event:KeyboardEvent)=>{
       if(!enabled())return;
-      const step=.035;
+      const step=useExperience.getState().mode==='scene'?.12:.035;
       switch(event.key){
         case 'ArrowLeft':shift(step,0);break;
         case 'ArrowRight':shift(-step,0);break;

@@ -243,5 +243,26 @@
     "file": "cup-coffee.glb",
     "pack": "kenney-food",
     "bytes": 18768
+  },
+  {
+    "file": "officePlantPalm.glb",
+    "pack": "poly-pizza-houseplants",
+    "bytes": 14412,
+    "source": "https://poly.pizza/m/VtJh4Irl4w",
+    "license": "CC0-1.0"
+  },
+  {
+    "file": "officePlantPothos.glb",
+    "pack": "poly-pizza-houseplants",
+    "bytes": 92144,
+    "source": "https://poly.pizza/m/JVoJ2itVzh",
+    "license": "CC0-1.0"
+  },
+  {
+    "file": "officePlantZZ.glb",
+    "pack": "poly-pizza-houseplants",
+    "bytes": 347320,
+    "source": "https://poly.pizza/m/0uJQPU1oAK",
+    "license": "CC0-1.0"
   }
 ]

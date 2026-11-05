@@ -21,13 +21,41 @@ function Balloon(){
   },[]);
   useFrame(({clock})=>{
     const t=reduced?0:clock.elapsedTime;
-    balloon.current?.position.set(42+Math.sin(t*.075)*8,39+Math.sin(t*.22)*1.1,-39+Math.sin(t*.063)*7);
-    if(balloon.current)balloon.current.rotation.y=t*.075;
+    balloon.current?.position.set(42+Math.sin(t*.13)*16,39+Math.sin(t*.32)*2.3,-39+Math.sin(t*.10)*11);
+    if(balloon.current)balloon.current.rotation.set(0,t*.105,Math.sin(t*.37)*.065);
   });
   return <group ref={balloon} position={[42,39,-39]}>
     <mesh geometry={panels}><meshStandardMaterial vertexColors roughness={.83}/></mesh>
     <Block position={[0,-4.45,0]} size={[1.43,.88,1.23]} color="#a67c4e"/>
     {[-.47,.47].flatMap(x=>[-.42,.42].map(z=><Block key={x+'/'+z} position={[x,-3.54,z]} size={[.04,1.26,.04]} color="#735942"/>))}
+  </group>;
+}
+function VintagePlane(){
+  const plane=useRef<THREE.Group>(null),propeller=useRef<THREE.Group>(null);
+  const reduced=useReducedMotion();
+  useFrame(({clock})=>{
+    if(!plane.current||!propeller.current)return;
+    const time=(clock.elapsedTime+5)%43;
+    const progress=time/23;
+    plane.current.visible=!reduced&&progress<1;
+    if(!plane.current.visible)return;
+    plane.current.position.set(-208+448*progress,52+Math.sin(progress*Math.PI)*7,-77+30*progress);
+    plane.current.rotation.set(.06*Math.sin(progress*Math.PI*3),Math.PI/2-.067,.025*Math.cos(progress*Math.PI));
+    propeller.current.rotation.z=clock.elapsedTime*24;
+  });
+  return <group ref={plane} visible={false} scale={1.15}>
+    <mesh rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.59,.25,4.7,10]}/><meshStandardMaterial color="#9b4435" flatShading/></mesh>
+    <mesh position={[0,.45,-.15]} scale={[.39,.26,.67]}><sphereGeometry args={[1,10,6]}/><meshStandardMaterial color="#513e32"/></mesh>
+    {[.03,1.28].map(y=><group key={y} position={[0,y,.28]}>
+      <Block position={[0,0,0]} size={[7.6,.17,1.26]} color="#e2bc82"/>
+      {[-3.42,3.42].map(x=><Block key={x} position={[x,.015,.01]} size={[.45,.18,1.27]} color="#a84b3b"/>)}
+    </group>)}
+    {[-2.45,2.45].flatMap(x=>[-.12,.57].map(z=><Block key={x+'/'+z} position={[x,.66,z]} size={[.08,1.22,.08]} color="#654c39"/>))}
+    <Block position={[0,.04,-1.94]} size={[2.65,.13,.66]} color="#e2bc82"/>
+    <mesh position={[0,.46,-1.9]} scale={[.12,.72,.52]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color="#9b4435" flatShading/></mesh>
+    {[-.49,.49].map(x=><mesh key={x} position={[x,-.61,.75]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.25,.25,.13,10]}/><meshStandardMaterial color="#4b433c"/></mesh>)}
+    <group ref={propeller} position={[0,0,2.48]}><Block position={[0,0,0]} size={[.19,2.32,.10]} color="#614932"/></group>
+    <mesh position={[0,0,2.4]}><sphereGeometry args={[.28,10,7]}/><meshStandardMaterial color="#c99b62"/></mesh>
   </group>;
 }
 function Flock(){
@@ -64,6 +92,6 @@ export function SkyDetails({dusk}:{dusk:{value:number}}){
       <mesh position={[-2.35,4.5,-.3]} rotation={[0,.32,.10]}><coneGeometry args={[4.5,5.4,5]}/><meshStandardMaterial color="#a1b4ae" fog={false} flatShading/></mesh>
       <mesh position={[3.2,3.55,-1.2]}><coneGeometry args={[2.5,3.2,5]}/><meshStandardMaterial color="#86a197" fog={false} flatShading/></mesh>
     </group>)}
-    <Balloon/><Flock/>
+    <Balloon/><Flock/><VintagePlane/>
   </>;
 }

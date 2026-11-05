@@ -7,6 +7,7 @@ import {useReducedMotion} from './motion';
 import {useScenePan} from './scenePan';
 
 const vec=(v:Pose['position'])=>new THREE.Vector3(...v);
+const worldUp=new THREE.Vector3(0,1,0);
 const ease=(t:number)=>t*t*t*(t*(t*6-15)+10);
 type Journey={serial:number;start:number;duration:number;move:(t:number,p:THREE.Vector3)=>void;look:THREE.Vector3;fov:number;offsetX:number;offsetY:number;entering:boolean};
 function route(from:THREE.Vector3,to:THREE.Vector3,leadIn?:THREE.Vector3) {
@@ -61,9 +62,9 @@ export function CameraRig() {
     const state=useExperience.getState(),travel=state.mode==='transitioning';
     const id=state.mode==='welcome'?'welcome':travel?state.target:state.destination;
     const pose=poses[id],portrait=size.width/size.height<1.05;
-    const portraitFov={welcome:30,overview:35,office:16,city:19,stadium:24,nature:13,family:17};
+    const portraitFov={welcome:30,overview:35,office:22,city:19,stadium:24,nature:13,family:17};
     const fov=pose.fov+(portrait?portraitFov[id]:0);
-    const x=portrait?0:id==='welcome'?-.145:id==='overview'?-.075:state.panelOpen?-.115:0;
+    const x=portrait?(id==='office'?.16:0):id==='welcome'?-.145:id==='overview'?-.075:state.panelOpen?-.115:0;
     const y=portrait?(id==='welcome'?.185:id==='overview'?-.015:state.panelOpen?.17:.035):0;
     const final=()=>{camera.position.set(...pose.position);look.current.set(...pose.target);camera.fov=fov;offset.current={x,y}};
     if(!travel||reduced) {
@@ -89,7 +90,8 @@ export function CameraRig() {
     }
     camera.lookAt(look.current);
     if(!travel&&state.mode!=='welcome'){
-      camera.rotateY(pan.current.yaw);
+      if(state.mode==='scene')camera.rotateOnWorldAxis(worldUp,pan.current.yaw);
+      else camera.rotateY(pan.current.yaw);
       camera.rotateX(pan.current.pitch);
     }
     camera.setViewOffset(size.width,size.height,offset.current.x*size.width,offset.current.y*size.height,size.width,size.height);

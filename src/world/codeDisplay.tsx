@@ -1,49 +1,122 @@
 import {useEffect,useMemo,useRef} from 'react';
+import type {ReactNode} from 'react';
 import {useFrame} from '@react-three/fiber';
-import * as THREE from 'three';
+import {CanvasTexture,SRGBColorSpace} from 'three';
 import {useReducedMotion} from './motion';
 import {useExperience} from '../store';
+import {Block} from './props';
+import type {Vec3} from './layout';
 
+type ScreenKind='editor'|'preview'|'tests';
 const source=[
-  ['// the world between the lines','#91a999'],
-  ['export function buildIsland() {','#c8adf1'],
-  ['  const terrain = sculpt(seed);','#e3dfbf'],
-  ['  const sky = paint("golden hour");','#e3dfbf'],
-  ['  return { terrain, sky };','#8fd8be'],
+  ['export function Island() {','#c8adf1'],
+  ['  return <World','#e3dfbf'],
+  ['    terrain={sculpt(seed)}','#8fd8be'],
+  ['    sky="golden-hour"','#e3dfbf'],
+  ['  />;','#c8adf1'],
   ['}','#c8adf1'],
 ] as const;
 
-export function CodeDisplay({onSelect}:{onSelect?:()=>void}){
-  const reduced=useReducedMotion();
-  const previous=useRef(-1);
-  const {canvas,texture}=useMemo(()=>{
-    const canvas=document.createElement('canvas');
-    canvas.width=512;canvas.height=240;
-    const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
-    return {canvas,texture};
-  },[]);
-  useEffect(()=>()=>texture.dispose(),[texture]);
-  useFrame(({clock})=>{
-    const state=useExperience.getState();
-    const inOffice=state.destination==='office'||state.target==='office';
-    const step=reduced||!inOffice?108:Math.floor(clock.elapsedTime*10)%137;
-    if(step===previous.current)return;
-    previous.current=step;
-    const ctx=canvas.getContext('2d')!;
-    ctx.fillStyle='#192b32';ctx.fillRect(0,0,512,240);
-    ctx.fillStyle='#28434b';ctx.fillRect(0,0,512,33);
-    ctx.font='16px monospace';ctx.fillStyle='#b0c8be';ctx.fillText('island.ts',18,22);
-    let remaining=Math.min(108,step)*2;
+function drawScreen(ctx:CanvasRenderingContext2D,kind:ScreenKind,step:number){
+  const rect=(x:number,y:number,w:number,h:number,color:string)=>{
+    ctx.fillStyle=color;
+    ctx.fillRect(x,y,w,h);
+  };
+  const text=(value:string,x:number,y:number,color:string)=>{
+    ctx.fillStyle=color;
+    ctx.fillText(value,x,y);
+  };
+  rect(0,0,480,256,'#192b32');
+  rect(0,0,480,32,'#28434b');
+  ctx.font='17px monospace';
+  text({editor:'Island.tsx',preview:'localhost / preview',tests:'Terminal / checks'}[kind],16,22,'#b0c8be');
+
+  if(kind==='editor'){
+    let remaining=step*2;
     source.forEach(([line,color],i)=>{
-      ctx.fillStyle='#637f84';ctx.fillText(String(i+1),15,59+i*25);
-      ctx.fillStyle=color;ctx.fillText(line.slice(0,remaining),42,59+i*25);
+      text(String(i+1),16,58+i*27,'#759092');
+      text(line.slice(0,remaining),49,58+i*27,color);
       remaining=Math.max(0,remaining-line.length);
     });
-    ctx.fillStyle='#28434b';ctx.fillRect(0,213,512,27);
-    ctx.fillStyle='#91d4ae';ctx.fillText(step>=108?'build complete   ✓':'compiling island…',18,232);
+    text(step>55?'✓  build complete':'●  editing',16,237,'#91d4ae');
+  }else if(kind==='preview'){
+    rect(15,44,450,199,'#eae5d1');
+    rect(29,57,420,19,'#314e46');
+    const width=step<45?420:300;
+    const inset=(420-width)/2;
+    rect(29+inset,86,width,83,'#abc7bb');
+    ctx.fillStyle='#637f68';
+    ctx.beginPath();
+    ctx.moveTo(54+inset,169);
+    ctx.lineTo(129+inset,111);
+    ctx.lineTo(191+inset,169);
+    ctx.fill();
+    text('The island',203+inset,132,'#273c37');
+    for(let i=0;i<3;i++)rect(29+inset+i*(width/3),182,width/3-9,43,i===Math.floor(step/18)%3?'#d6a37a':'#c4cbb7');
+  }else{
+    ctx.font='21px monospace';
+    text('$ npm run check',16,67,'#f0d29a');
+    ['TypeScript','Accessibility','Production build'].forEach((label,i)=>{
+      const passed=step>16+i*16;
+      text(passed?'✓':'›',18,112+i*44,passed?'#92d8ad':'#c7a776');
+      text(label,48,112+i*44,'#e4e6d8');
+    });
+  }
+}
+
+function Screen({kind,position,size,onSelect}:{
+  kind:ScreenKind;position:Vec3;size:[number,number];onSelect?:()=>void;
+}){
+  const reduced=useReducedMotion(),previous=useRef(-1);
+  const {ctx,texture}=useMemo(()=>{
+    const canvas=document.createElement('canvas');
+    canvas.width=480;canvas.height=256;
+    const ctx=canvas.getContext('2d')!;
+    drawScreen(ctx,kind,76);
+    const texture=new CanvasTexture(canvas);
+    texture.colorSpace=SRGBColorSpace;
+    return {ctx,texture};
+  },[kind]);
+  useEffect(()=>()=>texture.dispose(),[texture]);
+  useFrame(({clock})=>{
+    const {destination,target}=useExperience.getState();
+    const active=destination==='office'||target==='office';
+    const step=reduced||!active?76:Math.floor(clock.elapsedTime*7)%88;
+    if(step===previous.current)return;
+    previous.current=step;
+    drawScreen(ctx,kind,step);
     texture.needsUpdate=true;
   });
-  return <mesh position={[1,2.62,-1.071]} onClick={onSelect?event=>{event.stopPropagation();onSelect()}:undefined}>
-    <planeGeometry args={[1.04,.49]}/><meshBasicMaterial map={texture}/>
+  return <mesh position={position} onClick={onSelect?event=>{event.stopPropagation();onSelect()}:undefined}>
+    <planeGeometry args={size}/><meshBasicMaterial map={texture} toneMapped={false}/>
   </mesh>;
+}
+
+function Monitor({position,rotation=0,children}:{position:Vec3;rotation?:number;children:ReactNode}){
+  return <group position={position} rotation={[0,rotation,0]}>
+    <Block position={[0,.035,0]} size={[.49,.07,.31]} color="#303936"/>
+    <Block position={[0,.22,-.067]} size={[.105,.35,.085]} color="#303936"/>
+    <Block position={[0,.58,0]} size={[1.25,.69,.078]} color="#252e2e"/>
+    {children}
+  </group>;
+}
+
+export function DeveloperScreens({onSelect}:{onSelect?:()=>void}){
+  return <>
+    <Monitor position={[.69,2.08,-1.37]}>
+      <Screen kind="editor" position={[0,.59,.041]} size={[1.19,.635]} onSelect={onSelect}/>
+    </Monitor>
+    <Monitor position={[1.97,2.08,-1.37]} rotation={-.11}>
+      <Screen kind="preview" position={[0,.59,.041]} size={[1.19,.635]} onSelect={onSelect}/>
+    </Monitor>
+    <group position={[-.30,2.08,-.99]} rotation={[0,.14,0]}>
+      <Block position={[0,.023,.073]} size={[.67,.046,.47]} color="#67726d"/>
+      <Block position={[0,.049,.025]} size={[.57,.009,.20]} color="#303936"/>
+      <Block position={[0,.048,.21]} size={[.20,.008,.12]} color="#87918a"/>
+      <group position={[0,.22,-.165]} rotation={[-.18,0,0]}>
+        <Block position={[0,0,0]} size={[.67,.39,.033]} color="#343e3b"/>
+        <Screen kind="tests" position={[0,.003,.018]} size={[.62,.34]} onSelect={onSelect}/>
+      </group>
+    </group>
+  </>;
 }

@@ -39,11 +39,11 @@ function Clouds(){
   },[]);
   useFrame(({clock})=>{
     const t=reduced?0:clock.elapsedTime;
-    if(group.current)group.current.rotation.y=t*.011;
+    if(group.current)group.current.rotation.y=t*.026;
     const shade=1-dusk.value*.66;
     group.current?.children.forEach(cloud=>{(cloud as THREE.Sprite).material.color.setScalar(shade)});
     mountain.current?.children.forEach((cloud,i)=>{
-      const a=2.1+i*1.48+t*(.037+i*.005);
+      const a=2.1+i*1.48+t*(.065+i*.009);
       cloud.position.set(Math.cos(a)*(19+i*2.7),17+i*3.5+Math.sin(a*2)*.65,-4+Math.sin(a)*(17+i*1.6));
       (cloud as THREE.Sprite).material.color.setScalar(shade);
     });
