@@ -9,7 +9,7 @@ import {useScenePan} from './scenePan';
 const vec=(v:Pose['position'])=>new THREE.Vector3(...v);
 const ease=(t:number)=>t*t*t*(t*(t*6-15)+10);
 type Journey={serial:number;start:number;duration:number;move:(t:number,p:THREE.Vector3)=>void;look:THREE.Vector3;fov:number;offsetX:number;offsetY:number;entering:boolean};
-function route(from:THREE.Vector3,to:THREE.Vector3) {
+function route(from:THREE.Vector3,to:THREE.Vector3,leadIn?:THREE.Vector3) {
   const a=Math.atan2(from.z,from.x),b=Math.atan2(to.z,to.x);
   const delta=Math.atan2(Math.sin(b-a),Math.cos(b-a));
   const r0=Math.hypot(from.x,from.z),r1=Math.hypot(to.x,to.z);
@@ -20,6 +20,7 @@ function route(from:THREE.Vector3,to:THREE.Vector3) {
     const y=THREE.MathUtils.lerp(from.y,to.y,t)+Math.sin(t*Math.PI)*(5+Math.abs(delta)*4);
     points.push(new THREE.Vector3(Math.cos(angle)*radius,y,Math.sin(angle)*radius));
   }
+  if(leadIn)points.push(leadIn);
   points.push(to);
   return new THREE.CatmullRomCurve3(points);
 }
@@ -28,13 +29,21 @@ function flightPath(from:THREE.Vector3,to:THREE.Vector3,entering:boolean){
   const localX=dx*Math.cos(workshopAngle)-dz*Math.sin(workshopAngle);
   const localZ=dx*Math.sin(workshopAngle)+dz*Math.cos(workshopAngle);
   const atWindow=Math.abs(localX-.95)<.25&&Math.abs(from.y-workshopWindow[1])<.35&&localZ>=2.7&&localZ<7.19;
-  const outside=route(atWindow&&!entering?approach:from,entering?approach:to);
+  if(entering){
+    if(atWindow)return (t:number,p:THREE.Vector3)=>p.lerpVectors(from,to,ease(t));
+
+    // Align the final outdoor segment with the window, then ease across both
+    // curves together so the camera carries its speed through the join.
+    const leadDistance=Math.min(2.4,from.distanceTo(approach)*.12);
+    const leadIn=approach.clone().addScaledVector(approach.clone().sub(to).normalize(),leadDistance);
+    const path=new THREE.CurvePath<THREE.Vector3>();
+    path.add(route(from,approach,leadIn));
+    path.add(new THREE.LineCurve3(approach,to));
+    return (t:number,p:THREE.Vector3)=>p.copy(path.getPoint(ease(t)));
+  }
+  const outside=route(atWindow?approach:from,to);
   return (t:number,p:THREE.Vector3)=>{
-    if(entering&&atWindow){p.lerpVectors(from,to,ease(t));return}
-    if(entering){
-      if(t<.64)outside.getPointAt(ease(t/.64),p);
-      else p.lerpVectors(approach,to,ease((t-.64)/.36));
-    }else if(atWindow){
+    if(atWindow){
       if(t<.25)p.lerpVectors(from,approach,ease(t/.25));
       else outside.getPointAt(ease((t-.25)/.75),p);
     }else outside.getPointAt(ease(t),p);
@@ -69,7 +78,7 @@ export function CameraRig() {
       flight.move(t,camera.position);
       if(flight.entering){
         look.current.copy(flight.look).lerp(vec(workshopWindow),ease(Math.min(1,t/.64)));
-        look.current.lerp(vec(pose.target),ease(Math.max(0,(t-.53)/.47)));
+        look.current.lerp(vec(pose.target),ease(Math.max(0,(t-.70)/.30)));
       }else{
         look.current.copy(flight.look).lerp(vec(pose.target),k);
         if(id!=='overview')look.current.lerp(new THREE.Vector3(0,10,0),Math.sin(k*Math.PI)*.22);
