@@ -13,19 +13,22 @@ export function useModel(name:string) {
     return {scene,size,offset:new THREE.Vector3(-center.x,-bounds.min.y,-center.z)};
   },[scene]);
 }
-export function Model({name,position=[0,0,0],height,width,dimensions,scale=1,rotation=0,tint,onSelect}: {
-  name:string;position?:Vec3;height?:number;width?:number;dimensions?:Vec3;scale?:number;rotation?:number;tint?:string;onSelect?:()=>void;
+export function Model({name,position=[0,0,0],height,width,dimensions,scale=1,rotation=0,tint,fog=true,onSelect}: {
+  name:string;position?:Vec3;height?:number;width?:number;dimensions?:Vec3;scale?:number;rotation?:number;tint?:string;fog?:boolean;onSelect?:()=>void;
 }) {
   const model=useModel(name);
   const object=useMemo(()=>{
     const clone=model.scene.clone(true);
     const recolor=(m:THREE.Material)=>{
-      if(!tint||!(m instanceof THREE.MeshStandardMaterial))return m;
-      const copy=m.clone();copy.color.multiply(new THREE.Color(tint));return copy;
+      if(!(m instanceof THREE.MeshStandardMaterial)||(!tint&&fog))return m;
+      const copy=m.clone();
+      if(tint)copy.color.multiply(new THREE.Color(tint));
+      copy.fog=fog;
+      return copy;
     };
-    clone.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(tint)o.material=Array.isArray(o.material)?o.material.map(recolor):recolor(o.material)}});
+    clone.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(tint||!fog)o.material=Array.isArray(o.material)?o.material.map(recolor):recolor(o.material)}});
     return clone;
-  },[model,tint]);
+  },[model,tint,fog]);
   const factor=dimensions?dimensions.map((n,i)=>n/model.size.getComponent(i)) as Vec3:height?height/model.size.y:width?width/model.size.x:scale;
   return <group position={position} rotation={[0,rotation,0]} scale={factor} dispose={null} onClick={onSelect?e=>{e.stopPropagation();onSelect()}:undefined}><primitive object={object} position={model.offset}/></group>;
 }

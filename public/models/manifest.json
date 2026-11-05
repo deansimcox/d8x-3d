@@ -271,5 +271,19 @@
     "bytes": 2239272,
     "source": "https://www.innerscene.com/tools/library/3d-parts/football-stadium-f7b93967",
     "license": "CC0-1.0"
+  },
+  {
+    "file": "isletLighthouse.glb",
+    "pack": "poly-pizza-island-details",
+    "bytes": 196792,
+    "source": "https://poly.pizza/m/0t2ZYRBsqX-",
+    "license": "CC-BY-3.0"
+  },
+  {
+    "file": "woodlandDeer.glb",
+    "pack": "poly-pizza-island-details",
+    "bytes": 1007564,
+    "source": "https://poly.pizza/m/T6Cs7tmMHJ",
+    "license": "CC0-1.0"
   }
 ]

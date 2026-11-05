@@ -108,5 +108,17 @@ manifest.append({
     'source': 'https://www.innerscene.com/tools/library/3d-parts/football-stadium-f7b93967',
     'license': 'CC0-1.0',
 })
+for name, model_id, licence in (
+    ('isletLighthouse', '0t2ZYRBsqX-', 'CC-BY-3.0'),
+    ('woodlandDeer', 'T6Cs7tmMHJ', 'CC0-1.0'),
+):
+    destination = OUT / (name + '.glb')
+    manifest.append({
+        'file': destination.name,
+        'pack': 'poly-pizza-island-details',
+        'bytes': destination.stat().st_size,
+        'source': f'https://poly.pizza/m/{model_id}',
+        'license': licence,
+    })
 (OUT / 'manifest.json').write_text(json.dumps(manifest, indent=2))
 print(f'{len(manifest)} GLBs, {sum(x["bytes"] for x in manifest) / 1024**2:.2f} MiB')

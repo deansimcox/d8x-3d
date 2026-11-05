@@ -1,9 +1,10 @@
-import {useMemo,useRef} from 'react';
+import {Suspense,useMemo,useRef} from 'react';
 import {useFrame} from '@react-three/fiber';
 import * as THREE from 'three';
 import {useReducedMotion} from './motion';
 import {Block} from './props';
 import type {Vec3} from './layout';
+import {Model} from './models';
 
 function Balloon(){
   const balloon=useRef<THREE.Group>(null),reduced=useReducedMotion();
@@ -81,6 +82,28 @@ const islets:{position:Vec3;scale:number;turn:number}[]=[
   {position:[122,-10,-51],scale:1.3,turn:2.3},{position:[-117,-11,81],scale:1.15,turn:1.2},
   {position:[92,-23,94],scale:.82,turn:.8},
 ];
+function Lighthouse({dusk}:{dusk:{value:number}}){
+  const beam=useRef<THREE.Group>(null),material=useRef<THREE.MeshBasicMaterial>(null);
+  const reduced=useReducedMotion();
+  useFrame(({clock})=>{
+    if(beam.current)beam.current.rotation.y=reduced?.35:clock.elapsedTime*.46;
+    if(material.current)material.current.opacity=.065+dusk.value*.105;
+  });
+  return <group position={[0,2.1,0]}>
+    <Suspense fallback={null}>
+      <Model name="isletLighthouse" height={14} rotation={.9} fog={false}/>
+      <group position={[0,11.75,0]}>
+        <mesh><sphereGeometry args={[.62,12,8]}/><meshBasicMaterial color="#ffe1a0" fog={false}/></mesh>
+        <group ref={beam}>
+          <mesh position={[0,0,11]} rotation={[-Math.PI/2,0,0]}>
+            <coneGeometry args={[2.7,22,18,1,true]}/>
+            <meshBasicMaterial ref={material} color="#ffe6ad" transparent opacity={.065} depthWrite={false} fog={false} side={THREE.DoubleSide}/>
+          </mesh>
+        </group>
+      </group>
+    </Suspense>
+  </group>;
+}
 export function SkyDetails({dusk}:{dusk:{value:number}}){
   const sunlight=useRef<THREE.MeshBasicMaterial>(null);
   useFrame(()=>{if(sunlight.current)sunlight.current.opacity=1-dusk.value});
@@ -89,8 +112,10 @@ export function SkyDetails({dusk}:{dusk:{value:number}}){
     {islets.map(({position:[x,y,z],scale,turn},i)=><group key={i} position={[x*1.46,y-7,z*1.46]} scale={scale*.83} rotation={[0,turn,0]}>
       <mesh position={[0,-4.1,0]} rotation={[Math.PI,0,0]} scale={[1,1,.72]}><coneGeometry args={[10.5,11,7]}/><meshStandardMaterial color="#789295" fog={false} flatShading/></mesh>
       <mesh position={[0,1.45,0]} scale={[1,1,.74]}><cylinderGeometry args={[9.6,10.7,1.4,9]}/><meshStandardMaterial color="#91a89a" fog={false} flatShading/></mesh>
-      <mesh position={[-2.35,4.5,-.3]} rotation={[0,.32,.10]}><coneGeometry args={[4.5,5.4,5]}/><meshStandardMaterial color="#a1b4ae" fog={false} flatShading/></mesh>
-      <mesh position={[3.2,3.55,-1.2]}><coneGeometry args={[2.5,3.2,5]}/><meshStandardMaterial color="#86a197" fog={false} flatShading/></mesh>
+      {i===0?<Lighthouse dusk={dusk}/>:<>
+        <mesh position={[-2.35,4.5,-.3]} rotation={[0,.32,.10]}><coneGeometry args={[4.5,5.4,5]}/><meshStandardMaterial color="#a1b4ae" fog={false} flatShading/></mesh>
+        <mesh position={[3.2,3.55,-1.2]}><coneGeometry args={[2.5,3.2,5]}/><meshStandardMaterial color="#86a197" fog={false} flatShading/></mesh>
+      </>}
     </group>)}
     <Balloon/><Flock/><VintagePlane/>
   </>;

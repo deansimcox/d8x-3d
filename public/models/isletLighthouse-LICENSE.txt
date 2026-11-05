@@ -1,0 +1,6 @@
+Lighthouse by Poly by Google
+Source: https://poly.pizza/m/0t2ZYRBsqX-
+License: Creative Commons Attribution 3.0 Unported
+https://creativecommons.org/licenses/by/3.0/
+
+The GLB is distributed as downloaded. A rotating beacon is added separately in the scene.

@@ -1,6 +1,6 @@
 import React,{Suspense,lazy,useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,Map} from 'lucide-react';
+import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight} from 'lucide-react';
 import {sceneIds,scenes,type Destination} from './content';
 import {useExperience} from './store';
 import {mixSound,setAudio} from './audio';
@@ -43,10 +43,9 @@ function App(){
   const go=useExperience(s=>s.go),skip=useExperience(s=>s.skip),ready=useExperience(s=>s.ready),failed=useExperience(s=>s.failed);
   const sound=useExperience(s=>s.sound),setSound=useExperience(s=>s.setSound),panelOpen=useExperience(s=>s.panelOpen),togglePanel=useExperience(s=>s.togglePanel);
   const archive=useExperience(s=>s.archive),openArchive=useExperience(s=>s.openArchive),closeArchive=useExperience(s=>s.closeArchive);
-  const [guide,setGuide]=useState(()=>new URLSearchParams(location.search).get('view')==='guide');
   const [audioError,setAudioError]=useState(false);
   const [available]=useState(supportsWebGL);
-  const fallback=failed||!available||guide,loading=!fallback&&!ready;
+  const fallback=failed||!available,loading=!fallback&&!ready;
   const scene=destination==='overview'?null:scenes[destination],active=mode==='transitioning'?target:destination;
   const move=(id:Destination)=>go(id);
   const overviewButton=useRef<HTMLButtonElement>(null),enterFocus=useRef(false);
@@ -64,7 +63,6 @@ function App(){
       <button ref={overviewButton} className="brand" onClick={()=>move('overview')} aria-label="d8x.dev, island overview"><span className="brand-symbol" aria-hidden="true">✳</span><span className="brand-name">d8x.dev</span></button>
       <div className="header-actions">
         <span className="edition">DEAN / DEVELOPER PORTFOLIO</span>
-        {available&&!failed&&<button className="icon-button" aria-label={guide?'Show 3D world':'Open the illustrated guide'} aria-pressed={guide} title={guide?'Show 3D world':'Illustrated guide'} onClick={()=>setGuide(!guide)}><Map size={19}/></button>}
         <button className="icon-button" onClick={toggleSound} aria-label="Ambient sound" aria-pressed={sound} title={sound?'Mute ambient sound':'Enable ambient sound'}>{sound?<Volume2 size={19}/>:<VolumeX size={19}/>}</button>
       </div>
     </header>
@@ -79,7 +77,7 @@ function App(){
         <a href="https://www.linkedin.com/in/dean-simcox/" target="_blank" rel="noopener noreferrer">LinkedIn <MoveUpRight size={13} aria-hidden="true"/></a>
         <a href="https://github.com/deansimcox" target="_blank" rel="noopener noreferrer">GitHub <MoveUpRight size={13} aria-hidden="true"/></a>
       </nav>
-      {fallback&&!guide&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
+      {fallback&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
     </section>}
     {mode==='transitioning'&&<div className="transition-status" role="status"><span className="pulse-dot"/> {target==='overview'?'Back to the island':`On the way to ${scenes[target].title}`} <button onClick={skip}><SkipForward size={16}/> Skip</button></div>}
     {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">MY PORTFOLIO</div><h2 id="overview-title">Work &amp;<br/> <i>life.</i></h2><p>Start with a project, my work history or a stop away from the desk.</p></section>}
