@@ -16,9 +16,9 @@ OUT.mkdir(parents=True, exist_ok=True)
 selection = {
     'quaternius-nature': ['CommonTree_1', 'CommonTree_3', 'Pine_1', 'Bush_Common_Flowers', 'Fern_1', 'Flower_3_Group', 'Flower_4_Group', 'Rock_Medium_1', 'Rock_Medium_2'],
     'quaternius-village': ['Roof_RoundTiles_6x8', 'Prop_Chimney', 'Door_1_Round', 'Window_Wide_Round1', 'Prop_Vine1', 'Prop_WoodenFence_Single'],
-    'kenney-furniture': ['desk', 'chairDesk', 'computerScreen', 'computerKeyboard', 'books', 'bookcaseOpen', 'pottedPlant', 'bench', 'rugDoormat', 'lampRoundTable'],
-    'kenney-city': ['building-a', 'building-c', 'building-f', 'building-h', 'building-j', 'detail-awning'],
-    'kenney-food': ['apple', 'loaf-baguette', 'cup-tea', 'plate', 'croissant'],
+    'kenney-furniture': ['desk', 'chairDesk', 'computerScreen', 'computerKeyboard', 'books', 'bookcaseOpen', 'pottedPlant', 'bench', 'rugDoormat', 'lampRoundTable', 'laptop', 'plantSmall2', 'rugRectangle', 'bear', 'kitchenCoffeeMachine', 'tableCoffee'],
+    'kenney-city': ['building-a', 'building-c', 'building-f', 'building-h', 'building-j', 'detail-awning', 'building-skyscraper-a', 'building-skyscraper-c', 'building-l'],
+    'kenney-food': ['apple', 'loaf-baguette', 'cup-tea', 'plate', 'croissant', 'cup-coffee'],
 }
 
 def glb(source, destination):

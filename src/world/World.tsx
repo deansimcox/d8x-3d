@@ -7,7 +7,7 @@ import {useExperience} from '../store';
 import {anchors,poses} from './layout';
 import {CameraRig} from './CameraRig';
 import {Terrain} from './terrain';
-import {Atmosphere,Avatar} from './atmosphere';
+import {Atmosphere,Avatar,dusk} from './atmosphere';
 import {Vegetation} from './vegetation';
 import {Workshop,Home} from './cottages';
 import {City} from './city';
@@ -56,13 +56,23 @@ function FrameMetrics(){
 }
 function Scene(){
   const terrain=useRef<THREE.Group>(null);
+  const skyLight=useRef<THREE.HemisphereLight>(null),sun=useRef<THREE.DirectionalLight>(null),fill=useRef<THREE.DirectionalLight>(null);
   const welcome=useExperience(s=>s.mode==='welcome');
+  const reduced=useReducedMotion();
+  useFrame((_,delta)=>{
+    const state=useExperience.getState();
+    const night=(state.mode==='transitioning'?state.target:state.destination)==='stadium'?1:0;
+    dusk.value=reduced?night:THREE.MathUtils.damp(dusk.value,night,2.5,delta);
+    if(skyLight.current)skyLight.current.intensity=THREE.MathUtils.lerp(1.75,.52,dusk.value);
+    if(sun.current)sun.current.intensity=THREE.MathUtils.lerp(2.13,.10,dusk.value);
+    if(fill.current)fill.current.intensity=THREE.MathUtils.lerp(.75,.22,dusk.value);
+  },-2);
   const shadowSize=window.matchMedia('(max-width: 800px)').matches?1024:2048;
   return <>
     <fog attach="fog" args={['#d9e0cd',123,265]}/>
-    <hemisphereLight args={['#fff5e2','#83947d',1.75]}/>
-    <directionalLight position={[-65,64,40]} intensity={2.13} color="#ffe3bb" castShadow shadow-mapSize={[shadowSize,shadowSize]} shadow-camera-left={-69} shadow-camera-right={69} shadow-camera-top={65} shadow-camera-bottom={-66} shadow-camera-far={200} shadow-normalBias={.055} shadow-bias={-.0003}/>
-    <directionalLight position={[44,24,-45]} intensity={.75} color="#c5ddd1"/>
+    <hemisphereLight ref={skyLight} args={['#fff5e2','#83947d',1.75]}/>
+    <directionalLight ref={sun} position={[-65,64,40]} intensity={2.13} color="#ffe3bb" castShadow shadow-mapSize={[shadowSize,shadowSize]} shadow-camera-left={-69} shadow-camera-right={69} shadow-camera-top={65} shadow-camera-bottom={-66} shadow-camera-far={200} shadow-normalBias={.055} shadow-bias={-.0003}/>
+    <directionalLight ref={fill} position={[44,24,-45]} intensity={.75} color="#c5ddd1"/>
     <Atmosphere/><group ref={terrain}><Terrain/></group><Trails/>
     <Suspense fallback={null}><Vegetation/><Waterside/><Workshop/><City/><Stadium/><Picnic/><Home/>
     {welcome&&<Avatar/>}<Markers terrain={terrain}/><Ready/></Suspense>

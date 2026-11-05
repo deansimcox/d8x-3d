@@ -37,16 +37,21 @@ function Underside() {
 }
 function Peak({position,radius,height,seed}: {position:[number,number,number];radius:number;height:number;seed:number}) {
   const geometry=useMemo(()=>{
-    const g=new THREE.ConeGeometry(radius,height,11,8),p=g.attributes.position,colors=[];
+    const g=new THREE.ConeGeometry(radius,height,72,45,true),p=g.attributes.position,colors=[];
+    const snowColor=new THREE.Color('#fffaf1');
     for(let i=0;i<p.count;i++) {
       const y=p.getY(i),a=Math.atan2(p.getZ(i),p.getX(i)),t=(y+height/2)/height;
-      const warp=1+.15*Math.sin(a*3+seed)+.09*Math.sin(a*7+t*11);
-      p.setXYZ(i,p.getX(i)*warp+Math.sin(t*2)*radius*.08,y,p.getZ(i)*warp);
-      const snow=t>.64+.105*Math.sin(a*4+seed);
-      const c=new THREE.Color(snow?'#fffaf0':t<.2?'#6b795f':t<.48?'#7c8b7d':'#8c988d');c.offsetHSL(0,0,(random(i+seed)-.5)*.08);colors.push(c.r,c.g,c.b);
+      const ridge=Math.abs(Math.sin(a*4+seed+t*2.2));
+      const warp=1+.15*Math.sin(a*3+seed)+.16*ridge+.055*Math.sin(a*15+t*19);
+      const surface=(1-t)*Math.min(1,t*12);
+      p.setXYZ(i,p.getX(i)*warp+Math.sin(t*2)*radius*.08,y+surface*(.95*Math.sin(a*8+t*24)+.43*Math.sin(a*19-t*54)),p.getZ(i)*warp);
+      const snowLine=.64+.09*Math.sin(a*4+seed)+.026*Math.cos(a*13+t*12);
+      const c=new THREE.Color(t<.22?'#727e66':'#7d857f');
+      c.offsetHSL(0,0,.046*Math.sin(t*58+a*3)+.025*Math.cos(a*13-t*19));
+      c.lerp(snowColor,THREE.MathUtils.smoothstep(t,snowLine-.017,snowLine+.017));colors.push(c.r,c.g,c.b);
     }
     g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeVertexNormals();return g;
   },[radius,height,seed]);
-  return <mesh geometry={geometry} position={position} castShadow receiveShadow><meshStandardMaterial vertexColors flatShading roughness={1}/></mesh>;
+  return <mesh geometry={geometry} position={position} castShadow receiveShadow><meshStandardMaterial vertexColors roughness={1}/></mesh>;
 }
 export function Terrain(){return <group><Surface/><Underside/><Peak position={[0,17,-3]} radius={16} height={29} seed={1}/><Peak position={[-11,11,-3]} radius={12} height={17} seed={4}/><Peak position={[10,12,-8]} radius={11} height={19} seed={8}/><Peak position={[0,13,-14]} radius={9} height={20} seed={15}/></group>}

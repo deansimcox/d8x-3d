@@ -3,6 +3,7 @@ import {anchors,workshopAngle,type Vec3} from './layout';
 import {Block,Blocks,Lamp} from './props';
 import {useExperience} from '../store';
 import {Shape} from 'three';
+import {YardToys} from './yard';
 
 const plaster='#e0c8a4',wood='#78543e',stone='#9d947a';
 const gable=new Shape().moveTo(-3.9,-.7).lineTo(3.9,-.7).lineTo(0,1.61).closePath();
@@ -48,7 +49,12 @@ export function Workshop(){
     <Model name="bookcaseOpen" position={[-2.43,.43,-2.88]} height={2.85}/>
     <Model name="books" position={[-2.37,1.1,-2.7]} width={1.2}/>
     <Model name="pottedPlant" position={[-2.82,.43,2.42]} height={1.38}/>
-    <Model name="rugDoormat" position={[.1,.44,2.25]} width={2.5}/>
+    <Model name="rugRectangle" position={[.12,.44,1.6]} width={4.25} tint="#b9a48e"/>
+    <Model name="laptop" position={[-.27,2.09,-1.39]} width={.78} rotation={.22}/>
+    <Model name="plantSmall2" position={[-2.41,3.28,-2.71]} height={.39}/>
+    <Model name="cup-coffee" position={[1.85,2.09,-.67]} height={.19}/>
+    <Model name="kitchenCoffeeMachine" position={[-2.91,.99,-.86]} height={.62} rotation={-.35}/>
+    <Block position={[-2.92,.72,-.88]} size={[.96,.52,.7]} color="#9b7757"/>
     <Model name="Prop_Vine1" position={[-4.23,.38,2.97]} height={2.85} rotation={-Math.PI/2}/>
     <Block position={[2.81,2.91,-3.26]} size={[1.13,.64,.06]} color={wood}/>
     <Block position={[2.81,2.91,-3.22]} size={[.98,.49,.035]} color="#dbc39a"/>
@@ -66,6 +72,9 @@ export function Home(){
     <Block position={[0,1.95,0]} size={[8.85,3.65,7.28]} color="#ead3af"/>
     <Block position={[0,3.61,0]} size={[9.05,.25,7.5]} color={wood}/>
     <Roof home/>
+    <mesh position={[0,4.48,3.64]} scale={[1.12,1.15,1]} castShadow receiveShadow>
+      <shapeGeometry args={[gable]}/><meshStandardMaterial color="#ead3af"/>
+    </mesh>
     <Model name="Door_1_Round" position={[0,.36,3.71]} height={2.68}/>
     {[-2.65,2.65].map(x=><group key={x} position={[x,1.24,3.72]}>
       <Block position={[0,.84,.011]} size={[1.17,1.4,.04]} color="#ffcf86" glow={.8}/>
@@ -78,6 +87,7 @@ export function Home(){
     <Model name="rugDoormat" position={[0,.14,4.1]} width={1.6}/>
     {[-6.4,6.4].map(x=><group key={x}>{[-2.1,.3,2.7].map(z=><Model key={z} name="Prop_WoodenFence_Single" position={[x,0,z]} width={2.4} rotation={Math.PI/2}/>)}</group>)}
     <Lamp position={[-1.45,.25,3.95]} short/>
+    <YardToys/>
     <Planting home/>
   </group>;
 }

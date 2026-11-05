@@ -25,7 +25,7 @@ export const poses: Record<Destination | 'welcome', Pose> = {
   family: {position: [48, 16, -8], target: [27, 6, -27], fov: 42},
 };
 
-export const riverPoints = [[-7,-13],[-12,-21],[-18,-25],[-29,-25],[-40,-25.6],[-48,-26],[-55,-25],[-64,-24]];
+export const riverPoints = [[-8.4,-16.8],[-12,-21],[-18,-25],[-29,-25],[-40,-25.6],[-48,-26],[-55,-25],[-64,-24]];
 export const random = (seed: number) => {const n = Math.sin(seed * 127.1 + 78.233) * 43758.5453; return n - Math.floor(n)};
 export function distanceToSegment(x: number,z: number,a: Vec3,b: Vec3) {
   const dx=b[0]-a[0],dz=b[2]-a[2];

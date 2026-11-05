@@ -1,11 +1,40 @@
 import {useMemo,useRef} from 'react';
 import {useFrame} from '@react-three/fiber';
 import * as THREE from 'three';
-import {anchors,type Vec3} from './layout';
+import {anchors,random,type Vec3} from './layout';
 import {Block,Blocks} from './props';
 import {useReducedMotion} from './motion';
+import {dusk} from './atmosphere';
 
 const chalk='#f3ecd1',forest='#416d50';
+function Crowd(){
+  const supporters=useMemo(()=>[-1,1].flatMap(side=>Array.from({length:104},(_,i)=>{
+    const row=Math.floor(i/26);
+    const x=(i%26-12.5)*.64+(random(i+side*36)-.5)*.17;
+    const y=.81+row*.59;
+    const z=side*(5.94+row*.76);
+    const color=(side<0?['#633c94','#e88945']:['#232532','#f2ece3'])[i%4===0?1:0];
+    return {x,y,z,color};
+  })),[]);
+  return <>
+    <Blocks castShadow={false} items={supporters.map(({x,y,z,color})=>({position:[x,y+.20,z],size:[.31,.39,.25],color}))}/>
+    <instancedMesh args={[undefined,undefined,supporters.length]} onUpdate={mesh=>{
+      const matrix=new THREE.Matrix4(),color=new THREE.Color();
+      supporters.forEach(({x,y,z},i)=>{
+        mesh.setMatrixAt(i,matrix.makeTranslation(x,y+.49,z));
+        mesh.setColorAt(i,color.set(['#bc8e71','#e5b28c','#826051','#d3a78f'][i%4]));
+      });
+      mesh.instanceMatrix.needsUpdate=true;
+      mesh.computeBoundingSphere();
+    }}><sphereGeometry args={[.12,7,5]}/><meshStandardMaterial roughness={1}/></instancedMesh>
+  </>;
+}
+function Floodlight({x,z}:{x:number;z:number}){
+  const lamp=useRef<THREE.SpotLight>(null);
+  const target=useMemo(()=>{const node=new THREE.Object3D();node.position.set(-x*.83,.3,-z*.91);return node},[x,z]);
+  useFrame(()=>{if(lamp.current)lamp.current.intensity=dusk.value*310});
+  return <><primitive object={target}/><spotLight ref={lamp} position={[0,6.55,0]} target={target} angle={.56} penumbra={.57} color="#ffe9c9" distance={25} intensity={0}/></>;
+}
 function Scoreboard(){
   const texture=useMemo(()=>{
     const canvas=document.createElement('canvas');canvas.width=384;canvas.height=144;
@@ -55,15 +84,17 @@ export function Stadium(){
     <Block position={[0,.314,0]} size={[.055,.024,10]} color={chalk}/>
     <mesh position={[0,.331,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[1.39,1.45,44]}/><meshBasicMaterial color={chalk}/></mesh>
     <mesh position={[0,.335,0]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[.08,12]}/><meshBasicMaterial color={chalk}/></mesh>
+    <Crowd/>
     {[-10.2,10.2].flatMap(x=>[-7.95,7.95].map(z=><group key={`${x}/${z}`} position={[x,0,z]}>
       <Block position={[0,3.25,0]} size={[.19,6.5,.19]} color="#545f55"/>
       <Block position={[0,6.6,0]} size={[1.35,.65,.32]} color="#57665b"/>
       {[-.42,0,.42].map(dx=><Block key={dx} position={[dx,6.61,z>0?-.18:.18]} size={[.31,.42,.062]} color="#ffe6b6" glow={.85}/>)}
+      <Floodlight x={x} z={z}/>
     </group>))}
     <Scoreboard/>
     <group ref={flags}>{Array.from({length:7},(_,i)=><group key={i} position={[(i-3)*2.6,3.1,-8.5]}>
       <Block position={[0,.66,0]} size={[.06,1.3,.06]} color={chalk}/>
-      <mesh position={[.38,1.07,0]}><planeGeometry args={[.76,.43]}/><meshStandardMaterial color={i%2?'#b57855':'#e2c58e'} side={THREE.DoubleSide}/></mesh>
+      <mesh position={[.38,1.07,0]}><planeGeometry args={[.76,.43]}/><meshStandardMaterial color={i%2?'#e88945':'#7047a3'} side={THREE.DoubleSide}/></mesh>
     </group>)}</group>
   </group>;
 }

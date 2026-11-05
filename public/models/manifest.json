@@ -125,6 +125,36 @@
     "bytes": 6604
   },
   {
+    "file": "laptop.glb",
+    "pack": "kenney-furniture",
+    "bytes": 5540
+  },
+  {
+    "file": "plantSmall2.glb",
+    "pack": "kenney-furniture",
+    "bytes": 12996
+  },
+  {
+    "file": "rugRectangle.glb",
+    "pack": "kenney-furniture",
+    "bytes": 3188
+  },
+  {
+    "file": "bear.glb",
+    "pack": "kenney-furniture",
+    "bytes": 11884
+  },
+  {
+    "file": "kitchenCoffeeMachine.glb",
+    "pack": "kenney-furniture",
+    "bytes": 13332
+  },
+  {
+    "file": "tableCoffee.glb",
+    "pack": "kenney-furniture",
+    "bytes": 8256
+  },
+  {
     "file": "building-a.glb",
     "pack": "kenney-city",
     "bytes": 113784
@@ -155,6 +185,21 @@
     "bytes": 10372
   },
   {
+    "file": "building-skyscraper-a.glb",
+    "pack": "kenney-city",
+    "bytes": 116180
+  },
+  {
+    "file": "building-skyscraper-c.glb",
+    "pack": "kenney-city",
+    "bytes": 154368
+  },
+  {
+    "file": "building-l.glb",
+    "pack": "kenney-city",
+    "bytes": 295360
+  },
+  {
     "file": "apple.glb",
     "pack": "kenney-food",
     "bytes": 25260
@@ -178,5 +223,10 @@
     "file": "croissant.glb",
     "pack": "kenney-food",
     "bytes": 25240
+  },
+  {
+    "file": "cup-coffee.glb",
+    "pack": "kenney-food",
+    "bytes": 18768
   }
 ]

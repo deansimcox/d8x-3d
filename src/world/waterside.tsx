@@ -6,6 +6,7 @@ import {anchors,onIsland,random,riverPoints,terrainY,type Vec3} from './layout';
 import {Model,ModelInstances,type Placement} from './models';
 import {Block,Blocks} from './props';
 import {useReducedMotion} from './motion';
+import {Butterflies} from './butterflies';
 
 const fullStream=new THREE.CatmullRomCurve3(riverPoints.map(([x,z])=>new THREE.Vector3(x,3.63,z)));
 const riverLip=fullStream.getPoints(180).findIndex(p=>!onIsland(p.x,p.z,1));
@@ -28,7 +29,12 @@ export function Waterside() {
   const spray=useRef<THREE.InstancedMesh>(null);
   const {water,shore,falls,stones,spill,across}=useMemo(()=>{
     const width=(t:number)=>1.35+.32*Math.sin(t*11)+t*.33;
-    const fall=new THREE.CatmullRomCurve3([new THREE.Vector3(-5.6,16,-12.8),new THREE.Vector3(-7.5,11.4,-13.4),new THREE.Vector3(-8.7,5.7,-14.7),stream.getPoint(.07)]);
+    const fall=new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-5.6,16,-14.5),
+      new THREE.Vector3(-7.5,11.4,-16.2),
+      new THREE.Vector3(-8.9,5.7,-17.8),
+      stream.getPoint(.048),
+    ]);
     const lip=stream.getPoint(1);
     const out=stream.getTangent(1),across=new THREE.Vector3(-out.z,0,out.x);
     const drop=(distance:number,y:number)=>lip.clone().addScaledVector(out,distance).setY(y);
@@ -112,6 +118,7 @@ function Basket(){
   </group>;
 }
 export function Picnic(){return <group position={anchors.nature} rotation={[0,-.55,0]}>
+  <Butterflies/>
   <Block position={[0,.03,0]} size={[4.5,.12,3.7]} color="#aa6754"/>
   <Blocks castShadow={false} items={Array.from({length:16},(_,i)=>i<9?{position:[-2+i*.5,.102,0],size:[.065,.016,3.68],color:'#e4b98e'}:{position:[0,.106,-1.5+(i-9)*.5],size:[4.47,.014,.067],color:'#e4b98e'})}/>
   <group position={[-.68,.12,-.29]} rotation={[0,.24,0]}><Basket/></group>
