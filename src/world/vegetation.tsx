@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import {ModelInstances,type Placement} from './models';
 import {nearRiver,onIsland,protectedView,random,terrainY} from './layout';
 import {windMaterial} from './wind';
+import {nearTrail} from './trail';
 
 export function Vegetation(){
   const groups=useMemo(()=>{
@@ -16,10 +17,10 @@ export function Vegetation(){
     let treesPlaced=0;
     for(let i=0;i<1250;i++) {
       const x=(random(i*5+10)-.5)*116,z=(random(i*5+11)-.5)*96;
-      if(!onIsland(x,z,.93)||Math.hypot(x,z+5)<18||nearRiver(x,z,3))continue;
+      if(!onIsland(x,z,.93)||Math.hypot(x,z+5)<18||nearRiver(x,z,3)||nearTrail(x,z,1.25))continue;
       const rotation=random(i+44)*Math.PI*2;
       const y=terrainY(x,z);
-      if(!protectedView(x,z,1.8)&&treesPlaced<maxTrees&&random(i+4)>.38){trees[i%3].push({position:[x,y-.05,z],height:5+random(i+71)*5,rotation});treesPlaced++}
+      if(!protectedView(x,z,1.8)&&!nearTrail(x,z,2.5)&&treesPlaced<maxTrees&&random(i+4)>.38){trees[i%3].push({position:[x,y-.05,z],height:5+random(i+71)*5,rotation});treesPlaced++}
       else if(!protectedView(x,z,-2)&&bushes.length<55)bushes.push({position:[x,y,z],height:.6+random(i)*.7,rotation});
       if(rocks.length<55&&!protectedView(x,z,0))rocks.push({position:[x,y-.08,z],height:.6+random(i+85)*1.1,rotation});
       if(flowers.length<95&&random(i+33)>.6)flowers.push({position:[x,y,z],height:.25+random(i+82)*.3,rotation});
@@ -49,7 +50,7 @@ function Meadow(){
     const patches=[];
     for(let i=0;i<1500;i++){
       const x=(random(i*4+700)-.5)*115,z=(random(i*4+701)-.5)*96;
-      if(!onIsland(x,z,.95)||Math.hypot(x,z+4)<16||nearRiver(x,z,2.45)||protectedView(x,z,-3.8))continue;
+      if(!onIsland(x,z,.95)||Math.hypot(x,z+4)<16||nearRiver(x,z,2.45)||protectedView(x,z,-3.8)||nearTrail(x,z,.65))continue;
       const obj=new THREE.Object3D();obj.position.set(x,terrainY(x,z),z);obj.rotation.y=random(i+93)*6.28;obj.scale.setScalar(.45+random(i+22)*.88);obj.updateMatrix();patches.push(obj.matrix);
     }
     return {geometry,patches};

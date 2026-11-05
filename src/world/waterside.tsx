@@ -2,12 +2,13 @@ import {useMemo,useRef} from 'react';
 import {useFrame} from '@react-three/fiber';
 import * as THREE from 'three';
 import {mergeGeometries} from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import {anchors,onIsland,random,riverPoints,terrainY,type Vec3} from './layout';
+import {anchors,onIsland,random,riverPoints,terrainY} from './layout';
 import {Model,ModelInstances,type Placement} from './models';
 import {Block,Blocks} from './props';
 import {useReducedMotion} from './motion';
 import {Butterflies} from './butterflies';
 import {dusk} from './atmosphere';
+import {bridgePosition,bridgeRotation,nearTrail,trailCurve,trailSegments,trailWidth} from './trail';
 
 const fullStream=new THREE.CatmullRomCurve3(riverPoints.map(([x,z])=>new THREE.Vector3(x,3.63,z)));
 const riverLip=fullStream.getPoints(180).findIndex(p=>!onIsland(p.x,p.z,1));
@@ -51,10 +52,10 @@ export function Waterside() {
     const out=stream.getTangent(1),across=new THREE.Vector3(-out.z,0,out.x);
     const drop=(distance:number,y:number)=>lip.clone().addScaledVector(out,distance).setY(y);
     const spill=new THREE.CatmullRomCurve3([lip,drop(1.4,3.15),drop(2.7,-.7),drop(4.1,-12),drop(5.7,-35),drop(7.3,-45)]);
-    const rocks:Placement[]=Array.from({length:27},(_,i)=>{
+    const rocks=Array.from({length:27},(_,i):Placement=>{
       const t=.08+i*.03,p=stream.getPoint(t),v=stream.getTangent(t),offset=(i%2?-1:1)*(width(t)+.3);
       return {position:[p.x-v.z*offset,3.55,p.z+v.x*offset],height:.35+random(i+95)*.75,rotation:random(i+11)*6.28};
-    });
+    }).filter(({position:[x,,z],height})=>!nearTrail(x,z,height));
     const mountainAcross=new THREE.Vector3(.6,0,-.8);
     return {water:ribbon(stream,128,width),shore:ribbon(stream,128,t=>width(t)+.35),falls:[ribbon(fall,34,t=>.73+t*.52,mountainAcross),ribbon(spill,46,t=>width(1)*(1-.32*t),across)],stones:rocks,fall,spill,across,mountainAcross};
   },[]);
@@ -117,7 +118,7 @@ export function Waterside() {
   </group>;
 }
 function Bridge() {
-  return <group position={[-26.6,3.6,-25.1]} rotation={[0,-.12,0]}>
+  return <group position={bridgePosition} rotation={[0,bridgeRotation,0]}>
     <Blocks items={Array.from({length:15},(_,i)=>({position:[0,.13+.56*Math.sin(i/14*Math.PI),(i-7)*.36],size:[2.35,.14,.34],color:i%3?'#a5805b':'#b39169'}))}/>
     {[-1,1].map(side=><group key={side} position={[side*1.08,0,0]}>
       {[-2.35,0,2.35].map((z,i)=><Block key={z} position={[0,i===1?1.04:.68,z]} size={[.15,1.2,.15]} color="#86634a"/>)}
@@ -125,22 +126,14 @@ function Bridge() {
     </group>)}
   </group>;
 }
-const trailPoints:Vec3[][]=[
-  [[0,3.58,33],[-14,3.58,33],[-28,3.58,30]],
-  [[0,3.58,33],[15,3.58,30],[28,3.58,28]],
-  [[-33,3.58,28],[-33,3.58,12],[-34,3.58,-3],[-30,3.58,-17]],
-  [[34,3.58,24],[46,3.58,18],[53,3.58,8],[53,3.58,-7],[46,3.58,-15],[31,3.58,-20],[23,3.58,-26],[15,3.58,-31],[5.2,3.58,-31.3]],
-  [[-30,3.58,-17],[-27,3.58,-22],[-26.6,3.58,-23]],
-  [[-26.6,3.58,-28],[-24,3.58,-31],[-22,3.58,-30]],
-];
 export function Trails(){
-  const geometries=useMemo(()=>trailPoints.map(points=>{
-    const g=ribbon(new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p))),52,t=>.71+.11*Math.sin(t*18));
+  const geometry=useMemo(()=>{
+    const g=ribbon(trailCurve,trailSegments,trailWidth);
     const p=g.attributes.position;
     for(let i=0;i<p.count;i++)p.setY(i,terrainY(p.getX(i),p.getZ(i))+.04);
     g.computeVertexNormals();return g;
-  }),[]);
-  return <group>{geometries.map((g,i)=><mesh key={i} geometry={g} receiveShadow><meshStandardMaterial color="#c4ad81" side={THREE.DoubleSide}/></mesh>)}</group>;
+  },[]);
+  return <mesh geometry={geometry} receiveShadow><meshStandardMaterial color="#c4ad81" side={THREE.DoubleSide}/></mesh>;
 }
 function Basket(){
   const weave=useMemo(()=>{
