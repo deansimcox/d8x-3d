@@ -285,5 +285,19 @@
     "bytes": 1007564,
     "source": "https://poly.pizza/m/T6Cs7tmMHJ",
     "license": "CC0-1.0"
+  },
+  {
+    "file": "ridgeTelescope.glb",
+    "pack": "poly-pizza-island-details",
+    "bytes": 62720,
+    "source": "https://poly.pizza/m/RjyTCQvA8b",
+    "license": "CC0-1.0"
+  },
+  {
+    "file": "skyFerry.glb",
+    "pack": "poly-pizza-island-details",
+    "bytes": 58132,
+    "source": "https://poly.pizza/m/BgSZXwmm7k",
+    "license": "CC0-1.0"
   }
 ]

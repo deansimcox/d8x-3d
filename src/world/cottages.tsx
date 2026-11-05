@@ -61,6 +61,20 @@ export function Workshop(){
     <Planting/>
   </group>;
 }
+function GardenLookout(){
+  return <group position={[6.5,-.10,7.4]} rotation={[0,.3,0]}>
+    <Block position={[0,.06,0]} size={[2.54,.23,1.93]} color="#76543e"/>
+    <Blocks items={Array.from({length:6},(_,i)=>({
+      position:[(i-2.5)*.412,.19,0],
+      size:[.397,.095,1.99],
+      color:i%2?'#b78a61':'#c3976e',
+    }))}/>
+    {[-1.13,1.13].map(side=><Block key={side} position={[side,.62,.87]} size={[.12,.86,.13]} color="#805b43"/>)}
+    <Block position={[0,1.01,.87]} size={[2.43,.12,.15]} color="#92664a"/>
+    <Model name="ridgeTelescope" position={[0,.238,-.13]} height={1.67} rotation={.62}/>
+  </group>;
+}
+
 export function Home(){
   return <group position={anchors.family} rotation={[0,.28,0]}>
     <Block position={[0,.15,0]} size={[9.2,.45,7.7]} color={stone}/>
@@ -84,6 +98,7 @@ export function Home(){
     <Lamp position={[-1.45,.25,3.95]} short/>
     <YardToys/>
     <KitchenGarden/>
+    <GardenLookout/>
     <Planting home/>
   </group>;
 }

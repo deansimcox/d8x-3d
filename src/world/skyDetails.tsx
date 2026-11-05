@@ -104,6 +104,30 @@ function Lighthouse({dusk}:{dusk:{value:number}}){
     </Suspense>
   </group>;
 }
+function SkyFerry(){
+  const ferry=useRef<THREE.Group>(null);
+  const reduced=useReducedMotion();
+  useFrame(({clock})=>{
+    if(!ferry.current)return;
+    // An oval route links the lighthouse islet and its neighbour without a jump.
+    const time=reduced?0:clock.elapsedTime;
+    const angle=1.18+time*.072;
+    const along=Math.cos(angle),across=Math.sin(angle);
+    ferry.current.position.set(-81+65*along+10*across,30+1.7*Math.sin(time*.41),-169-34*along+19*across);
+    ferry.current.rotation.set(.035*Math.sin(time*.31),Math.atan2(-65*across+10*along,34*across+19*along),.075*Math.sin(time*.27));
+  });
+  return <group ref={ferry} position={[-47,30,-165]}>
+    <Suspense fallback={null}>
+      <Model name="skyFerry" height={9} fog={false}/>
+      <Block position={[0,1.7,0]} size={[7.0,.19,.24]} color="#7a5038"/>
+      {[-3.05,3.05].map(x=><group key={x} position={[x,1.72,0]}>
+        <mesh scale={[.86,.77,2.85]}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color="#c4884d" fog={false} flatShading/></mesh>
+        {[-.95,.95].map(z=><mesh key={z} position={[0,0,z]} scale={[.77,.69,1]}><torusGeometry args={[1,.045,5,14]}/><meshStandardMaterial color="#815b3b" fog={false}/></mesh>)}
+      </group>)}
+      <mesh position={[0,2.15,-3.2]}><sphereGeometry args={[.18,8,6]}/><meshBasicMaterial color="#ffdf9c" fog={false}/></mesh>
+    </Suspense>
+  </group>;
+}
 export function SkyDetails({dusk}:{dusk:{value:number}}){
   const sunlight=useRef<THREE.MeshBasicMaterial>(null);
   useFrame(()=>{if(sunlight.current)sunlight.current.opacity=1-dusk.value});
@@ -117,6 +141,6 @@ export function SkyDetails({dusk}:{dusk:{value:number}}){
         <mesh position={[3.2,3.55,-1.2]}><coneGeometry args={[2.5,3.2,5]}/><meshStandardMaterial color="#86a197" fog={false} flatShading/></mesh>
       </>}
     </group>)}
-    <Balloon/><Flock/><VintagePlane/>
+    <Balloon/><Flock/><VintagePlane/><SkyFerry/>
   </>;
 }

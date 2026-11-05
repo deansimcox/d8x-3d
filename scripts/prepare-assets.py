@@ -111,6 +111,8 @@ manifest.append({
 for name, model_id, licence in (
     ('isletLighthouse', '0t2ZYRBsqX-', 'CC-BY-3.0'),
     ('woodlandDeer', 'T6Cs7tmMHJ', 'CC0-1.0'),
+    ('ridgeTelescope', 'RjyTCQvA8b', 'CC0-1.0'),
+    ('skyFerry', 'BgSZXwmm7k', 'CC0-1.0'),
 ):
     destination = OUT / (name + '.glb')
     manifest.append({
