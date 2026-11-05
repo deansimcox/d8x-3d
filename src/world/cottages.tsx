@@ -4,6 +4,9 @@ import {Block,Blocks,Lamp} from './props';
 import {useExperience} from '../store';
 import {Shape} from 'three';
 import {YardToys} from './yard';
+import {KitchenGarden} from './kitchenGarden';
+import {CodeDisplay} from './codeDisplay';
+import {DeskChair,MonitorFrame,OfficeShelves,TaskLamp,WritingDesk} from './workshopFurniture';
 
 const plaster='#e0c8a4',wood='#78543e',stone='#9d947a';
 const gable=new Shape().moveTo(-3.9,-.7).lineTo(3.9,-.7).lineTo(0,1.61).closePath();
@@ -39,28 +42,28 @@ export function Workshop(){
     </group>)}
     <mesh position={[0,4.61,3.38]}><shapeGeometry args={[gable]}/><meshStandardMaterial color={plaster}/></mesh>
     <Roof/>
-    <Model name="desk" position={[.95,.43,-1.13]} width={3.2}/>
-    <Model name="chairDesk" position={[2.13,.43,.09]} height={1.55} rotation={-.42}/>
-    <Model name="computerScreen" position={[1,2.08,-1.3]} height={.81} rotation={Math.PI} onSelect={active?()=>useExperience.getState().openArchive('office'):undefined}/>
-    <Block position={[1,2.62,-1.10]} size={[1.04,.49,.034]} color="#536b60" glow={.16}/>
-    {[-.13,0,.13].map((y,i)=><Block key={y} position={[.88+i*.053,2.62+y,-1.079]} size={[.49-i*.07,.021,.011]} color={i===1?'#c6c991':'#e6d2a7'} glow={.12}/>)}
-    <Model name="computerKeyboard" position={[.95,2.08,-.72]} width={.78}/>
-    <Model name="lampRoundTable" position={[2.15,2.07,-1.2]} height={.78}/>
-    <Model name="bookcaseOpen" position={[-2.43,.43,-2.88]} height={2.85}/>
-    <Model name="books" position={[-2.37,1.1,-2.7]} width={1.2}/>
+    <WritingDesk/>
+    <DeskChair/>
+    <MonitorFrame/>
+    <CodeDisplay onSelect={active?()=>useExperience.getState().openArchive('office'):undefined}/>
+    <Model name="computerKeyboard" position={[.95,2.096,-.72]} width={.78} tint="#d5c5ae"/>
+    <Model name="computerMouse" position={[1.55,2.096,-.67]} width={.17} tint="#a5a594"/>
+    <Model name="speakerSmall" position={[1.69,2.08,-1.43]} height={.28}/>
+    <Model name="sideTableDrawers" position={[-2.97,.43,-.90]} height={.74}/>
+    <TaskLamp/>
+    <OfficeShelves/>
     <Model name="pottedPlant" position={[-2.82,.43,2.42]} height={1.38}/>
     <Model name="rugRectangle" position={[.12,.44,1.6]} width={4.25} tint="#b9a48e"/>
     <Model name="laptop" position={[-.27,2.09,-1.39]} width={.78} rotation={.22}/>
-    <Model name="plantSmall2" position={[-2.41,3.28,-2.71]} height={.39}/>
+    <Model name="plantSmall2" position={[-2.65,3.283,-2.82]} height={.39}/>
     <Model name="cup-coffee" position={[1.85,2.09,-.67]} height={.19}/>
-    <Model name="kitchenCoffeeMachine" position={[-2.91,.99,-.86]} height={.62} rotation={-.35}/>
-    <Block position={[-2.92,.72,-.88]} size={[.96,.52,.7]} color="#9b7757"/>
+    <Model name="kitchenCoffeeMachine" position={[-2.91,1.17,-.86]} height={.62} rotation={-.35}/>
     <Model name="Prop_Vine1" position={[-4.23,.38,2.97]} height={2.85} rotation={-Math.PI/2}/>
     <Block position={[2.81,2.91,-3.26]} size={[1.13,.64,.06]} color={wood}/>
     <Block position={[2.81,2.91,-3.22]} size={[.98,.49,.035]} color="#dbc39a"/>
     <Block position={[2.81,2.81,-3.19]} size={[.81,.16,.024]} color="#7a9277"/>
     <Block position={[2.59,2.99,-3.19]} size={[.16,.14,.024]} color="#b67d57"/>
-    <pointLight position={[2.15,2.8,-.89]} intensity={9} color="#ffc788" distance={7}/>
+    <pointLight position={[1.92,2.55,-1.16]} intensity={3.1} color="#ffd09d" distance={3.4}/>
     <Block position={[0,3.86,0]} size={[8.1,.1,6.75]} color="#bc9b73"/>
     <Lamp position={[4.4,0,4.9]} short/>
     <Planting/>
@@ -88,6 +91,7 @@ export function Home(){
     {[-6.4,6.4].map(x=><group key={x}>{[-2.1,.3,2.7].map(z=><Model key={z} name="Prop_WoodenFence_Single" position={[x,0,z]} width={2.4} rotation={Math.PI/2}/>)}</group>)}
     <Lamp position={[-1.45,.25,3.95]} short/>
     <YardToys/>
+    <KitchenGarden/>
     <Planting home/>
   </group>;
 }

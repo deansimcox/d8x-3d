@@ -3,6 +3,7 @@ import {useFrame} from '@react-three/fiber';
 import * as THREE from 'three';
 import {random} from './layout';
 import {useReducedMotion} from './motion';
+import {SkyDetails} from './skyDetails';
 
 const vertex=`varying vec3 direction;
 void main(){direction=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
@@ -22,8 +23,8 @@ void main(){
 }`;
 export const dusk={value:0};
 export function Atmosphere(){
-  const uniforms=useMemo(()=>({high:{value:new THREE.Color('#8db3bd')},horizon:{value:new THREE.Color('#e5e6d5')},low:{value:new THREE.Color('#a5c6c4')},warmth:{value:new THREE.Color('#fff0c7')},dusk}),[]);
-  return <><mesh renderOrder={-10} frustumCulled={false}><sphereGeometry args={[350,26,18]}/><shaderMaterial vertexShader={vertex} fragmentShader={fragment} uniforms={uniforms} side={THREE.BackSide} depthWrite={false}/></mesh><Clouds/></>;
+  const uniforms=useMemo(()=>({high:{value:new THREE.Color('#6d9fbb')},horizon:{value:new THREE.Color('#a9c8d4')},low:{value:new THREE.Color('#8fb4bb')},warmth:{value:new THREE.Color('#eadbc1')},dusk}),[]);
+  return <><mesh renderOrder={-10} frustumCulled={false}><sphereGeometry args={[350,26,18]}/><shaderMaterial vertexShader={vertex} fragmentShader={fragment} uniforms={uniforms} side={THREE.BackSide} depthWrite={false}/></mesh><SkyDetails dusk={dusk}/><Clouds/></>;
 }
 function Clouds(){
   const reduced=useReducedMotion(),group=useRef<THREE.Group>(null);
@@ -32,7 +33,7 @@ function Clouds(){
     const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;
     const ctx=canvas.getContext('2d')!;
     [[65,74,62],[120,54,58],[182,74,61],[148,76,75]].forEach(([x,y,r])=>{
-      const g=ctx.createRadialGradient(x,y,5,x,y,r);g.addColorStop(0,'rgba(255,253,245,1)');g.addColorStop(.42,'rgba(247,247,238,.92)');g.addColorStop(.73,'rgba(217,229,229,.54)');g.addColorStop(1,'rgba(211,225,227,0)');ctx.fillStyle=g;ctx.fillRect(0,0,256,128);
+      const g=ctx.createRadialGradient(x,y-12,5,x,y,r);g.addColorStop(0,'rgba(255,253,245,1)');g.addColorStop(.46,'rgba(251,250,244,.98)');g.addColorStop(.79,'rgba(171,192,207,.72)');g.addColorStop(1,'rgba(168,192,210,0)');ctx.fillStyle=g;ctx.fillRect(0,0,256,128);
     });
     const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;return tex;
   },[]);

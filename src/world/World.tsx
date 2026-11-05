@@ -43,7 +43,13 @@ function Ready(){
 }
 function ContextWatcher(){
   const {gl}=useThree(),fail=useExperience(s=>s.fail);
-  useEffect(()=>{const canvas=gl.domElement;canvas.setAttribute('aria-hidden','true');canvas.addEventListener('webglcontextlost',fail);return()=>canvas.removeEventListener('webglcontextlost',fail)},[gl,fail]);return null;
+  useEffect(()=>{
+    const canvas=gl.domElement;
+    canvas.tabIndex=0;
+    canvas.setAttribute('aria-label','Island view. Drag or use arrow keys to look around. Press Home to recenter.');
+    canvas.addEventListener('webglcontextlost',fail);
+    return()=>canvas.removeEventListener('webglcontextlost',fail);
+  },[gl,fail]);return null;
 }
 function FrameMetrics(){
   const elapsed=useRef(0),frames=useRef(0);

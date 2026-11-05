@@ -7,10 +7,13 @@ import {Model,ModelInstances,type Placement} from './models';
 import {Block,Blocks} from './props';
 import {useReducedMotion} from './motion';
 import {Butterflies} from './butterflies';
+import {dusk} from './atmosphere';
 
 const fullStream=new THREE.CatmullRomCurve3(riverPoints.map(([x,z])=>new THREE.Vector3(x,3.63,z)));
 const riverLip=fullStream.getPoints(180).findIndex(p=>!onIsland(p.x,p.z,1));
 const stream=new THREE.CatmullRomCurve3(fullStream.getPoints(180).slice(0,riverLip<0?undefined:riverLip+1).filter((_,i)=>i%4===0||i===riverLip));
+const mountainPoolT=.16;
+const mountainPool=stream.getPoint(mountainPoolT);
 function ribbon(curve:THREE.Curve<THREE.Vector3>,segments:number,width:(t:number)=>number,fallAcross?:THREE.Vector3) {
   const positions=[],indices=[],uv=[];
   for(let i=0;i<=segments;i++) {
@@ -27,13 +30,22 @@ export function Waterside() {
   const reduced=useReducedMotion();
   const flow=useRef<THREE.InstancedMesh>(null);
   const spray=useRef<THREE.InstancedMesh>(null);
-  const {water,shore,falls,stones,spill,across}=useMemo(()=>{
-    const width=(t:number)=>1.35+.32*Math.sin(t*11)+t*.33;
+  const foam=useRef<THREE.InstancedMesh>(null);
+  const waterMaterial=useMemo(()=>new THREE.MeshBasicMaterial({color:'#559e99',side:THREE.DoubleSide}),[]);
+  const daylight=useMemo(()=>new THREE.Color('#559e99'),[]);
+  const evening=useMemo(()=>new THREE.Color('#386c73'),[]);
+  const {water,shore,falls,stones,fall,spill,across,mountainAcross}=useMemo(()=>{
+    const width=(t:number)=>{
+      const impact=(t-mountainPoolT)/.035;
+      return 1.35+.32*Math.sin(t*11)+t*.33+.43*Math.exp(-impact*impact);
+    };
     const fall=new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-5.6,16,-14.5),
-      new THREE.Vector3(-7.5,11.4,-16.2),
-      new THREE.Vector3(-8.9,5.7,-17.8),
-      stream.getPoint(.048),
+      new THREE.Vector3(-3.1,17,-15.4),
+      new THREE.Vector3(-5.6,14,-17.1),
+      new THREE.Vector3(-9.8,8.3,-19.8),
+      new THREE.Vector3(-10.9,5.7,-20.6),
+      // Pass through the pool surface so the fall and stream overlap at the join.
+      mountainPool.clone().setY(mountainPool.y-.25),
     ]);
     const lip=stream.getPoint(1);
     const out=stream.getTangent(1),across=new THREE.Vector3(-out.z,0,out.x);
@@ -43,36 +55,62 @@ export function Waterside() {
       const t=.08+i*.03,p=stream.getPoint(t),v=stream.getTangent(t),offset=(i%2?-1:1)*(width(t)+.3);
       return {position:[p.x-v.z*offset,3.55,p.z+v.x*offset],height:.35+random(i+95)*.75,rotation:random(i+11)*6.28};
     });
-    return {water:ribbon(stream,128,width),shore:ribbon(stream,128,t=>width(t)+.35),falls:[ribbon(fall,26,t=>.78+t*.54,new THREE.Vector3(0,0,1)),ribbon(spill,46,t=>width(1)*(1-.32*t),across)],stones:rocks,spill,across};
+    const mountainAcross=new THREE.Vector3(.6,0,-.8);
+    return {water:ribbon(stream,128,width),shore:ribbon(stream,128,t=>width(t)+.35),falls:[ribbon(fall,34,t=>.73+t*.52,mountainAcross),ribbon(spill,46,t=>width(1)*(1-.32*t),across)],stones:rocks,fall,spill,across,mountainAcross};
   },[]);
   const transform=useMemo(()=>new THREE.Object3D(),[]);
+  const tangent=useMemo(()=>new THREE.Vector3(),[]);
+  const vertical=useMemo(()=>new THREE.Vector3(0,1,0),[]);
   useFrame(({clock})=>{
+    waterMaterial.color.copy(daylight).lerp(evening,dusk.value);
     if(!flow.current)return;
     const time=reduced?0:clock.elapsedTime;
     for(let i=0;i<32;i++){
       const t=.045+((i/32+time*.023)%1)*.855,p=stream.getPoint(t),v=stream.getTangent(t);
       const w=(random(i+5)-.5)*2.0;transform.position.set(p.x-v.z*w,3.68,p.z+v.x*w);
-      transform.rotation.y=-Math.atan2(v.z,v.x);transform.scale.set(.4+random(i+33)*1.2,1,1);
+      transform.rotation.set(0,-Math.atan2(v.z,v.x),0);transform.scale.set(.4+random(i+33)*1.2,1,1);
       transform.updateMatrix();flow.current.setMatrixAt(i,transform.matrix);
     }
     flow.current.instanceMatrix.needsUpdate=true;
     if(spray.current){
-      for(let i=0;i<34;i++){
-        const t=(i/34+time*(.22+random(i+4)*.07))%1;
-        transform.position.copy(spill.getPoint(t)).addScaledVector(across,(random(i+36)-.5)*(2.3+t*1.4));
-        transform.position.x-=.12+random(i+25)*.34;
-        transform.rotation.set(0,0,-.06);
-        transform.scale.set(.043+random(i)*.06,.25+t*.76,.073);
+      for(let i=0;i<60;i++){
+        const upper=i<30,curve=upper?fall:spill;
+        const phase=(i/30+time*(.42+random(i+4)*.13))%1;
+        const t=.03+.94*phase**1.32;
+        curve.getPoint(t,transform.position);
+        curve.getTangent(t,tangent);
+        transform.position.addScaledVector(upper?mountainAcross:across,(random(i+36)-.5)*(1.32+t*.46));
+        transform.position.x-=upper?.14:.18;
+        if(upper)transform.position.z-=.12;
+        transform.quaternion.setFromUnitVectors(vertical,tangent);
+        transform.scale.set(.035+random(i)*.065,.18+t*(upper?.49:.92),.045);
         transform.updateMatrix();spray.current.setMatrixAt(i,transform.matrix);
       }
       spray.current.instanceMatrix.needsUpdate=true;
     }
+    if(foam.current){
+      for(let i=0;i<25;i++){
+        const phase=(i/25+time*(.66+random(i+90)*.26))%1;
+        const angle=i*2.39996;
+        const radius=.17+phase*(.48+random(i+82)*.43);
+        const size=(.09+random(i+10)*.11)*Math.sin(Math.PI*phase);
+        transform.position.set(mountainPool.x+Math.cos(angle)*radius,3.665+.19*Math.sin(Math.PI*phase)*random(i+25),mountainPool.z+Math.sin(angle)*radius);
+        transform.rotation.set(-Math.PI/2,0,angle);
+        transform.scale.set(size*1.35,size,1);
+        transform.updateMatrix();foam.current.setMatrixAt(i,transform.matrix);
+      }
+      foam.current.instanceMatrix.needsUpdate=true;
+    }
   });
   return <group>
     <mesh geometry={shore} position={[0,-.033,0]} receiveShadow><meshStandardMaterial color="#b9a584" side={THREE.DoubleSide}/></mesh>
-    <mesh geometry={water} receiveShadow><meshStandardMaterial color="#529793" roughness={.31} metalness={.09} side={THREE.DoubleSide}/></mesh>
-    {falls.map((g,i)=><mesh key={i} geometry={g}><meshStandardMaterial color={i?'#61b9b4':'#b9e1d6'} emissive="#72b5ad" emissiveIntensity={.24} transparent opacity={.87} side={THREE.DoubleSide} depthWrite={false}/></mesh>)}
-    <instancedMesh ref={spray} args={[undefined,undefined,34]} frustumCulled={false}><boxGeometry/><meshBasicMaterial color="#e2f7e9" transparent opacity={.66} depthWrite={false}/></instancedMesh>
+    <mesh geometry={water} material={waterMaterial}/>
+    {falls.map((geometry,i)=><mesh key={i} geometry={geometry} material={waterMaterial}/>)}
+    <mesh position={[mountainPool.x,3.651,mountainPool.z]} rotation={[-Math.PI/2,0,0]}>
+      <ringGeometry args={[.63,.74,24]}/><meshBasicMaterial color="#d2e9d8" transparent opacity={.58}/>
+    </mesh>
+    <instancedMesh ref={spray} args={[undefined,undefined,60]} frustumCulled={false}><boxGeometry/><meshBasicMaterial color="#e2f7e9" transparent opacity={.66} depthWrite={false}/></instancedMesh>
+    <instancedMesh ref={foam} args={[undefined,undefined,25]} frustumCulled={false}><circleGeometry args={[1,7]}/><meshBasicMaterial color="#effbf2" transparent opacity={.85} depthWrite={false}/></instancedMesh>
     <instancedMesh ref={flow} args={[undefined,undefined,32]} frustumCulled={false}><boxGeometry args={[1,.012,.027]}/><meshBasicMaterial color="#bbdfce" transparent opacity={.52}/></instancedMesh>
     <ModelInstances name="Rock_Medium_2" placements={stones}/>
     <Bridge/>

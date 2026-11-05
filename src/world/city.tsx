@@ -58,12 +58,28 @@ function Cafe(){
     <Model name="bench" position={[-.97,.11,2.29]} height={.59}/>
   </group>;
 }
+function Overlook(){
+  const x=9,z=-8,y=ground(x,z);
+  return <group position={[x,y,z]}>
+    <mesh position={[0,.09,0]} rotation={[-Math.PI/2,0,0]} receiveShadow>
+      <circleGeometry args={[2.15,28]}/><meshStandardMaterial color="#c0af89"/>
+    </mesh>
+    <mesh position={[0,.12,0]} rotation={[-Math.PI/2,0,0]} receiveShadow>
+      <circleGeometry args={[1.82,28]}/><meshStandardMaterial color="#a79d87"/>
+    </mesh>
+    <mesh position={[0,.25,0]}><cylinderGeometry args={[.67,.74,.36,16]}/><meshStandardMaterial color="#8c8878"/></mesh>
+    <Model name="Bush_Common_Flowers" position={[0,.41,0]} height={.57}/>
+    <Model name="bench" position={[.9,.14,-1.34]} height={.57} rotation={-.4}/>
+    <Lamp position={[1.72,.1,-.7]} short/>
+  </group>;
+}
 export function City(){
   const active=useExperience(s=>s.mode==='scene'&&s.destination==='city');
   return <group position={anchors.city} rotation={[0,angle,0]}>
     <Street width={3.12} color="#c0af89"/><Street width={2.24} offset={.018} color="#777e73"/>
     {buildings.map(([name,[x,,z],height,rotation,tint],i)=><Model key={name} name={name} position={[x,ground(x,z),z]} height={height} rotation={rotation} tint={tint} onSelect={active?()=>useExperience.getState().openArchive('city',i):undefined}/>)}
     <Cafe/>
+    <Overlook/>
     <Lamp position={[-1.7,ground(-1.7,4.5),4.5]} short/><Lamp position={[1.1,ground(1.1,-2),-2]} short/><Lamp position={[4.2,ground(4.2,-6),-6]} short/>
     {[[2,6.4],[3.7,4.2],[-8.4,4.6],[-7.2,6.7],[5,-3]].map(([x,z],i)=><Model key={i} name="Bush_Common_Flowers" position={[x,ground(x,z),z]} height={.64} rotation={i*1.8}/>)}
   </group>;

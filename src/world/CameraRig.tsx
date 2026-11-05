@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import {useExperience} from '../store';
 import {anchors,poses,workshopAngle,workshopApproach,workshopWindow,type Pose} from './layout';
 import {useReducedMotion} from './motion';
+import {useScenePan} from './scenePan';
 
 const vec=(v:Pose['position'])=>new THREE.Vector3(...v);
 const ease=(t:number)=>t*t*t*(t*(t*6-15)+10);
@@ -43,6 +44,7 @@ export function CameraRig() {
   const journey=useRef<Journey|null>(null),look=useRef(vec(poses.welcome.target));
   const offset=useRef({x:0,y:0});
   const reduced=useReducedMotion();
+  const pan=useScenePan();
   const invalidate=useThree(s=>s.invalidate);
   useEffect(()=>useExperience.subscribe(()=>invalidate()),[invalidate]);
   useFrame(({camera:raw,clock,size})=>{
@@ -77,6 +79,10 @@ export function CameraRig() {
       if(t===1){final();journey.current=null;state.arrived()}
     }
     camera.lookAt(look.current);
+    if(!travel&&state.mode!=='welcome'){
+      camera.rotateY(pan.current.yaw);
+      camera.rotateX(pan.current.pitch);
+    }
     camera.setViewOffset(size.width,size.height,offset.current.x*size.width,offset.current.y*size.height,size.width,size.height);
   },-1);
   return null;

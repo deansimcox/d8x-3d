@@ -155,6 +155,21 @@
     "bytes": 8256
   },
   {
+    "file": "computerMouse.glb",
+    "pack": "kenney-furniture",
+    "bytes": 5868
+  },
+  {
+    "file": "speakerSmall.glb",
+    "pack": "kenney-furniture",
+    "bytes": 15244
+  },
+  {
+    "file": "sideTableDrawers.glb",
+    "pack": "kenney-furniture",
+    "bytes": 19072
+  },
+  {
     "file": "building-a.glb",
     "pack": "kenney-city",
     "bytes": 113784

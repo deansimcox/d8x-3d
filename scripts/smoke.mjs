@@ -92,6 +92,24 @@ try{
   await shot(desktop,'desktop-overview');
   samples.overviewMarkers=await desktop.locator('.world-marker:visible').count();
   assert.equal(samples.overviewMarkers,5);
+  const homeMarker=desktop.locator('.world-marker').filter({hasText:'Home'});
+  const originalMarker=await homeMarker.boundingBox();
+  assert.ok(originalMarker);
+  await desktop.mouse.move(1015,575);
+  await desktop.mouse.down();
+  await desktop.mouse.move(1110,605,{steps:5});
+  await desktop.mouse.up();
+  await desktop.waitForFunction(x=>{
+    const marker=[...document.querySelectorAll('.world-marker')].find(node=>node.textContent.includes('Home'));
+    return marker&&Math.abs(marker.getBoundingClientRect().x-x)>20;
+  },originalMarker.x);
+  await desktop.locator('canvas').focus();
+  await desktop.keyboard.press('Home');
+  await desktop.waitForFunction(x=>{
+    const marker=[...document.querySelectorAll('.world-marker')].find(node=>node.textContent.includes('Home'));
+    return marker&&Math.abs(marker.getBoundingClientRect().x-x)<1;
+  },originalMarker.x);
+  samples.pan='drag and keyboard recenter passed';
   for(const [button,title] of scenes){
     await dock(desktop).getByRole('button',{name:button,exact:true}).click();
     await heading(desktop,title).waitFor({timeout:15000});
