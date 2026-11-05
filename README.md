@@ -1,4 +1,4 @@
-# The World Between the Lines
+# d8x.dev
 
 A cinematic floating island with five explorable destinations. The portfolio runs as a static Vite, React and Three.js site.
 

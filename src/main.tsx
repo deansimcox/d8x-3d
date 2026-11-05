@@ -61,7 +61,7 @@ function App(){
     <div className="world-canvas">{fallback?<IslandIllustration/>:<WorldBoundary><Suspense fallback={null}><World/></Suspense></WorldBoundary>}</div>
     <div className="wash" aria-hidden="true"/>
     <header className="topbar">
-      <button ref={overviewButton} className="brand" onClick={()=>move('overview')} aria-label="Island overview"><span className="brand-symbol" aria-hidden="true">✳</span><span>THE WORLD<br/>BETWEEN THE LINES</span></button>
+      <button ref={overviewButton} className="brand" onClick={()=>move('overview')} aria-label="d8x.dev, island overview"><span className="brand-symbol" aria-hidden="true">✳</span><span className="brand-name">d8x.dev</span></button>
       <div className="header-actions">
         <span className="edition">DEAN / DEVELOPER PORTFOLIO</span>
         {available&&!failed&&<button className="icon-button" aria-label={guide?'Show 3D world':'Open the illustrated guide'} aria-pressed={guide} title={guide?'Show 3D world':'Illustrated guide'} onClick={()=>setGuide(!guide)}><Map size={19}/></button>}
