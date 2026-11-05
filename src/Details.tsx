@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {ArrowLeft,Building2,Code2,MoveUpRight,X} from 'lucide-react';
 import {archives} from './content';
 
-export function Details({id,entry,onClose}: {id:'office'|'city';entry?:number;onClose:()=>void}){
+export function Details({id,entry,direct=false,onClose}: {id:'office'|'city';entry?:number;direct?:boolean;onClose:()=>void}){
   const ref=useRef<HTMLDialogElement>(null);
   const [closing,setClosing]=useState(false);
   const entries=entry!==undefined&&archives[id][entry]?[archives[id][entry]]:archives[id];
@@ -37,14 +37,14 @@ export function Details({id,entry,onClose}: {id:'office'|'city';entry?:number;on
           {item.period&&<p className="archive-period">{item.period}</p>}
           <h3>{item.title}</h3>
           {item.role&&<p className="archive-role">{item.role}</p>}
-          {item.image&&<img src={item.image.src} alt={item.image.alt}/>}
+          {item.image&&<img src={`${import.meta.env.BASE_URL}${item.image.src}`} alt={item.image.alt} width={item.image.width} height={item.image.height} loading="lazy" decoding="async"/>}
           <p className="archive-summary">{item.summary}</p>
           {item.steps&&<dl className="project-steps">{item.steps.map(step=><div key={step.title}><dt>{step.title}</dt><dd>{step.text}</dd></div>)}</dl>}
           {item.tags&&<ul className="archive-tags" aria-label="Tools and skills">{item.tags.map(tag=><li key={tag}>{tag}</li>)}</ul>}
-          {item.links?.map(link=><a className="archive-link" key={link.href} href={link.href}>{link.label} <MoveUpRight size={15}/></a>)}
+          {item.links?.map(link=><a className="archive-link" key={link.href} href={link.href}>{link.label} <MoveUpRight size={15} aria-hidden="true"/></a>)}
         </article>)}
       </div>
-      <footer className="archive-footer"><button className="text-button" onClick={dismiss}><ArrowLeft size={16}/> Back to {project?'projects':'work'}</button></footer>
+      <footer className="archive-footer"><button className="text-button" onClick={dismiss}><ArrowLeft size={16}/> {direct?'Back to intro':project?'Back to projects':'Back to work'}</button></footer>
     </div>
   </dialog>;
 }

@@ -1,17 +1,28 @@
 export const sceneIds = ['office','city','stadium','family','nature'] as const;
 export type SceneId = typeof sceneIds[number];
 export type Destination = SceneId | 'overview';
-export type ArchiveEntry = {title:string;summary:string;role?:string;period?:string;steps?:{title:string;text:string}[];tags?:string[];image?:{src:string;alt:string};links?:{label:string;href:string}[]};
+export type ArchiveEntry = {title:string;summary:string;role?:string;period?:string;steps?:{title:string;text:string}[];tags?:string[];image?:{src:string;alt:string;width:number;height:number};links?:{label:string;href:string}[]};
 export const archives:Record<'office'|'city',ArchiveEntry[]>={
   office:[{
     title:'The Village Wellness Centre',
-    summary:'I took this website from the first designs in Figma to a live site.',
+    summary:'I designed and built the public website for The Village Wellness Centre, a midwifery and women’s wellness centre. The live homepage gives visitors separate ways to explore services or book a consultation.',
+    image:{src:'projects/village-wellness-centre.webp',alt:'The Village Wellness Centre homepage with consultation and service links',width:1000,height:633},
     steps:[
-      {title:'Design',text:'I designed the site from scratch in Figma and created a design system for it.'},
-      {title:'Development',text:'I built the site with Next.js and Tailwind CSS.'},
+      {title:'Design',text:'I designed the site from scratch in Figma and created a design system. The homepage pairs a service-led navigation with a separate booking button, so visitors can browse or go straight to booking.'},
+      {title:'Development',text:'I built the site with Next.js and Tailwind CSS, carrying the Figma designs through to the live pages.'},
     ],
     tags:['Figma','Design systems','Next.js','Tailwind CSS'],
     links:[{label:'Visit The Village Wellness Centre',href:'https://thevillagewellnesscentre.com.au/'}],
+  },{
+    title:'d8x.dev',
+    summary:'I built my portfolio as a floating island in React and Three.js. The scenes grew from a rough prototype into five places that connect my work and life outside it.',
+    image:{src:'projects/d8x-island.webp',alt:'The d8x.dev island overview with its mountain, trail and destination markers',width:1000,height:625},
+    steps:[
+      {title:'Framing the scenes',text:'Each destination has a camera position. The framing changes on smaller screens so the story panel and the scene can share the viewport. In Projects, the camera enters the workshop through its window.'},
+      {title:'Keeping the work accessible',text:'Project details and work history are regular HTML. They can open directly from a link, camera journeys respect reduced motion, and an illustrated guide takes over when WebGL is unavailable.'},
+    ],
+    tags:['React','TypeScript','Three.js','React Three Fiber','Vite'],
+    links:[{label:'View the source on GitHub',href:'https://github.com/deansimcox/d8x-3d'}],
   }],
   city:[
     {

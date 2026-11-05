@@ -16,6 +16,7 @@ import {Picnic,Trails,Waterside} from './waterside';
 import {useReducedMotion} from './motion';
 import {windClock,windEnabled} from './wind';
 import {WoodlandDeer} from './woodlandDeer';
+import {DestinationDetail} from './DestinationDetail';
 
 function Wind(){
   const reduced=useReducedMotion();
@@ -80,7 +81,8 @@ function Scene(){
     <directionalLight ref={sun} position={[-65,64,40]} intensity={2.13} color="#ffe3bb" castShadow shadow-mapSize={[shadowSize,shadowSize]} shadow-camera-left={-69} shadow-camera-right={69} shadow-camera-top={65} shadow-camera-bottom={-66} shadow-camera-far={200} shadow-normalBias={.055} shadow-bias={-.0003}/>
     <directionalLight ref={fill} position={[44,24,-45]} intensity={.75} color="#c5ddd1"/>
     <Atmosphere/><group ref={terrain}><Terrain/></group><Trails/>
-    <Suspense fallback={null}><Vegetation/><Waterside/><Workshop/><City/><Stadium/><Picnic/><WoodlandDeer/><Home/>
+    <Suspense fallback={null}><Vegetation/><Waterside/><Workshop/><City/><Stadium/><Picnic/><Home/>
+    <DestinationDetail id="nature"><WoodlandDeer/></DestinationDetail>
     {welcome&&<Avatar/>}<Markers terrain={terrain}/><Ready/></Suspense>
   </>;
 }

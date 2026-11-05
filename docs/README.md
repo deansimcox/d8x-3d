@@ -6,7 +6,7 @@ The intro presents Dean's role, portrait, profile links and asset credits alongs
 
 | Area | Current implementation |
 | --- | --- |
-| Projects | The camera enters the workshop through its window. Three animated displays show an editor, a responsive preview and a build terminal. The project archive covers The Village Wellness Centre. |
+| Projects | The camera enters the workshop through its window. Three animated displays show an editor, a responsive preview and a build terminal. The archive includes The Village Wellness Centre and d8x.dev case studies. |
 | Work | A small city and coffee shop frame the career archive, with entries for HBF and Precedent. |
 | Football | The east side has an open village ground, stands on four sides, two supporter palettes, floodlights, a 3–2 scoreboard and opt-in cheering. The earlier full bowl is retained as an unused asset. |
 | Family | The house is on the northern ridge, screened from Matchday by trees. The yard includes bikes, toys, a veggie patch, chickens, a telescope and stepping stones. |
@@ -17,3 +17,7 @@ The intro presents Dean's role, portrait, profile links and asset credits alongs
 Edit the bio, navigation and overlays in `src/main.tsx`, `src/content.ts` and `src/Details.tsx`. Camera journeys live in `src/world/CameraRig.tsx`, island geography in `src/world/layout.ts`, and trail coordinates and clearance in `src/world/trail.ts`. The original and prepared models are documented in the [asset inventory](ASSET_ATTRIBUTIONS.md).
 
 Before pointing the domain at a host, use the [launch checklist](../REVIEW_CHECKLIST.md) to validate the preview and deployed build. Build, type and browser checks used throughout development have been local. Production URL, HTTPS and real-device performance still need verification on the chosen host.
+
+Use `/#projects` or `/#work` to share a direct link to either archive. A visit to either URL opens the HTML archive before loading the 3D world. The island loads after the archive closes. The workshop plants and woodland deer load on first approach to their destinations.
+
+A local Chromium run used a 390 × 844 mobile viewport, cold cache, software WebGL, reduced motion, 8 Mbps down, 3 Mbps up and 150 ms latency. Initial model requests fell from 40 to 36 (10.63 MB to 9.17 MB of GLB payload), and the loading indicator cleared at about 27.0 s before the change and 21.9 s after it. These are single emulated runs. Check real-device and hosted timings before launch.

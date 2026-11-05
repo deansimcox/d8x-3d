@@ -1,6 +1,6 @@
 # Asset inventory and licences
 
-The current scene loads 40 GLB models. Another 17 remain in the static bundle from earlier iterations. All 57 files and their sizes are listed in the [model manifest](../public/models/manifest.json).
+The current scene uses 40 GLB models, including four that load when their destinations are first visited. Another 17 remain in the static bundle from earlier iterations. All 57 files and their sizes are listed in the [model manifest](../public/models/manifest.json).
 
 ## Attribution on the live site
 
@@ -81,6 +81,8 @@ The current scene loads 40 GLB models. Another 17 remain in the static bundle fr
 | --- | --- |
 | `dean-portrait.jpg` | Photo supplied by Dean for the portfolio intro. |
 | `dean-avatar.svg` | Original illustrated portrait based on Dean's reference photo, retained from an earlier intro. |
+| `projects/d8x-island.webp` | Screenshot of the portfolio's island overview. Individual third-party models are credited above. |
+| `projects/village-wellness-centre.webp` | Screenshot of the live Village Wellness Centre homepage, shown as part of Dean's project case study. [Source website](https://thevillagewellnesscentre.com.au/) |
 | `favicon.svg`, illustrated fallback, animated screens and scoreboard | Original project artwork. |
 | Terrain, mountain, water, paths, stepping stones, bridge, village stadium, office furniture, fans, crops, chickens, clouds, balloon, biplane, beacon and ferry lift pods | Procedural geometry, textures or effects authored in the project. Third-party models used alongside them are listed above. |
 | Wind, water, crowd, birds, street bustle, typing and chicken ambience | Synthesized in `src/audio.ts` and `src/sceneSounds.ts`. No external recordings are bundled. |
