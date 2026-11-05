@@ -12,7 +12,7 @@ The intro presents Dean's role, portrait, profile links and asset credits alongs
 | Family | The house is on the northern ridge, screened from Matchday by trees. The yard includes bikes, toys, a veggie patch, chickens, a telescope and stepping stones. |
 | Outdoors | The riverside has a picnic, animated deer and butterflies, a waterfall, and the footbridge that closes the island trail loop. Plant and rock placement uses the same trail route as the rendering. |
 | Sky | Clouds, birds, a balloon, a vintage biplane, a ferry and a lighthouse add detail around the island. |
-| Sound and fallback | Ambient sound starts muted and is synthesized in the browser. The illustrated guide appears automatically when WebGL is unavailable. |
+| Sound and fallback | Ambient sound starts muted. Work, Football and Family use locally hosted field recordings loaded on demand. Wind, water, birds and typing are synthesized. The illustrated guide appears automatically when WebGL is unavailable. |
 
 Edit the bio, navigation and overlays in `src/main.tsx`, `src/content.ts` and `src/Details.tsx`. Camera journeys live in `src/world/CameraRig.tsx`, island geography in `src/world/layout.ts`, and trail coordinates and clearance in `src/world/trail.ts`. The original and prepared models are documented in the [asset inventory](ASSET_ATTRIBUTIONS.md).
 

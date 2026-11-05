@@ -4,41 +4,20 @@ import {sceneCue} from './sceneSounds';
 // Low-level synthesized beds. The AudioContext is created and resumed in the
 // sound button's click handler, so the island is silent on arrival.
 const mixes:Record<Destination,readonly [number,number,number]>={
-  overview:[.13,.015,.014],office:[.038,.004,.01],city:[.045,.012,.055],
-  stadium:[.035,.018,.082],nature:[.045,.045,.014],family:[.082,.015,.023],
+  overview:[.13,.015,.014],office:[.038,.004,.01],city:[.035,.006,.012],
+  stadium:[.026,.005,.016],nature:[.045,.045,.014],family:[.082,.015,.023],
 };
-const cueLevels={office:.13,city:.075,nature:.092,family:.12};
+const cueLevels={office:.13,city:.27,stadium:.68,nature:.092,family:.22};
+const recordings={city:'city-square.mp3',stadium:'stadium-crowd.mp3',family:'chickens.mp3'};
 type CueScene=keyof typeof cueLevels;
-let engine:{ctx:AudioContext;master:GainNode;beds:GainNode[];crowd:GainNode;cheers:GainNode;cues:Partial<Record<CueScene,GainNode>>}|undefined;
+type Engine={
+  ctx:AudioContext;master:GainNode;beds:GainNode[];
+  cues:Partial<Record<CueScene,GainNode>>;loading:Set<CueScene>;
+  destination:Destination;enabled:boolean;
+};
+let engine:Engine|undefined;
 let revision=0;
-function makeCrowd(ctx:AudioContext,master:GainNode){
-  const duration=12,rate=22050;
-  const buffer=ctx.createBuffer(1,rate*duration,rate),samples=buffer.getChannelData(0);
-  // Overlap short, pitched shouts with different vowels and onsets.
-  for(let voice=0;voice<56;voice++){
-    const start=Math.floor(Math.random()*samples.length),length=.35+Math.random()*.95;
-    const pitch=105+Math.random()*155,drift=10+Math.random()*60;
-    const vowel=580+Math.random()*360;
-    for(let i=0;i<length*rate;i++){
-      const t=i/rate,progress=t/length;
-      const phase=2*Math.PI*(pitch*t+drift*t*t*.5/length);
-      const syllable=Math.sin(phase)*.24+Math.sin(phase*2)*.14+Math.sin(phase*3)*.1;
-      const formant=Math.sin(2*Math.PI*vowel*t)*(.42+.36*Math.sin(phase));
-      const envelope=Math.sin(Math.PI*progress)**1.4;
-      samples[(start+i)%samples.length]+=(syllable+formant*.36)*envelope*.13;
-    }
-  }
-  const source=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
-  source.buffer=buffer;source.loop=true;
-  filter.type='lowpass';filter.frequency.value=1340;gain.gain.value=0;
-  source.connect(filter).connect(gain).connect(master);source.start();
-  const swell=ctx.createGain(),lfo=ctx.createOscillator(),depth=ctx.createGain(),cheers=ctx.createGain();
-  swell.gain.value=.57;depth.gain.value=.42;lfo.frequency.value=.17;cheers.gain.value=0;
-  filter.connect(swell).connect(cheers).connect(master);
-  lfo.connect(depth).connect(swell.gain);lfo.start();
-  return {crowd:gain,cheers};
-}
-function makeEngine(){
+function makeEngine():Engine{
   const ctx=new AudioContext(),master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
   const beds=[['lowpass',370,.32],['bandpass',1260,.55],['lowpass',660,.8]].map(([type,frequency,q],i)=>{
     const length=ctx.sampleRate*(8+i*2),buffer=ctx.createBuffer(1,length,ctx.sampleRate),data=buffer.getChannelData(0);
@@ -52,18 +31,38 @@ function makeEngine(){
     src.buffer=buffer;src.loop=true;filter.type=type as BiquadFilterType;filter.frequency.value=Number(frequency);filter.Q.value=Number(q);gain.gain.value=0;
     src.connect(filter).connect(gain).connect(master);src.start();return gain;
   });
-  return {ctx,master,beds,...makeCrowd(ctx,master),cues:{}};
+  return {ctx,master,beds,cues:{},loading:new Set(),destination:'overview',enabled:false};
+}
+async function loadCue(state:Engine,id:CueScene){
+  const {ctx,master,cues,loading}=state;
+  loading.add(id);
+  try{
+    let buffer:AudioBuffer;
+    if(id==='office'||id==='nature'){
+      buffer=sceneCue(ctx,id);
+    }else{
+      const response=await fetch(`${import.meta.env.BASE_URL}audio/${recordings[id]}`);
+      if(!response.ok)return;
+      buffer=await ctx.decodeAudioData(await response.arrayBuffer());
+    }
+    const source=ctx.createBufferSource(),gain=ctx.createGain();
+    source.buffer=buffer;source.loop=true;gain.gain.value=0;
+    source.connect(gain).connect(master);source.start();cues[id]=gain;
+    if(state.destination===id&&state.enabled)gain.gain.setTargetAtTime(cueLevels[id],ctx.currentTime,.55);
+  }catch{
+    // Keep the ambient bed if a recording is unavailable.
+  }finally{
+    loading.delete(id);
+  }
 }
 export function mixSound(destination:Destination){
   if(!engine)return;
-  const {ctx,master,beds,crowd,cheers,cues}=engine;
+  engine.destination=destination;
+  if(!engine.enabled)return;
+  const {ctx,beds,cues,loading}=engine;
   beds.forEach((bed,i)=>bed.gain.setTargetAtTime(mixes[destination][i],ctx.currentTime,.72));
-  crowd.gain.setTargetAtTime(destination==='stadium'?.078:destination==='city'?.025:0,ctx.currentTime,.7);
-  cheers.gain.setTargetAtTime(destination==='stadium'?.19:0,ctx.currentTime,.7);
-  if(destination!=='overview'&&destination!=='stadium'&&!cues[destination]){
-    const source=ctx.createBufferSource(),gain=ctx.createGain();
-    source.buffer=sceneCue(ctx,destination);source.loop=true;gain.gain.value=0;
-    source.connect(gain).connect(master);source.start();cues[destination]=gain;
+  if(destination!=='overview'&&!cues[destination]&&!loading.has(destination)){
+    void loadCue(engine,destination);
   }
   for(const id of Object.keys(cues) as CueScene[]){
     cues[id]?.gain.setTargetAtTime(destination===id?cueLevels[id]:0,ctx.currentTime,.55);
@@ -71,7 +70,14 @@ export function mixSound(destination:Destination){
 }
 export async function setAudio(enabled:boolean,destination:Destination){
   const request=++revision;
-  if(enabled){engine??=makeEngine();mixSound(destination);await engine.ctx.resume()}
+  if(enabled)engine??=makeEngine();
+  if(engine)engine.enabled=enabled;
+  if(enabled&&engine){
+    mixSound(destination);
+    try{await engine.ctx.resume()}catch(error){
+      if(request===revision){engine.enabled=false;throw error}
+    }
+  }
   if(engine&&request===revision){
     const {ctx,master}=engine;
     master.gain.setTargetAtTime(enabled?.72:0,ctx.currentTime,.17);

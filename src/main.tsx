@@ -1,6 +1,6 @@
 import React,{Suspense,lazy,useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight} from 'lucide-react';
+import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,Minus,Plus} from 'lucide-react';
 import {sceneIds,scenes,type Destination} from './content';
 import {useExperience} from './store';
 import {mixSound,setAudio} from './audio';
@@ -41,8 +41,8 @@ function Dock({active,move}: {active:Destination|null;move:(d:Destination)=>void
   const index=active&&active!=='overview'?sceneIds.indexOf(active)+1:0;
   return <nav className="dock" aria-label="Explore destinations" style={{'--dock-index':index} as React.CSSProperties}>
     <span className="dock-highlight" aria-hidden="true"/>
-    <button className="dock-item" onClick={()=>move('overview')} aria-label="Island overview" aria-current={active==='overview'?'page':undefined}><Mountain size={19}/><span>Overview</span></button>
-    {sceneIds.map(id=>{const Icon=icons[id];return <button key={id} className="dock-item" onClick={()=>move(id)} aria-current={active===id?'page':undefined}><Icon size={19}/><span>{scenes[id].label}</span></button>})}
+    <button className="dock-item" onClick={()=>move('overview')} aria-label="Island overview" aria-current={active==='overview'?'page':undefined}><Mountain size={19} aria-hidden="true" focusable="false"/><span>Overview</span></button>
+    {sceneIds.map(id=>{const Icon=icons[id];return <button key={id} className="dock-item" onClick={()=>move(id)} aria-current={active===id?'page':undefined}><Icon size={19} aria-hidden="true" focusable="false"/><span>{scenes[id].label}</span></button>})}
   </nav>;
 }
 function App(){
@@ -84,10 +84,10 @@ function App(){
     <div className="world-canvas">{fallback||!loadWorld?<IslandIllustration/>:<WorldBoundary><Suspense fallback={null}><World/></Suspense></WorldBoundary>}</div>
     <div className="wash" aria-hidden="true"/>
     <header className="topbar">
-      <button className="brand" onClick={()=>{enterFocus.current=false;returnToIntro()}} aria-label="d8x.dev, back to intro" title="Back to intro"><span className="brand-symbol" aria-hidden="true">✳</span><span className="brand-name">d8x.dev</span></button>
+      <button className="brand" onClick={()=>{enterFocus.current=false;returnToIntro()}} aria-label="d8x.dev, back to intro" title="Back to intro"><svg className="brand-symbol" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 1v22M1 12h22M4.2 4.2l15.6 15.6m0-15.6L4.2 19.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg><span className="brand-name">d8x.dev</span></button>
       <div className="header-actions">
         <span className="edition">DEAN / DEVELOPER PORTFOLIO</span>
-        <button className="icon-button" onClick={toggleSound} aria-label="Ambient sound" aria-pressed={sound} title={sound?'Mute ambient sound':'Enable ambient sound'}>{sound?<Volume2 size={19}/>:<VolumeX size={19}/>}</button>
+        <button className="icon-button" onClick={toggleSound} aria-label="Ambient sound" aria-pressed={sound} title={sound?'Mute ambient sound':'Enable ambient sound'}>{sound?<Volume2 size={19} aria-hidden="true" focusable="false"/>:<VolumeX size={19} aria-hidden="true" focusable="false"/>}</button>
       </div>
     </header>
     {mode==='welcome'&&<section className="welcome" aria-labelledby="welcome-title">
@@ -97,30 +97,30 @@ function App(){
       <p>I build fast, accessible websites and apps with React, React Native and TypeScript. I enjoy finding the small design and engineering details that make a complicated task feel simple.</p>
       <p>Right now I’m building with Next.js and Expo. You’ll find some of my work here, along with a few things I love away from the desk.</p>
       <div className="welcome-actions">
-        <button className="primary-button" onClick={()=>{enterFocus.current=true;move('overview')}}>{fallback?'Explore the guide':'Explore my portfolio'} <ArrowRight size={18}/></button>
+        <button className="primary-button" onClick={()=>{enterFocus.current=true;move('overview')}}>{fallback?'Explore the guide':'Explore my portfolio'} <ArrowRight size={18} aria-hidden="true" focusable="false"/></button>
         <a className="direct-projects" href="#projects" aria-haspopup="dialog">View projects</a>
       </div>
       <nav className="profile-links" aria-label="Profiles and credits">
-        <a href="https://www.linkedin.com/in/dean-simcox/" target="_blank" rel="noopener noreferrer">LinkedIn <MoveUpRight size={13} aria-hidden="true"/></a>
-        <a href="https://github.com/deansimcox" target="_blank" rel="noopener noreferrer">GitHub <MoveUpRight size={13} aria-hidden="true"/></a>
+        <a href="https://www.linkedin.com/in/dean-simcox/" target="_blank" rel="noopener noreferrer">LinkedIn <MoveUpRight size={13} aria-hidden="true" focusable="false"/></a>
+        <a href="https://github.com/deansimcox" target="_blank" rel="noopener noreferrer">GitHub <MoveUpRight size={13} aria-hidden="true" focusable="false"/></a>
         <a href={`${import.meta.env.BASE_URL}credits.html`}>Asset credits</a>
       </nav>
       {fallback&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
     </section>}
-    {mode==='transitioning'&&<div className="transition-status" role="status"><span className="pulse-dot"/> {target==='overview'?'Back to the island':`On the way to ${scenes[target].title}`} <button onClick={skip}><SkipForward size={16}/> Skip</button></div>}
+    {mode==='transitioning'&&<div className="transition-status" role="status"><span className="pulse-dot"/> {target==='overview'?'Back to the island':`On the way to ${scenes[target].title}`} <button onClick={skip}><SkipForward size={16} aria-hidden="true" focusable="false"/> Skip</button></div>}
     {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">MY PORTFOLIO</div><h2 id="overview-title" ref={overviewTitle} tabIndex={-1}>Work &amp;<br/> <i>life.</i></h2><p>Start with a project, my work history or a stop away from the desk.</p></section>}
     {scene&&<section hidden={mode!=='scene'} className={`scene-panel${panelOpen?'':' collapsed'}`} aria-labelledby={panelOpen?'scene-title':undefined} aria-label={panelOpen?undefined:scene.title}>
-      <div className="panel-top">{panelOpen?<span className="eyebrow">{scene.index} / 05 <span className="chapter-dot" style={{background:scene.color}}/></span>:<span className="collapsed-label" aria-hidden="true">{scene.title}</span>}<button className="panel-toggle" onClick={togglePanel} aria-expanded={panelOpen} aria-controls="scene-copy" aria-label={panelOpen?'Hide story':'Read story'}>{panelOpen?'−':'+'}</button></div>
+      <div className="panel-top">{panelOpen?<span className="eyebrow">{scene.index} / 05 <span className="chapter-dot" style={{background:scene.color}}/></span>:<span className="collapsed-label" aria-hidden="true">{scene.title}</span>}<button className="panel-toggle" onClick={togglePanel} aria-expanded={panelOpen} aria-controls="scene-copy" aria-label={panelOpen?'Hide story':'Read story'}>{panelOpen?<Minus size={18} aria-hidden="true" focusable="false"/>:<Plus size={18} aria-hidden="true" focusable="false"/>}</button></div>
       <div className="scene-panel-body"><div id="scene-copy" ref={node=>{if(node)node.inert=!panelOpen}} aria-hidden={!panelOpen}><div className="eyebrow">{scene.eyebrow}</div><h2 id="scene-title">{scene.title}</h2><p>{scene.description}</p>
-      {(destination==='office'||destination==='city')&&<button className="detail-button" onClick={()=>openArchive(destination)}>{destination==='office'?'View project details':'View work history'} <MoveUpRight size={15}/></button>}
-      <button className="text-button" onClick={()=>move('overview')}><ArrowLeft size={16}/> Back to the island</button></div>
+      {(destination==='office'||destination==='city')&&<button className="detail-button" onClick={()=>openArchive(destination)}>{destination==='office'?'View project details':'View work history'} <MoveUpRight size={15} aria-hidden="true" focusable="false"/></button>}
+      <button className="text-button" onClick={()=>move('overview')}><ArrowLeft size={16} aria-hidden="true" focusable="false"/> Back to the island</button></div>
       </div>
     </section>}
     {audioError&&<p className="audio-note" role="status">Ambient sound is unavailable on this device.</p>}
     {directArchive?<Details key={directArchive} id={directArchive} direct onClose={closeDirectArchive}/>:archive&&<Details key={archive.id} {...archive} onClose={closeArchive}/>}
     {loading&&<div className="island-loading" role="status"><span className="loading-track" aria-hidden="true"/><span>The island is coming into view</span><small>Loading the 3D scenery</small></div>}
     <Dock active={active} move={move}/>
-    <footer className="edge-mark"><span>✦</span> DEAN / SENIOR FRONTEND ENGINEER</footer>
+    <footer className="edge-mark"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M6 0Q7 5 12 6Q7 7 6 12Q5 7 0 6Q5 5 6 0Z" fill="currentColor"/></svg> DEAN / SENIOR FRONTEND ENGINEER</footer>
   </main>;
 }
 

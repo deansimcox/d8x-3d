@@ -13,12 +13,20 @@
     h1{font-size:clamp(2rem,7vw,3.5rem)}
     a{color:#315843;text-underline-offset:.2em}
     a:focus-visible{outline:3px solid #8d543b;outline-offset:3px}
+    .back-link svg{vertical-align:-.15em}
+    @media(prefers-reduced-motion:no-preference){
+      .back-link svg{transition:transform .18s ease-out}
+      .back-link:focus-visible svg{transform:translateX(-2px)}
+      @media(hover:hover){
+        .back-link:hover svg{transform:translateX(-2px)}
+      }
+    }
     li+li{margin-top:.5rem}
   </style>
 </head>
 <body>
   <main>
-    <a href="./">← Back to d8x.dev</a>
+    <a class="back-link" href="./"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 12H5m7-7-7 7 7 7"/></svg> Back to d8x.dev</a>
     <h1>Asset credits</h1>
     <h2>Lighthouse</h2>
     <p><a href="https://poly.pizza/m/0t2ZYRBsqX-">Lighthouse</a> by Poly by Google, licensed under <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported</a>. The model is used as supplied, with a rotating beacon added separately in the scene.</p>
@@ -32,6 +40,11 @@
       <li>Innerscene — <a href="https://www.innerscene.com/tools/library/3d-parts/football-stadium-f7b93967">Football Stadium</a>, retained from an earlier Matchday design.</li>
     </ul>
     <p><a href="models/manifest.json">Bundled model inventory</a></p>
+    <h2>Ambient recordings</h2>
+    <ul>
+      <li><a href="https://freesound.org/people/KVV_Audio/sounds/828010/">AMBPubl_Public Square 02_KVV AUDIO_FREE</a> by KVV Audio, via Freesound, under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Filtered, crossfaded into a loop, and compressed for the web.</li>
+      <li><a href="https://freesound.org/s/206003/">Norwegian football match/soccer game ambience</a> by habbis92 and <a href="https://freesound.org/people/Breviceps/sounds/456803/">Chicken clucking</a> by Breviceps, via Freesound, under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>. Excerpted and edited for the site.</li>
+    </ul>
     <h2>Type and icons</h2>
     <ul>
       <li><a href="https://github.com/google/fonts/blob/main/ofl/dmsans/OFL.txt">DM Sans</a> and <a href="https://github.com/google/fonts/blob/main/ofl/fraunces/OFL.txt">Fraunces</a> are served by Google Fonts under the SIL Open Font License 1.1.</li>

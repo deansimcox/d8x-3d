@@ -85,7 +85,17 @@ The current scene uses 40 GLB models, including four that load when their destin
 | `projects/village-wellness-centre.webp` | Screenshot of the live Village Wellness Centre homepage, shown as part of Dean's project case study. [Source website](https://thevillagewellnesscentre.com.au/) |
 | `favicon.svg`, illustrated fallback, animated screens and scoreboard | Original project artwork. |
 | Terrain, mountain, water, paths, stepping stones, bridge, village stadium, office furniture, fans, crops, chickens, clouds, balloon, biplane, beacon and ferry lift pods | Procedural geometry, textures or effects authored in the project. Third-party models used alongside them are listed above. |
-| Wind, water, crowd, birds, street bustle, typing and chicken ambience | Synthesized in `src/audio.ts` and `src/sceneSounds.ts`. No external recordings are bundled. |
+| Wind, water, birds and typing | Synthesized in `src/audio.ts` and `src/sceneSounds.ts`. |
+
+## Ambient recordings
+
+The bundled MP3s were prepared from Freesound's high-quality previews and are credited on the public asset credits page.
+
+| Bundled file | Source and licence | Edits |
+| --- | --- | --- |
+| `audio/city-square.mp3` | [AMBPubl_Public Square 02_KVV AUDIO_FREE](https://freesound.org/people/KVV_Audio/sounds/828010/) by KVV Audio, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | High-pass filtered, crossfaded at the loop seam, and re-encoded. |
+| `audio/stadium-crowd.mp3` | [Norwegian football match/soccer game ambience](https://freesound.org/s/206003/) by habbis92, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | Excerpted, high-pass filtered, crossfaded at the loop seam, and re-encoded. |
+| `audio/chickens.mp3` | [Chicken clucking](https://freesound.org/people/Breviceps/sounds/456803/) by Breviceps, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | Quiet excerpt at 2.25–3.95 seconds, filtered, faded, spaced with silence, and re-encoded. |
 
 ## Preparing models
 

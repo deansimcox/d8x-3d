@@ -10,10 +10,7 @@ function tap(t:number){
   return (noise()*.34+Math.sin(tau*520*t)*.33)*Math.exp(-t*95)
     +Math.sin(tau*174*t)*Math.exp(-t*48)*.35;
 }
-function step(t:number){
-  return Math.min(1,t/.011)*Math.exp(-t*36)*(noise()*.17+Math.sin(tau*(117*t-140*t*t))*.55);
-}
-export function sceneCue(ctx:AudioContext,scene:'office'|'city'|'nature'|'family'){
+export function sceneCue(ctx:AudioContext,scene:'office'|'nature'){
   const rate=22050,seconds=32,buffer=ctx.createBuffer(2,rate*seconds,rate);
   const left=buffer.getChannelData(0),right=buffer.getChannelData(1);
   function add(start:number,length:number,gain:number,pan:number,cue:Cue){
@@ -32,22 +29,11 @@ export function sceneCue(ctx:AudioContext,scene:'office'|'city'|'nature'|'family
         time+=.08+Math.random()*.17;
       }
     }
-  }else if(scene==='nature'){
+  }else{
     for(const [start,pan,pitch] of [[.8,-.46,1890],[4.7,.55,2360],[10,-.7,2050],[16.1,.22,1770],[20.4,.6,2560],[27.3,-.38,2050]]){
       add(start,.11,.32,pan,chirp(pitch,630,.12));
       add(start+.19,.145,.25,pan,chirp(pitch+360,-710,.12));
       add(start+.39,.09,.17,pan,chirp(pitch-160,410,.12));
-    }
-  }else if(scene==='family'){
-    for(const [start,pan] of [[1.2,-.44],[7.7,.25],[13.8,-.21],[21,.48],[28.2,-.51]]){
-      for(let i=0;i<3;i++){
-        const pitch=430+Math.random()*95;
-        add(start+i*.15,.1+i*.018,.46-i*.074,pan,chirp(pitch,95+i*75,.9));
-      }
-    }
-  }else{
-    for(const [start,pan] of [[.9,-.45],[6.4,.31],[14,.53],[20.2,-.31],[27,.05]]){
-      for(let i=0;i<5;i++)add(start+i*.48,.12,.4*Math.sin((i+1)*Math.PI/6),pan,step);
     }
   }
   return buffer;

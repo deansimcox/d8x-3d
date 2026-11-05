@@ -27,10 +27,10 @@ export function Details({id,entry,direct=false,onClose}: {id:'office'|'city';ent
     onClick={event=>{if(event.target===event.currentTarget)dismiss()}}>
     <div className="detail-inner">
       <div className="archive-controls">
-        <button className="icon-button modal-close" aria-label="Close details" autoFocus onClick={dismiss}><X size={20}/></button>
+        <button className="icon-button modal-close" aria-label="Close details" autoFocus onClick={dismiss}><X size={20} aria-hidden="true" focusable="false"/></button>
       </div>
       <header className="archive-header">
-        <span className="archive-icon" aria-hidden="true"><Icon size={22}/></span>
+        <span className="archive-icon" aria-hidden="true"><Icon size={22} aria-hidden="true" focusable="false"/></span>
         <p className="eyebrow">{project?'01 / DESIGN AND CODE':'02 / FRONTEND DEVELOPMENT'}</p>
         <h2 id="detail-title">{project?'Project details':'Work history'}</h2>
       </header>
@@ -43,10 +43,10 @@ export function Details({id,entry,direct=false,onClose}: {id:'office'|'city';ent
           <p className="archive-summary">{item.summary}</p>
           {item.steps&&<dl className="project-steps">{item.steps.map(step=><div key={step.title}><dt>{step.title}</dt><dd>{step.text}</dd></div>)}</dl>}
           {item.tags&&<ul className="archive-tags" aria-label="Tools and skills">{item.tags.map(tag=><li key={tag}>{tag}</li>)}</ul>}
-          {item.links?.map(link=><a className="archive-link" key={link.href} href={link.href}>{link.label} <MoveUpRight size={15} aria-hidden="true"/></a>)}
+          {item.links?.map(link=><a className="archive-link" key={link.href} href={link.href}>{link.label} <MoveUpRight size={15} aria-hidden="true" focusable="false"/></a>)}
         </article>)}
       </div>
-      <footer className="archive-footer"><button className="text-button" onClick={dismiss}><ArrowLeft size={16}/> {direct?'Back to intro':project?'Back to projects':'Back to work'}</button></footer>
+      <footer className="archive-footer"><button className="text-button" onClick={dismiss}><ArrowLeft size={16} aria-hidden="true" focusable="false"/> {direct?'Back to intro':project?'Back to projects':'Back to work'}</button></footer>
     </div>
   </dialog>;
 }

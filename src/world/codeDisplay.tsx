@@ -8,6 +8,9 @@ import {Block} from './props';
 import type {Vec3} from './layout';
 
 type ScreenKind='editor'|'preview'|'tests';
+const checkIcon=new Path2D('M2 7l4 4 7-8');
+const chevronIcon=new Path2D('m5 3 5 4-5 4');
+const editingIcon=new Path2D('M5 7a2 2 0 1 0 4 0 2 2 0 1 0-4 0');
 const source=[
   ['export function Island() {','#c8adf1'],
   ['  return <World','#e3dfbf'],
@@ -26,6 +29,16 @@ function drawScreen(ctx:CanvasRenderingContext2D,kind:ScreenKind,step:number){
     ctx.fillStyle=color;
     ctx.fillText(value,x,y);
   };
+  const icon=(path:Path2D,x:number,y:number,color:string)=>{
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.strokeStyle=color;
+    ctx.lineWidth=2;
+    ctx.lineCap='round';
+    ctx.lineJoin='round';
+    ctx.stroke(path);
+    ctx.restore();
+  };
   rect(0,0,480,256,'#192b32');
   rect(0,0,480,32,'#28434b');
   ctx.font='17px monospace';
@@ -38,7 +51,9 @@ function drawScreen(ctx:CanvasRenderingContext2D,kind:ScreenKind,step:number){
       text(line.slice(0,remaining),49,58+i*27,color);
       remaining=Math.max(0,remaining-line.length);
     });
-    text(step>55?'✓  build complete':'●  editing',16,237,'#91d4ae');
+    const complete=step>55;
+    icon(complete?checkIcon:editingIcon,16,224,'#91d4ae');
+    text(complete?'build complete':'editing',44,237,'#91d4ae');
   }else if(kind==='preview'){
     rect(15,44,450,199,'#eae5d1');
     rect(29,57,420,19,'#314e46');
@@ -58,7 +73,7 @@ function drawScreen(ctx:CanvasRenderingContext2D,kind:ScreenKind,step:number){
     text('$ npm run check',16,67,'#f0d29a');
     ['TypeScript','Accessibility','Production build'].forEach((label,i)=>{
       const passed=step>16+i*16;
-      text(passed?'✓':'›',18,112+i*44,passed?'#92d8ad':'#c7a776');
+      icon(passed?checkIcon:chevronIcon,18,97+i*44,passed?'#92d8ad':'#c7a776');
       text(label,48,112+i*44,'#e4e6d8');
     });
   }
