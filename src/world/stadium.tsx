@@ -1,28 +1,39 @@
 import {useMemo,useRef} from 'react';
 import {useFrame} from '@react-three/fiber';
 import * as THREE from 'three';
-import {anchors,random,type Vec3} from './layout';
-import {Block,Blocks} from './props';
+import {anchors,random} from './layout';
+import {Block} from './props';
+import {Model} from './models';
 import {useReducedMotion} from './motion';
 import {dusk} from './atmosphere';
 import {useExperience} from '../store';
 
-const chalk='#f3ecd1',forest='#416d50';
+const stadiumScale=.114;
+const supporterRows=[
+  {distance:45.4,height:1.7},{distance:49.4,height:3.32},
+  {distance:53.4,height:5.15},{distance:57.4,height:7.18},
+  {distance:68.6,height:18.03},{distance:73.4,height:21.17},
+  {distance:78.2,height:24.59},
+];
+
 function Crowd(){
   const torsos=useRef<THREE.InstancedMesh>(null),heads=useRef<THREE.InstancedMesh>(null);
   const reduced=useReducedMotion();
   const transform=useMemo(()=>new THREE.Object3D(),[]);
-  const supporters=useMemo(()=>[-1,1].flatMap(side=>Array.from({length:104},(_,i)=>{
-    const row=Math.floor(i/26);
-    const x=(i%26-12.5)*.64+(random(i+side*36)-.5)*.17;
-    const y=.81+row*.59;
-    const z=side*(5.94+row*.76);
-    const color=(side<0?['#633c94','#e88945']:['#232532','#f2ece3'])[i%4===0?1:0];
-    return {x,y,z,color};
+  const supporters=useMemo(()=>[0,1,2,3].flatMap(stand=>supporterRows.flatMap(({distance,height},row)=>{
+    const alongTouchline=stand<2,side=stand%2===0?-1:1,count=alongTouchline?27:17;
+    const shirts=side<0?['#633c94','#e88945']:['#232532','#f2ece3'];
+    return Array.from({length:count},(_,i)=>{
+      const spacing=alongTouchline?.44:.47;
+      const along=(i-(count-1)/2)*spacing+(random(i+row*73+stand*110)-.5)*.24;
+      const outward=side*(distance+(alongTouchline?0:20))*stadiumScale;
+      const color=shirts[random(i+row*13+stand*49)>.68?1:0];
+      return {x:alongTouchline?along:outward,y:.16+height*stadiumScale,z:alongTouchline?outward:along,color};
+    });
   })),[]);
   const pose=(mesh:THREE.InstancedMesh,i:number,head:boolean,bob:number,lean:number)=>{
     const {x,y,z}=supporters[i];
-    transform.position.set(x+lean*(head?.09:.035),y+(head?.49:.20)+bob,z);
+    transform.position.set(x+lean*(head?.09:.035),y+(head?.34:.145)+bob,z);
     transform.rotation.set(0,0,lean*.19);
     transform.scale.set(1,1,1);
     transform.updateMatrix();
@@ -53,15 +64,15 @@ function Crowd(){
     animated.current=active;
   });
   return <>
-    <instancedMesh ref={torsos} args={[undefined,undefined,supporters.length]} onUpdate={mesh=>initialize(mesh,false)}><capsuleGeometry args={[.155,.16,3,8]}/><meshStandardMaterial roughness={1}/></instancedMesh>
-    <instancedMesh ref={heads} args={[undefined,undefined,supporters.length]} onUpdate={mesh=>initialize(mesh,true)}><sphereGeometry args={[.12,8,6]}/><meshStandardMaterial roughness={1}/></instancedMesh>
+    <instancedMesh ref={torsos} args={[undefined,undefined,supporters.length]} onUpdate={mesh=>initialize(mesh,false)}><capsuleGeometry args={[.105,.13,2,6]}/><meshStandardMaterial roughness={1}/></instancedMesh>
+    <instancedMesh ref={heads} args={[undefined,undefined,supporters.length]} onUpdate={mesh=>initialize(mesh,true)}><sphereGeometry args={[.09,7,5]}/><meshStandardMaterial roughness={1}/></instancedMesh>
   </>;
 }
 function Floodlight({x,z}:{x:number;z:number}){
   const lamp=useRef<THREE.SpotLight>(null);
-  const target=useMemo(()=>{const node=new THREE.Object3D();node.position.set(-x*.83,.3,-z*.91);return node},[x,z]);
-  useFrame(()=>{if(lamp.current)lamp.current.intensity=dusk.value*310});
-  return <><primitive object={target}/><spotLight ref={lamp} position={[0,6.55,0]} target={target} angle={.56} penumbra={.57} color="#ffe9c9" distance={25} intensity={0}/></>;
+  const target=useMemo(()=>{const node=new THREE.Object3D();node.position.set(-x*.64,.05,-z*.64);return node},[x,z]);
+  useFrame(()=>{if(lamp.current)lamp.current.intensity=dusk.value*140});
+  return <><primitive object={target}/><spotLight ref={lamp} position={[0,4.18,0]} target={target} angle={.67} penumbra={.57} color="#ffe9c9" distance={25} intensity={0}/></>;
 }
 function Scoreboard(){
   const texture=useMemo(()=>{
@@ -73,70 +84,18 @@ function Scoreboard(){
     ctx.font='15px monospace';ctx.fillText("78′",192,127);
     const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;return t;
   },[]);
-  return <group position={[0,3.9,-8.48]}>
-    <Block position={[0,0,0]} size={[4.15,1.68,.3]} color="#3a5142"/>
-    <mesh position={[0,0,.16]}><planeGeometry args={[3.88,1.46]}/><meshBasicMaterial map={texture}/></mesh>
-  </group>;
-}
-function Goals({side}: {side:number}) {
-  const net=useMemo(()=>{
-    const lines=[];
-    for(let i=0;i<=18;i++) {const z=(i-9)*.154;lines.push(0,1.7,z,1.15,.02,z)}
-    for(let j=1;j<=12;j++){
-      const t=j/12,x=t*1.15,y=(1-t)*1.7;
-      lines.push(x,y,-1.386,x,y,1.386);
-      for(const z of [-1.386,1.386])lines.push(0,y,z,x,y,z,x,0,z,x,y,z);
-    }
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(lines,3));return g;
-  },[]);
-  return <group position={[side*8.1,.29,0]} rotation={[0,side===1?0:Math.PI,0]}>
-    {[-1.4,1.4].map(z=><Block key={z} position={[0,.85,z]} size={[.1,1.7,.1]} color={chalk}/>)}
-    <Block position={[0,1.72,0]} size={[.1,.1,2.9]} color={chalk}/>
-    <lineSegments geometry={net}><lineBasicMaterial color="#e9ead5" transparent opacity={.82}/></lineSegments>
+  return <group position={[2.8,1.87,-6.10]}>
+    <Block position={[0,0,0]} size={[3.0,1.18,.14]} color="#3a5142"/>
+    <mesh position={[0,0,.075]}><planeGeometry args={[2.8,1.03]}/><meshBasicMaterial map={texture}/></mesh>
   </group>;
 }
 export function Stadium(){
-  const flags=useRef<THREE.Group>(null),reduced=useReducedMotion();
-  useFrame(({clock})=>{if(!reduced)flags.current?.children.forEach((flag,i)=>flag.rotation.y=.28*Math.sin(clock.elapsedTime*1.5+i))});
   return <group position={anchors.stadium} rotation={[0,.12,0]}>
-    <Block position={[0,.06,0]} size={[22.4,.46,17.9]} color="#ad9c7d"/>
-    <Blocks castShadow={false} items={Array.from({length:8},(_,i)=>({position:[(i-3.5)*2.08,.265,0],size:[2.08,.065,10.3],color:i%2?'#698653':'#78935c'}))}/>
-    {[-1,1].map(s=><group key={s}>
-      <Block position={[0,.313,s*5]} size={[16.4,.024,.056]} color={chalk}/>
-      <Block position={[s*8.17,.313,0]} size={[.056,.024,10.03]} color={chalk}/>
-      <Block position={[s*5.9,.316,0]} size={[.056,.024,6.15]} color={chalk}/>
-      {[-1,1].map(z=><Block key={z} position={[s*7.03,.316,z*3.05]} size={[2.3,.024,.056]} color={chalk}/>)}
-      <Goals side={s}/>
-      <Blocks items={Array.from({length:4},(_,i)=>{
-        const z=s*(5.95+i*.76);
-        return [{position:[0,.45+i*.29,z] as Vec3,size:[18.9,.45+i*.58,.73] as Vec3,color:i%2?'#b49b77':'#bfa784'},
-          {position:[0,.74+i*.59,z] as Vec3,size:[18.2,.14,.38] as Vec3,color:i%2?'#667e63':'#84916e'}];
-      }).flat()}/>
-      <Block position={[0,3.24,s*8.72]} size={[19.4,.23,.24]} color={forest}/>
-      <Blocks items={[
-        ...[-9.34,9.34].flatMap(x=>Array.from({length:7},(_,i)=>({position:[x,.37+i*.33,s*(5.45+i*.47)] as Vec3,size:[1.15,.24,.49] as Vec3,color:i%2?'#b6aa96':'#c0b29d'}))),
-        ...Array.from({length:11},(_,i)=>({position:[(i-5)*1.77,2.85,s*8.71] as Vec3,size:[.08,.77,.08] as Vec3,color:'#727b72'})),
-      ]}/>
-    </group>)}
-    <Block position={[0,.314,0]} size={[.055,.024,10]} color={chalk}/>
-    <mesh position={[0,.331,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[1.39,1.45,44]}/><meshBasicMaterial color={chalk}/></mesh>
-    <mesh position={[0,.335,0]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[.08,12]}/><meshBasicMaterial color={chalk}/></mesh>
-    {[-1,1].flatMap(side=>[-1,1].map(end=><group key={side+'/'+end} position={[end*8.12,.32,side*4.96]}>
-      <Block position={[0,.34,0]} size={[.037,.7,.037]} color={chalk}/>
-      <mesh position={[.15,.61,0]}><planeGeometry args={[.28,.19]}/><meshStandardMaterial color="#dc8c4e" side={THREE.DoubleSide}/></mesh>
-    </group>))}
-    <mesh position={[.52,.47,-.68]}><icosahedronGeometry args={[.14,1]}/><meshStandardMaterial color="#f3ebd9" roughness={.85}/></mesh>
+    <Model name="footballStadium" position={[0,.06,0]} scale={stadiumScale}/>
     <Crowd/>
-    {[-10.2,10.2].flatMap(x=>[-7.95,7.95].map(z=><group key={`${x}/${z}`} position={[x,0,z]}>
-      <Block position={[0,3.25,0]} size={[.19,6.5,.19]} color="#545f55"/>
-      <Block position={[0,6.6,0]} size={[1.35,.65,.32]} color="#57665b"/>
-      {[-.42,0,.42].map(dx=><Block key={dx} position={[dx,6.61,z>0?-.18:.18]} size={[.31,.42,.062]} color="#ffe6b6" glow={.85}/>)}
+    {[-6.2,6.2].flatMap(x=>[-4.6,4.6].map(z=><group key={`${x}/${z}`} position={[x,0,z]}>
       <Floodlight x={x} z={z}/>
     </group>))}
     <Scoreboard/>
-    <group ref={flags}>{Array.from({length:7},(_,i)=><group key={i} position={[(i-3)*2.6,3.1,-8.5]}>
-      <Block position={[0,.66,0]} size={[.06,1.3,.06]} color={chalk}/>
-      <mesh position={[.38,1.07,0]}><planeGeometry args={[.76,.43]}/><meshStandardMaterial color={i%2?'#e88945':'#7047a3'} side={THREE.DoubleSide}/></mesh>
-    </group>)}</group>
   </group>;
 }

@@ -264,5 +264,12 @@
     "bytes": 347320,
     "source": "https://poly.pizza/m/0uJQPU1oAK",
     "license": "CC0-1.0"
+  },
+  {
+    "file": "footballStadium.glb",
+    "pack": "innerscene-stadium",
+    "bytes": 2239272,
+    "source": "https://www.innerscene.com/tools/library/3d-parts/football-stadium-f7b93967",
+    "license": "CC0-1.0"
   }
 ]

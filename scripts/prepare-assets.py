@@ -100,5 +100,13 @@ for name, model_id in (
         'source': f'https://poly.pizza/m/{model_id}',
         'license': 'CC0-1.0',
     })
+stadium = OUT / 'footballStadium.glb'
+manifest.append({
+    'file': stadium.name,
+    'pack': 'innerscene-stadium',
+    'bytes': stadium.stat().st_size,
+    'source': 'https://www.innerscene.com/tools/library/3d-parts/football-stadium-f7b93967',
+    'license': 'CC0-1.0',
+})
 (OUT / 'manifest.json').write_text(json.dumps(manifest, indent=2))
 print(f'{len(manifest)} GLBs, {sum(x["bytes"] for x in manifest) / 1024**2:.2f} MiB')

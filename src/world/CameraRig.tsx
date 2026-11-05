@@ -62,7 +62,7 @@ export function CameraRig() {
     const state=useExperience.getState(),travel=state.mode==='transitioning';
     const id=state.mode==='welcome'?'welcome':travel?state.target:state.destination;
     const pose=poses[id],portrait=size.width/size.height<1.05;
-    const portraitFov={welcome:30,overview:35,office:22,city:19,stadium:24,nature:13,family:17};
+    const portraitFov={welcome:30,overview:35,office:22,city:19,stadium:16,nature:13,family:17};
     const fov=pose.fov+(portrait?portraitFov[id]:0);
     const x=portrait?(id==='office'?.16:0):id==='welcome'?-.145:id==='overview'?-.075:state.panelOpen?-.115:0;
     const y=portrait?(id==='welcome'?.185:id==='overview'?-.015:state.panelOpen?.17:.035):0;

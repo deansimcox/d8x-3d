@@ -20,7 +20,7 @@ export const poses: Record<Destination | 'welcome', Pose> = {
   overview: {position: [69, 65, 116], target: [0, 0, -2], fov: 48},
   office: {position: workshopPoint(.95,2.53,2.73), target: workshopPoint(.33,1.86,-1.52), fov: 69},
   city: {position: [48, 22, 46], target: [27, 7, 21], fov: 43},
-  stadium: {position: [-66, 20, 5], target: [-39, 4, -12], fov: 48},
+  stadium: {position: [-43.8, 11.6, -4.8], target: [-36.6, 4.45, -9.2], fov: 72},
   nature: {position: [-30, 11, -43], target: [-22.7, 4.5, -28.3], fov: 41},
   family: {position: [48, 16, -8], target: [27, 6, -27], fov: 42},
 };
