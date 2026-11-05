@@ -84,7 +84,7 @@ function App(){
     <div className="world-canvas" ref={node=>{if(node)node.inert=loading}}>{fallback||!loadWorld?<IslandIllustration/>:<WorldBoundary><Suspense fallback={null}><World/></Suspense></WorldBoundary>}</div>
     <div className="wash" aria-hidden="true"/>
     <header className="topbar">
-      <button className="brand" onClick={()=>{enterFocus.current=false;returnToIntro()}} aria-label="d8x.dev, back to intro" title="Back to intro"><svg className="brand-symbol" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 1v22M1 12h22M4.2 4.2l15.6 15.6m0-15.6L4.2 19.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg><span className="brand-name">d8x.dev</span></button>
+      <button className="brand" onClick={()=>{enterFocus.current=false;returnToIntro()}} aria-label="d8x.dev, back to intro" title="Back to intro"><img className="brand-symbol" src={`${import.meta.env.BASE_URL}favicon.svg`} width="28" height="28" alt=""/><span className="brand-name">d8x.dev</span></button>
       <div className="header-actions">
         <span className="edition">DEAN / DEVELOPER PORTFOLIO</span>
         <button className="icon-button" onClick={toggleSound} aria-label="Ambient sound" aria-pressed={sound} title={sound?'Mute ambient sound':'Enable ambient sound'}>{sound?<Volume2 size={19} aria-hidden="true" focusable="false"/>:<VolumeX size={19} aria-hidden="true" focusable="false"/>}</button>
