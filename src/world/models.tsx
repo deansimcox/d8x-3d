@@ -2,6 +2,7 @@ import {useMemo} from 'react';
 import {useGLTF} from '@react-three/drei';
 import * as THREE from 'three';
 import type {Vec3} from './layout';
+import {windMaterial} from './wind';
 
 const url=(name:string)=>`${import.meta.env.BASE_URL}models/${name}.glb`;
 export function useModel(name:string) {
@@ -31,7 +32,7 @@ export function Model({name,position=[0,0,0],height,width,dimensions,scale=1,rot
 export type Placement={position:Vec3;height:number;rotation:number};
 // Each source mesh is drawn once for the whole grove. Shared cached geometry,
 // textures and materials avoid a separate scene graph for every tree.
-export function ModelInstances({name,placements}: {name:string;placements:Placement[]}) {
+export function ModelInstances({name,placements,wind=false}: {name:string;placements:Placement[];wind?:boolean}) {
   const model=useModel(name);
   const meshes=useMemo(()=>{
     model.scene.updateMatrixWorld(true);
@@ -39,12 +40,17 @@ export function ModelInstances({name,placements}: {name:string;placements:Placem
     model.scene.traverse(o=>{if(o instanceof THREE.Mesh)list.push(o)});
     return list;
   },[model]);
+  const materials=useMemo(()=>meshes.map(mesh=>{
+    if(!wind)return mesh.material;
+    const bend=(m:THREE.Material)=>windMaterial(m,model.size.y,model.size.y*.033,-model.offset.y);
+    return Array.isArray(mesh.material)?mesh.material.map(bend):bend(mesh.material);
+  }),[meshes,model,wind]);
   const matrices=useMemo(()=>placements.map(p=>{
     const factor=p.height/model.size.y;
     return new THREE.Matrix4().compose(new THREE.Vector3(...p.position),new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),p.rotation),new THREE.Vector3(factor,factor,factor))
       .multiply(new THREE.Matrix4().makeTranslation(...model.offset.toArray() as Vec3));
   }),[placements,model]);
-  return <group>{meshes.map((mesh,index)=><instancedMesh key={index} args={[mesh.geometry,mesh.material,placements.length]} castShadow receiveShadow dispose={null} onUpdate={instance=>{
+  return <group>{meshes.map((mesh,index)=><instancedMesh key={index} args={[mesh.geometry,materials[index],placements.length]} castShadow receiveShadow dispose={null} onUpdate={instance=>{
     matrices.forEach((matrix,i)=>instance.setMatrixAt(i,matrix.clone().multiply(mesh.matrixWorld)));
     instance.instanceMatrix.needsUpdate=true;instance.computeBoundingSphere();
   }}/>)}</group>;

@@ -21,6 +21,7 @@ const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ena
 const errors=[];
 const samples={};
 const rotationOnly=process.argv.includes('--rotation-only');
+const polishOnly=process.argv.includes('--polish-only');
 const log=page=>{
   page.on('pageerror',error=>errors.push(error.message));
   page.on('console',message=>{if(message.type()==='error')errors.push(message.text())});
@@ -40,6 +41,34 @@ async function waitForWorld(page){
   assert.equal(await page.locator('.guide-mode').count(),0,'3D should load successfully');
 }
 try{
+  if(polishOnly){
+    const page=await browser.newPage({viewport:{width:1280,height:800}});log(page);
+    let release;
+    const gate=new Promise(resolve=>{release=resolve});
+    await page.route('**/*.glb',async route=>{await gate;await route.continue()});
+    await page.goto(base,{waitUntil:'domcontentloaded'});
+    await page.getByRole('status').filter({hasText:'Loading the 3D scenery'}).waitFor();
+    await dock(page).getByRole('button',{name:'Island overview'}).click();
+    await page.locator('#overview-title').waitFor();
+    await page.getByText('Loading the 3D scenery').waitFor();
+    release();
+    await waitForWorld(page);
+    await shot(page,'motion-overview');
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    await dock(page).getByRole('button',{name:'Workshop'}).dispatchEvent('click');
+    await page.getByRole('button',{name:'Skip'}).waitFor();
+    await heading(page,'The Workshop').waitFor({timeout:18000});
+    await shot(page,'motion-workshop');
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    await dock(page).getByRole('button',{name:'Matchday'}).dispatchEvent('click');
+    await heading(page,'Matchday').waitFor({timeout:18000});
+    await shot(page,'motion-matchday');
+    await page.setViewportSize({width:390,height:844});
+    await dock(page).getByRole('button',{name:'Workshop'}).click();
+    await heading(page,'The Workshop').waitFor();
+    await shot(page,'motion-mobile-workshop');
+    await page.close();
+  }else{
   if(!rotationOnly){
   const desktop=await browser.newPage({viewport:{width:1280,height:800}});log(desktop);
   await desktop.addInitScript(()=>{
@@ -124,9 +153,10 @@ try{
   await shot(fallback,'webgl-fallback');
   await fallback.close();
   }
+  }
   assert.deepEqual(errors,[]);
   console.log('Smoke checks passed',samples);
 } finally {
-  await writeFile(resolve(out,rotationOnly?'rotation-report.json':'report.json'),JSON.stringify({errors,...samples},null,2));
+  await writeFile(resolve(out,polishOnly?'motion-report.json':rotationOnly?'rotation-report.json':'report.json'),JSON.stringify({errors,...samples},null,2));
   await browser.close();server.close();
 }

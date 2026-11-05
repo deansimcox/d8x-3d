@@ -8,17 +8,24 @@ export const anchors: Record<SceneId, Vec3> = {
   office: [-29, 3.65, 24], city: [29, 3.65, 21],
   stadium: [-37, 3.65, -9], nature: [-22, 3.65, -29], family: [28, 3.65, -27],
 };
+export const workshopAngle=.23;
+export function workshopPoint(x:number,y:number,z:number):Vec3 {
+  const [a,b,c]=anchors.office;
+  return [a+x*Math.cos(workshopAngle)+z*Math.sin(workshopAngle),b+y,c-x*Math.sin(workshopAngle)+z*Math.cos(workshopAngle)];
+}
+export const workshopWindow=workshopPoint(.95,2.35,3.42);
+export const workshopApproach=workshopPoint(.95,2.35,7.2);
 export const poses: Record<Destination | 'welcome', Pose> = {
   welcome: {position: [92, 59, 170], target: [0, 1, 0], fov: 42},
   overview: {position: [69, 65, 116], target: [0, 0, -2], fov: 48},
-  office: {position: [-15.5, 13.2, 45], target: [-30, 6.4, 23], fov: 42},
+  office: {position: workshopPoint(.95,2.53,2.73), target: workshopPoint(.33,1.86,-1.52), fov: 69},
   city: {position: [48, 22, 46], target: [27, 7, 21], fov: 43},
-  stadium: {position: [-59, 21, 15], target: [-37, 5, -9], fov: 45},
+  stadium: {position: [-66, 20, 5], target: [-39, 4, -12], fov: 48},
   nature: {position: [-30, 11, -43], target: [-22.7, 4.5, -28.3], fov: 41},
   family: {position: [48, 16, -8], target: [27, 6, -27], fov: 42},
 };
 
-export const riverPoints = [[-7,-13],[-12,-21],[-18,-25],[-29,-25],[-42,-24],[-50,-16],[-54,-3],[-57,10],[-62,17]];
+export const riverPoints = [[-7,-13],[-12,-21],[-18,-25],[-29,-25],[-40,-25.6],[-48,-26],[-55,-25],[-64,-24]];
 export const random = (seed: number) => {const n = Math.sin(seed * 127.1 + 78.233) * 43758.5453; return n - Math.floor(n)};
 export function distanceToSegment(x: number,z: number,a: Vec3,b: Vec3) {
   const dx=b[0]-a[0],dz=b[2]-a[2];

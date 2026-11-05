@@ -2,6 +2,7 @@ import {useMemo} from 'react';
 import * as THREE from 'three';
 import {ModelInstances,type Placement} from './models';
 import {nearRiver,onIsland,protectedView,random,terrainY} from './layout';
+import {windMaterial} from './wind';
 
 export function Vegetation(){
   const groups=useMemo(()=>{
@@ -26,12 +27,13 @@ export function Vegetation(){
     return Array.from(cells);
   }),[groups]);
   return <group>
-    {groves.map((cells,i)=>cells.map(([key,placements])=><ModelInstances key={`${i}/${key}`} name={['CommonTree_1','CommonTree_3','Pine_1'][i]} placements={placements}/>))}
+    {groves.map((cells,i)=>cells.map(([key,placements])=><ModelInstances key={`${i}/${key}`} name={['CommonTree_1','CommonTree_3','Pine_1'][i]} placements={placements} wind/>))}
     <ModelInstances name="Rock_Medium_1" placements={groups.rocks}/><ModelInstances name="Bush_Common_Flowers" placements={groups.bushes}/><ModelInstances name="Flower_3_Group" placements={groups.flowers}/><Meadow/>
   </group>;
 }
 
 function Meadow(){
+  const material=useMemo(()=>windMaterial(new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:1}),.48,.12),[]);
   const {geometry,patches}=useMemo(()=>{
     const vertices=[];
     for(let i=0;i<6;i++){
@@ -47,9 +49,9 @@ function Meadow(){
     }
     return {geometry,patches};
   },[]);
-  return <instancedMesh args={[geometry,undefined,patches.length]} receiveShadow onUpdate={mesh=>{
+  return <instancedMesh args={[geometry,material,patches.length]} receiveShadow onUpdate={mesh=>{
     const color=new THREE.Color();
     patches.forEach((m,i)=>{mesh.setMatrixAt(i,m);mesh.setColorAt(i,color.set(i%3===0?'#b1b37b':i%3===1?'#80935e':'#99a56e'))});
     mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere();
-  }}><meshStandardMaterial side={THREE.DoubleSide} roughness={1}/></instancedMesh>;
+  }}/>;
 }

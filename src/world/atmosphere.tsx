@@ -23,6 +23,7 @@ export function Atmosphere(){
 }
 function Clouds(){
   const reduced=useReducedMotion(),group=useRef<THREE.Group>(null);
+  const mountain=useRef<THREE.Group>(null);
   const texture=useMemo(()=>{
     const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;
     const ctx=canvas.getContext('2d')!;
@@ -31,11 +32,20 @@ function Clouds(){
     });
     const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;return tex;
   },[]);
-  useFrame(({clock})=>{if(group.current)group.current.rotation.y=reduced?0:clock.elapsedTime*.0021});
-  return <group ref={group}>{Array.from({length:25},(_,i)=>{
+  useFrame(({clock})=>{
+    const t=reduced?0:clock.elapsedTime;
+    if(group.current)group.current.rotation.y=t*.011;
+    mountain.current?.children.forEach((cloud,i)=>{
+      const a=2.1+i*1.48+t*(.037+i*.005);
+      cloud.position.set(Math.cos(a)*(15+i*2.7),15+i*2.5+Math.sin(a*2)*.65,-4+Math.sin(a)*(13+i*1.6));
+    });
+  });
+  return <><group ref={group}>{Array.from({length:25},(_,i)=>{
     const a=i*2.399,r=74+random(i+13)*115,s=24+random(i+37)*28;
     return <sprite key={i} position={[Math.cos(a)*r,-14+random(i+3)*23,Math.sin(a)*r]} scale={[s,s*.36,1]}><spriteMaterial map={texture} transparent opacity={.39+random(i+1)*.35} depthWrite={false} fog={false}/></sprite>;
-  })}</group>;
+  })}</group><group ref={mountain}>{[0,1,2,3].map(i=><sprite key={i} scale={[13+i*2.2,4.1+i*.55,1]}>
+    <spriteMaterial map={texture} transparent opacity={.37-i*.041} depthWrite={false} fog={false}/>
+  </sprite>)}</group></>;
 }
 export function Avatar(){
   const arm=useRef<THREE.Group>(null),reduced=useReducedMotion();

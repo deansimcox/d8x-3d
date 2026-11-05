@@ -10,30 +10,34 @@ import {useReducedMotion} from './motion';
 const fullStream=new THREE.CatmullRomCurve3(riverPoints.map(([x,z])=>new THREE.Vector3(x,3.63,z)));
 const riverLip=fullStream.getPoints(180).findIndex(p=>!onIsland(p.x,p.z,1));
 const stream=new THREE.CatmullRomCurve3(fullStream.getPoints(180).slice(0,riverLip<0?undefined:riverLip+1).filter((_,i)=>i%4===0||i===riverLip));
-function ribbon(curve:THREE.Curve<THREE.Vector3>,segments:number,width:(t:number)=>number,vertical=false) {
-  const positions=[],indices=[];
+function ribbon(curve:THREE.Curve<THREE.Vector3>,segments:number,width:(t:number)=>number,fallAcross?:THREE.Vector3) {
+  const positions=[],indices=[],uv=[];
   for(let i=0;i<=segments;i++) {
     const t=i/segments,p=curve.getPoint(t),v=curve.getTangent(t),w=width(t);
-    const side=vertical?new THREE.Vector3(0,0,1):new THREE.Vector3(-v.z,0,v.x);
+    const side=fallAcross?.clone()??new THREE.Vector3(-v.z,0,v.x);
     side.normalize().multiplyScalar(w);
     positions.push(...p.clone().add(side).toArray(),...p.clone().sub(side).toArray());
+    uv.push(0,t,1,t);
     if(i<segments)indices.push(i*2,i*2+2,i*2+1,i*2+1,i*2+2,i*2+3);
   }
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setIndex(indices);g.computeVertexNormals();return g;
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();return g;
 }
 export function Waterside() {
   const reduced=useReducedMotion();
   const flow=useRef<THREE.InstancedMesh>(null);
-  const {water,shore,falls,stones}=useMemo(()=>{
+  const spray=useRef<THREE.InstancedMesh>(null);
+  const {water,shore,falls,stones,spill,across}=useMemo(()=>{
     const width=(t:number)=>1.35+.32*Math.sin(t*11)+t*.33;
     const fall=new THREE.CatmullRomCurve3([new THREE.Vector3(-5.6,16,-12.8),new THREE.Vector3(-7.5,11.4,-13.4),new THREE.Vector3(-8.7,5.7,-14.7),stream.getPoint(.07)]);
     const lip=stream.getPoint(1);
-    const spill=new THREE.CatmullRomCurve3([lip,new THREE.Vector3(lip.x-2,1.5,lip.z+.6),new THREE.Vector3(lip.x-4,-5,lip.z+1.3),new THREE.Vector3(lip.x-5,-16,lip.z+1.8)]);
+    const out=stream.getTangent(1),across=new THREE.Vector3(-out.z,0,out.x);
+    const drop=(distance:number,y:number)=>lip.clone().addScaledVector(out,distance).setY(y);
+    const spill=new THREE.CatmullRomCurve3([lip,drop(1.4,3.15),drop(2.7,-.7),drop(4.1,-12),drop(5.7,-35),drop(7.3,-45)]);
     const rocks:Placement[]=Array.from({length:27},(_,i)=>{
       const t=.08+i*.03,p=stream.getPoint(t),v=stream.getTangent(t),offset=(i%2?-1:1)*(width(t)+.3);
       return {position:[p.x-v.z*offset,3.55,p.z+v.x*offset],height:.35+random(i+95)*.75,rotation:random(i+11)*6.28};
     });
-    return {water:ribbon(stream,128,width),shore:ribbon(stream,128,t=>width(t)+.35),falls:[ribbon(fall,26,t=>.78+t*.54,true),ribbon(spill,26,t=>1.47-t*.61,true)],stones:rocks};
+    return {water:ribbon(stream,128,width),shore:ribbon(stream,128,t=>width(t)+.35),falls:[ribbon(fall,26,t=>.78+t*.54,new THREE.Vector3(0,0,1)),ribbon(spill,46,t=>width(1)*(1-.32*t),across)],stones:rocks,spill,across};
   },[]);
   const transform=useMemo(()=>new THREE.Object3D(),[]);
   useFrame(({clock})=>{
@@ -46,11 +50,23 @@ export function Waterside() {
       transform.updateMatrix();flow.current.setMatrixAt(i,transform.matrix);
     }
     flow.current.instanceMatrix.needsUpdate=true;
+    if(spray.current){
+      for(let i=0;i<34;i++){
+        const t=(i/34+time*(.22+random(i+4)*.07))%1;
+        transform.position.copy(spill.getPoint(t)).addScaledVector(across,(random(i+36)-.5)*(2.3+t*1.4));
+        transform.position.x-=.12+random(i+25)*.34;
+        transform.rotation.set(0,0,-.06);
+        transform.scale.set(.043+random(i)*.06,.25+t*.76,.073);
+        transform.updateMatrix();spray.current.setMatrixAt(i,transform.matrix);
+      }
+      spray.current.instanceMatrix.needsUpdate=true;
+    }
   });
   return <group>
     <mesh geometry={shore} position={[0,-.033,0]} receiveShadow><meshStandardMaterial color="#b9a584" side={THREE.DoubleSide}/></mesh>
     <mesh geometry={water} receiveShadow><meshStandardMaterial color="#529793" roughness={.31} metalness={.09} side={THREE.DoubleSide}/></mesh>
-    {falls.map((g,i)=><mesh key={i} geometry={g}><meshStandardMaterial color="#b9e1d6" emissive="#72b5ad" emissiveIntensity={.22} transparent opacity={.82} side={THREE.DoubleSide} depthWrite={false}/></mesh>)}
+    {falls.map((g,i)=><mesh key={i} geometry={g}><meshStandardMaterial color={i?'#61b9b4':'#b9e1d6'} emissive="#72b5ad" emissiveIntensity={.24} transparent opacity={.87} side={THREE.DoubleSide} depthWrite={false}/></mesh>)}
+    <instancedMesh ref={spray} args={[undefined,undefined,34]} frustumCulled={false}><boxGeometry/><meshBasicMaterial color="#e2f7e9" transparent opacity={.66} depthWrite={false}/></instancedMesh>
     <instancedMesh ref={flow} args={[undefined,undefined,32]} frustumCulled={false}><boxGeometry args={[1,.012,.027]}/><meshBasicMaterial color="#bbdfce" transparent opacity={.52}/></instancedMesh>
     <ModelInstances name="Rock_Medium_2" placements={stones}/>
     <Bridge/>

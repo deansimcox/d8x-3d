@@ -1,5 +1,14 @@
 # Island expansion and polish
 
+## Wind, water and workshop
+
+- Added gentle shader-driven wind to instanced grass and trees, and cloud drift around the mountain. Reduced motion holds the scenery still.
+- Routed the river behind the stadium with clear ground between the banks and the stands. The outlet curves off the island into a waterfall with falling spray.
+- Enclosed the Workshop and routed the camera through an open casement window. The camera backs out through the same opening when leaving.
+- Added a persistent loading indicator that stays visible until the 3D scenery is ready, even when visitors choose a destination during loading.
+
+## Island expansion
+
 - Widened the irregular terrain from roughly 39 × 33 to 59 × 49 units in radius (about 2.25× usable surface area). Moved the five destinations apart at their original miniature scale. Added meadow contours and a deeper, tapered underside.
 - Added destination clearings and camera-to-subject corridors. The camera travels around the island perimeter and can be redirected or skipped. Portrait layouts have their own framing.
 - Integrated CC0 Quaternius foliage, rocks and cottage pieces, plus Kenney furniture, city buildings and picnic props. Built the workshop cutaway, family garden, woven basket, bridge and football ground around them.

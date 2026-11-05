@@ -2,12 +2,12 @@ import {useEffect,useRef} from 'react';
 import {useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three';
 import {useExperience} from '../store';
-import {poses,type Pose} from './layout';
+import {anchors,poses,workshopAngle,workshopApproach,workshopWindow,type Pose} from './layout';
 import {useReducedMotion} from './motion';
 
 const vec=(v:Pose['position'])=>new THREE.Vector3(...v);
 const ease=(t:number)=>t*t*t*(t*(t*6-15)+10);
-type Journey={serial:number;start:number;duration:number;route:THREE.CatmullRomCurve3;look:THREE.Vector3;fov:number;offsetX:number;offsetY:number};
+type Journey={serial:number;start:number;duration:number;move:(t:number,p:THREE.Vector3)=>void;look:THREE.Vector3;fov:number;offsetX:number;offsetY:number;entering:boolean};
 function route(from:THREE.Vector3,to:THREE.Vector3) {
   const a=Math.atan2(from.z,from.x),b=Math.atan2(to.z,to.x);
   const delta=Math.atan2(Math.sin(b-a),Math.cos(b-a));
@@ -21,6 +21,23 @@ function route(from:THREE.Vector3,to:THREE.Vector3) {
   }
   points.push(to);
   return new THREE.CatmullRomCurve3(points);
+}
+function flightPath(from:THREE.Vector3,to:THREE.Vector3,entering:boolean){
+  const approach=vec(workshopApproach),dx=from.x-anchors.office[0],dz=from.z-anchors.office[2];
+  const localX=dx*Math.cos(workshopAngle)-dz*Math.sin(workshopAngle);
+  const localZ=dx*Math.sin(workshopAngle)+dz*Math.cos(workshopAngle);
+  const atWindow=Math.abs(localX-.95)<.25&&Math.abs(from.y-workshopWindow[1])<.35&&localZ>=2.7&&localZ<7.19;
+  const outside=route(atWindow&&!entering?approach:from,entering?approach:to);
+  return (t:number,p:THREE.Vector3)=>{
+    if(entering&&atWindow){p.lerpVectors(from,to,ease(t));return}
+    if(entering){
+      if(t<.64)outside.getPointAt(ease(t/.64),p);
+      else p.lerpVectors(approach,to,ease((t-.64)/.36));
+    }else if(atWindow){
+      if(t<.25)p.lerpVectors(from,approach,ease(t/.25));
+      else outside.getPointAt(ease((t-.25)/.75),p);
+    }else outside.getPointAt(ease(t),p);
+  };
 }
 export function CameraRig() {
   const journey=useRef<Journey|null>(null),look=useRef(vec(poses.welcome.target));
@@ -44,12 +61,17 @@ export function CameraRig() {
     } else {
       if(journey.current?.serial!==state.serial) {
         const destination=vec(pose.position);
-        journey.current={serial:state.serial,start:clock.elapsedTime,duration:THREE.MathUtils.clamp(2.35+camera.position.distanceTo(destination)/85,2.5,4),route:route(camera.position.clone(),destination),look:look.current.clone(),fov:camera.fov,offsetX:offset.current.x,offsetY:offset.current.y};
+        journey.current={serial:state.serial,start:clock.elapsedTime,duration:id==='office'?3.85:THREE.MathUtils.clamp(2.35+camera.position.distanceTo(destination)/85,2.5,4),move:flightPath(camera.position.clone(),destination,id==='office'),look:look.current.clone(),fov:camera.fov,offsetX:offset.current.x,offsetY:offset.current.y,entering:id==='office'};
       }
       const flight=journey.current,t=Math.min(1,(clock.elapsedTime-flight.start)/flight.duration),k=ease(t);
-      flight.route.getPointAt(k,camera.position);
-      look.current.copy(flight.look).lerp(vec(pose.target),k);
-      if(id!=='overview')look.current.lerp(new THREE.Vector3(0,10,0),Math.sin(k*Math.PI)*.22);
+      flight.move(t,camera.position);
+      if(flight.entering){
+        look.current.copy(flight.look).lerp(vec(workshopWindow),ease(Math.min(1,t/.64)));
+        look.current.lerp(vec(pose.target),ease(Math.max(0,(t-.53)/.47)));
+      }else{
+        look.current.copy(flight.look).lerp(vec(pose.target),k);
+        if(id!=='overview')look.current.lerp(new THREE.Vector3(0,10,0),Math.sin(k*Math.PI)*.22);
+      }
       camera.fov=THREE.MathUtils.lerp(flight.fov,fov,k);
       offset.current={x:THREE.MathUtils.lerp(flight.offsetX,x,k),y:THREE.MathUtils.lerp(flight.offsetY,y,k)};
       if(t===1){final();journey.current=null;state.arrived()}

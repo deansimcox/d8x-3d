@@ -93,7 +93,6 @@ function App(){
       <h1 id="welcome-title">The world<br/> between <i>the lines.</i></h1>
       <p>A little island for the work I do, the places I go, and the things I come home to.</p>
       <button className="primary-button" onClick={()=>{enterFocus.current=true;move('overview')}}>{fallback?'Explore the guide':'Come on in'} <ArrowRight size={18}/></button>
-      {loading&&<span className="loading" role="status"><span/> The island is coming into view</span>}
       {fallback&&!guide&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
     </section>}
     {mode==='transitioning'&&<div className="transition-status" role="status"><span className="pulse-dot"/> {target==='overview'?'Back to the island':`On the way to ${scenes[target].title}`} <button onClick={skip}><SkipForward size={16}/> Skip</button></div>}
@@ -107,6 +106,7 @@ function App(){
     </section>}
     {audioError&&<p className="audio-note" role="status">Ambient sound is unavailable on this device.</p>}
     {archive&&<Details {...archive} onClose={closeArchive}/>}
+    {loading&&<div className="island-loading" role="status"><span className="loading-track" aria-hidden="true"/><span>The island is coming into view</span><small>Loading the 3D scenery</small></div>}
     <Dock active={active} move={move}/>
     <footer className="edge-mark"><span>✦</span> FIVE PLACES, ONE LITTLE WORLD</footer>
   </main>;

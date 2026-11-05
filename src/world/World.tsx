@@ -14,6 +14,13 @@ import {City} from './city';
 import {Stadium} from './stadium';
 import {Picnic,Trails,Waterside} from './waterside';
 import {useReducedMotion} from './motion';
+import {windClock,windEnabled} from './wind';
+
+function Wind(){
+  const reduced=useReducedMotion();
+  useFrame(({clock})=>{windClock.value=clock.elapsedTime;windEnabled.value=reduced?0:1},-2);
+  return null;
+}
 
 function Markers({terrain}: {terrain:React.RefObject<THREE.Group>}) {
   const mode=useExperience(s=>s.mode),go=useExperience(s=>s.go);
@@ -65,6 +72,6 @@ export function World(){
   const reduced=useReducedMotion();
   const dpr=Math.min(window.devicePixelRatio||1,window.matchMedia('(max-width: 800px)').matches?1.15:1.5);
   return <Canvas shadows="soft" dpr={dpr} frameloop={reduced?'demand':'always'} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} camera={{position:poses.welcome.position,fov:42,near:.2,far:720}} onCreated={({gl})=>{gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=1.05;gl.outputColorSpace=THREE.SRGBColorSpace}}>
-    <CameraRig/><ContextWatcher/><FrameMetrics/><Scene/>
+    <Wind/><CameraRig/><ContextWatcher/><FrameMetrics/><Scene/>
   </Canvas>;
 }
