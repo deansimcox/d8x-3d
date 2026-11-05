@@ -1,29 +1,12 @@
-# V3 review checklist
+# d8x.dev launch checklist
 
-## Visual
-- [ ] Opening island silhouette and mountain scale
-- [ ] Foreground welcome copy readability against moving world
-- [ ] Camera route around the mountain (no geometry clipping)
-- [ ] Office, city, stadium, picnic and family house framing
-- [ ] Forest density, terrain edges, shadows and colour balance
-- [ ] Markers remain discoverable, including far-side destinations
-- [ ] Mobile portrait and landscape composition
+The site builds to `dist/`. The checks below apply to the release candidate and, where relevant, the live URL.
 
-## Interaction
-- [ ] Welcome > overview > all five scenes > overview
-- [ ] Navigate directly between destinations
-- [ ] Skip a transition and start another
-- [ ] Toggle sound and confirm muted-by-default behaviour
-- [ ] Open and close project/career placeholder overlays
-- [ ] Keyboard focus and Escape behaviour
-- [ ] Reduced-motion experience
-- [ ] WebGL fallback
-
-## Before public launch
-- [ ] Replace project and career placeholders with real content
-- [ ] Add original asset work and optimize it (compressed GLBs / KTX2) where warranted
-- [ ] Validate WCAG focus contrast, screen-reader flow and motion controls
-- [ ] Test Android, iOS, low-end GPUs and browser resizing
-- [ ] Run `npm run build` and fix any type/runtime issues
-- [ ] Check asset loading, frame rate and memory use
-- [ ] Add favicon, Open Graph preview and domain metadata
+- [ ] Build with `npm ci`, `npm run typecheck` and `npm run build`. Preview the production bundle locally.
+- [ ] Run the [browser smoke script](scripts/smoke.mjs). On desktop and mobile, open the intro, overview and all five destinations. Check direct transitions, Skip, panning and recentering, panel collapse, and the return to intro.
+- [ ] Check keyboard focus and Escape in the two archives, reduced motion, the muted default, opt-in audio, and the WebGL fallback.
+- [ ] Confirm the mobile logo and dock insets in portrait. Check short landscape viewports and real iOS and Android devices for clipping, camera framing, load time and rendering performance.
+- [ ] Confirm the profile links, project link and public asset credits. Verify that the lighthouse credit, model manifest and bundled licence files are reachable on the preview host.
+- [ ] Upload `dist/` to the chosen static host and verify asset paths, direct access to `/credits.html`, custom-domain DNS and HTTPS.
+- [ ] Check the browser title, favicon and page description. Decide whether to add a social share image and canonical URL for launch.
+- [ ] Smoke-test the final public URL and confirm a previous build can be restored from the host.

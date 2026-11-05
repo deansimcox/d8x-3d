@@ -2,6 +2,8 @@
 
 Version 1.0 · Approved concept · 2026-11-05
 
+This file records the original design. See the [current project handoff](docs/README.md) for the shipped experience and the [launch checklist](REVIEW_CHECKLIST.md) for release steps.
+
 ## 1. North star
 
 A cinematic, accessible personal portfolio expressed as **one connected floating island**. The island combines a vast, believable landscape with charming miniature/diorama details. A **balanced central snow-capped mountain** and a connected **river system** unify five distinct destinations. The mountain hides portions of the far side to create discovery. Professional and personal interests are equally respected; football is one destination, not the central motif.

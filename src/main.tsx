@@ -76,9 +76,10 @@ function App(){
       <p>I build fast, accessible websites and apps with React, React Native and TypeScript. I enjoy finding the small design and engineering details that make a complicated task feel simple.</p>
       <p>Right now I’m building with Next.js and Expo. You’ll find some of my work here, along with a few things I love away from the desk.</p>
       <button className="primary-button" onClick={()=>{enterFocus.current=true;move('overview')}}>{fallback?'Explore the guide':'Explore my portfolio'} <ArrowRight size={18}/></button>
-      <nav className="profile-links" aria-label="Find Dean online">
+      <nav className="profile-links" aria-label="Profiles and credits">
         <a href="https://www.linkedin.com/in/dean-simcox/" target="_blank" rel="noopener noreferrer">LinkedIn <MoveUpRight size={13} aria-hidden="true"/></a>
         <a href="https://github.com/deansimcox" target="_blank" rel="noopener noreferrer">GitHub <MoveUpRight size={13} aria-hidden="true"/></a>
+        <a href={`${import.meta.env.BASE_URL}credits.html`}>Asset credits</a>
       </nav>
       {fallback&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
     </section>}

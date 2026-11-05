@@ -1,19 +1,19 @@
 # d8x.dev
 
-A cinematic floating island with five explorable destinations. The portfolio runs as a static Vite, React and Three.js site.
+Dean's personal portfolio is a floating island with five destinations for projects, work history, football, family and time outdoors. It is a static Vite site built with React, TypeScript, React Three Fiber, Three.js, Drei and Zustand.
 
 ```sh
-npm install
+npm ci
 npm run dev
 npm run typecheck
 npm run build
+npm run preview
 ```
 
-Open the URL printed by Vite. `dist/` is the static production build. The illustrated guide is always available via the map button and opens automatically when WebGL is unavailable.
+Vite prints the local URL. Deploy the contents of `dist/` to a static host. The browser loads the scene models from the site itself. Google Fonts is the external source for DM Sans and Fraunces. An illustrated guide appears automatically if the browser cannot run the 3D view.
 
-- Edit destination copy and add real project or career entries in [`src/content.ts`](src/content.ts). Empty archives show a coming-soon note. No personal or professional history has been invented.
-- Island geography, camera poses and protected views are in [`src/world/layout.ts`](src/world/layout.ts). The terrain, scene models, water, lighting and camera rig are separate modules in `src/world/`.
-- The 49 runtime models are local, self-contained GLBs in `public/models/`. See [asset credits](docs/ASSET_ATTRIBUTIONS.md) for the original packs and [the preparation script](scripts/prepare-assets.py) for the conversion recipe. The script uses Python and Pillow; the original packs are only needed when preparing additional models.
-- Ambient sound starts muted. Navigation supports keyboard and touch, short or skipped camera journeys, reduced motion and the illustrated guide.
+- [Project handoff](docs/README.md) records the current experience and where to make changes.
+- [Asset inventory and licences](docs/ASSET_ATTRIBUTIONS.md) lists every bundled model, including retired ones. The site links to its public [credits page](public/credits.html) from the intro.
+- [Launch checklist](REVIEW_CHECKLIST.md) covers browser checks, hosting and the production smoke test.
 
-[`scripts/smoke.mjs`](scripts/smoke.mjs) serves `dist/` on loopback and runs the desktop/mobile Playwright checks. Run `node scripts/smoke.mjs` after building, using Playwright and Chromium already installed locally. Set `PLAYWRIGHT_MODULE` to an absolute Playwright entry point when using a separate installation. The script saves screenshots and the console report under `artifacts/smoke/`.
+After building, run `node scripts/smoke.mjs` with Playwright and Chromium installed. Set `PLAYWRIGHT_MODULE` to the absolute Playwright entry point if it is installed outside the project. The script serves `dist/` locally and writes screenshots and its console report to `artifacts/smoke/`.

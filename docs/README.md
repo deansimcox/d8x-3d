@@ -1,18 +1,19 @@
-# The World Between the Lines — OpenCode Handoff v2
+# d8x.dev project handoff
 
-This handoff replaces the earlier scroll-driven concept. It is **documentation**, not a claim that the application has been updated or tested.
+The current portfolio lives in this repository. [AGENTS.md](../AGENTS.md) records the current project rules. The older design spec, implementation plan, first OpenCode prompt and polish changelog in this folder record earlier iterations.
 
-## Files
+The intro presents Dean's role, portrait, profile links and asset credits alongside a wide island view. The d8x.dev badge returns to that intro. Overview has destination markers, and the dock follows the trail in this order: Projects, Work, Football, Family, Outdoors. Visitors can skip camera journeys, pan from a fixed viewpoint in each scene, and press Home to recenter. The scene card and camera framing adjust together when the story is collapsed. Reduced motion uses immediate camera and layout changes.
 
-- `WORLD_DESIGN_SPEC.md` — approved visual, geographic, camera, UI, audio and scene requirements.
-- `AGENTS.md` — coding agent rules, hard constraints and project architecture.
-- `IMPLEMENTATION_PLAN.md` — detailed phased checklist and acceptance criteria.
-- `FIRST_OPENCODE_PROMPT.md` — recommended Phase 0 audit prompt.
+| Area | Current implementation |
+| --- | --- |
+| Projects | The camera enters the workshop through its window. Three animated displays show an editor, a responsive preview and a build terminal. The project archive covers The Village Wellness Centre. |
+| Work | A small city and coffee shop frame the career archive, with entries for HBF and Precedent. |
+| Football | The east side has an open village ground, stands on four sides, two supporter palettes, floodlights, a 3–2 scoreboard and opt-in cheering. The earlier full bowl is retained as an unused asset. |
+| Family | The house is on the northern ridge, screened from Matchday by trees. The yard includes bikes, toys, a veggie patch, chickens, a telescope and stepping stones. |
+| Outdoors | The riverside has a picnic, animated deer and butterflies, a waterfall, and the footbridge that closes the island trail loop. Plant and rock placement uses the same trail route as the rendering. |
+| Sky | Clouds, birds, a balloon, a vintage biplane, a ferry and a lighthouse add detail around the island. |
+| Sound and fallback | Ambient sound starts muted and is synthesized in the browser. The illustrated guide appears automatically when WebGL is unavailable. |
 
-## Use with an existing project
+Edit the bio, navigation and overlays in `src/main.tsx`, `src/content.ts` and `src/Details.tsx`. Camera journeys live in `src/world/CameraRig.tsx`, island geography in `src/world/layout.ts`, and trail coordinates and clearance in `src/world/trail.ts`. The original and prepared models are documented in the [asset inventory](ASSET_ATTRIBUTIONS.md).
 
-Copy all four `.md` files into your **actual local project root**. Replace any older `AGENTS.md` or implementation plan. Open the repo in OpenCode and use the first prompt. The repo itself is not modified by this documentation package.
-
-## Starter code
-
-The separate original `world-between-the-lines-milestone-1.zip` starter was generated for an earlier concept. It is useful as a baseline but includes a central pitch, pointer parallax and outdated README/section structure. Do not treat it as current implementation. The original archive has not been verified by install, lint, typecheck or build in this handoff.
+Before pointing the domain at a host, use the [launch checklist](../REVIEW_CHECKLIST.md) to validate the preview and deployed build. Build, type and browser checks used throughout development have been local. Production URL, HTTPS and real-device performance still need verification on the chosen host.
