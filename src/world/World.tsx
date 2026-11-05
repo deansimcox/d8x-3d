@@ -29,9 +29,8 @@ function Markers({terrain}: {terrain:React.RefObject<THREE.Group>}) {
   // commit so they follow the resized camera even in demand-rendering mode.
   useLayoutEffect(()=>{if(mode==='overview')invalidate(2)},[mode,size.width,size.height,invalidate]);
   if(mode!=='overview')return null;
-  const names=['Workshop','Little City','Matchday','Riverside','Home'];
-  return <group>{sceneIds.map((id,i)=><Html key={`${id}:${size.width}x${size.height}`} position={[anchors[id][0],anchors[id][1]+(id==='nature'?8.8:10),anchors[id][2]]} center occlude={[terrain]} zIndexRange={[3,1]}>
-    <button className="world-marker" onClick={()=>go(id)} aria-label={'Visit '+scenes[id].title}><span className="marker-dot" style={{backgroundColor:scenes[id].color}}/><span className="marker-name">{names[i]}</span><span className="marker-number" aria-hidden="true">{scenes[id].index}</span></button>
+  return <group>{sceneIds.map(id=><Html key={`${id}:${size.width}x${size.height}`} position={[anchors[id][0],anchors[id][1]+(id==='nature'?8.8:10),anchors[id][2]]} center occlude={[terrain]} zIndexRange={[3,1]}>
+    <button className="world-marker" onClick={()=>go(id)}><span className="marker-dot" style={{backgroundColor:scenes[id].color}}/><span className="marker-name">{scenes[id].label}</span><span className="marker-number" aria-hidden="true">{scenes[id].index}</span></button>
   </Html>)}</group>;
 }
 function Ready(){

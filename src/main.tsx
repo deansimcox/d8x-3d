@@ -1,14 +1,14 @@
 import React,{Suspense,lazy,useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,X,Map} from 'lucide-react';
-import {archives,sceneIds,scenes,type Destination,type SceneId} from './content';
+import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,Map} from 'lucide-react';
+import {sceneIds,scenes,type Destination} from './content';
 import {useExperience} from './store';
 import {mixSound,setAudio} from './audio';
+import {Details} from './Details';
 import './style.css';
 
 const World=lazy(()=>import('./world/World').then(module=>({default:module.World})));
 const icons={office:House,city:Building2,stadium:Trophy,nature:Trees,family:Heart};
-const labels:Record<SceneId,string>={office:'Workshop',city:'City',stadium:'Matchday',nature:'Riverside',family:'Home'};
 
 class WorldBoundary extends React.Component<{children:React.ReactNode},{failed:boolean}>{
   state={failed:false};
@@ -32,30 +32,10 @@ function IslandIllustration(){return <svg className="illustration" viewBox="0 0 
   <path d="M342 64 351 234 429 187Z" fill="#c8c5ab" opacity=".5"/><path d="M359 156 Q334 182 360 195 Q398 215 321 229 L282 252 290 305" fill="none" stroke="#b9dcd1" strokeWidth="7"/>
   {[[176,212],[210,224],[486,214],[521,226],[461,231],[203,197],[548,214]].map(([x,y],i)=><path key={x} d={`M${x-10} ${y} L${x} ${y-26-i%3*4} ${x+10} ${y}Z`} fill={i%2?'#64896b':'#537a60'}/>)}
 </svg>}
-function Details({id,entry,onClose}: {id:'office'|'city';entry?:number;onClose:()=>void}){
-  const ref=useRef<HTMLDialogElement>(null);
-  const entries=entry!==undefined&&archives[id][entry]?[archives[id][entry]]:archives[id];
-  useEffect(()=>{ref.current?.showModal()},[]);
-  return <dialog ref={ref} className="detail-modal" aria-labelledby="detail-title" onClose={onClose} onClick={e=>{if(e.target===e.currentTarget)ref.current?.close()}}>
-    <div className="detail-inner">
-      <button className="icon-button modal-close" aria-label="Close details" autoFocus onClick={()=>ref.current?.close()}><X size={20}/></button>
-      <p className="eyebrow">{scenes[id].eyebrow}</p>
-      <h2 id="detail-title">{id==='office'?'The work behind the windows.':'A city built from experience.'}</h2>
-      {entries.length?entries.map(item=><article className="archive-entry" key={item.title}>
-        <h3>{item.title}</h3>{item.period&&<span className="eyebrow">{item.period}</span>}
-        {item.image&&<img src={item.image.src} alt={item.image.alt}/>}
-        <p>{item.summary}</p>{item.tags&&<p>{item.tags.join(' · ')}</p>}
-        {item.links?.map(link=><a key={link.href} href={link.href}>{link.label} <MoveUpRight size={14}/></a>)}
-      </article>):<><p>{id==='office'?'The workshop is where project case studies will live. Check back for a closer look at the work.':'The city will trace the roles and projects that shaped my career. Check back as those chapters are added.'}</p>
-      <span className="archive-note">{id==='office'?'Project archive':'Career archive'} · Coming soon</span></>}
-      <button className="text-button" onClick={()=>ref.current?.close()}><ArrowLeft size={16}/> Return to the island</button>
-    </div>
-  </dialog>;
-}
 function Dock({active,move}: {active:Destination;move:(d:Destination)=>void}){
   return <nav className="dock" aria-label="Explore destinations">
     <button className="dock-item" onClick={()=>move('overview')} aria-label="Island overview" aria-current={active==='overview'?'page':undefined}><Mountain size={19}/><span>Overview</span></button>
-    {sceneIds.map(id=>{const Icon=icons[id];return <button key={id} className="dock-item" onClick={()=>move(id)} aria-current={active===id?'page':undefined}><Icon size={19}/><span>{labels[id]}</span></button>})}
+    {sceneIds.map(id=>{const Icon=icons[id];return <button key={id} className="dock-item" onClick={()=>move(id)} aria-current={active===id?'page':undefined}><Icon size={19}/><span>{scenes[id].label}</span></button>})}
   </nav>;
 }
 function App(){
@@ -83,24 +63,26 @@ function App(){
     <header className="topbar">
       <button ref={overviewButton} className="brand" onClick={()=>move('overview')} aria-label="Island overview"><span className="brand-symbol" aria-hidden="true">✳</span><span>THE WORLD<br/>BETWEEN THE LINES</span></button>
       <div className="header-actions">
-        <span className="edition">A SMALL WORLD IN FIVE CHAPTERS</span>
+        <span className="edition">DEAN / DEVELOPER PORTFOLIO</span>
         {available&&!failed&&<button className="icon-button" aria-label={guide?'Show 3D world':'Open the illustrated guide'} aria-pressed={guide} title={guide?'Show 3D world':'Illustrated guide'} onClick={()=>setGuide(!guide)}><Map size={19}/></button>}
         <button className="icon-button" onClick={toggleSound} aria-label="Ambient sound" aria-pressed={sound} title={sound?'Mute ambient sound':'Enable ambient sound'}>{sound?<Volume2 size={19}/>:<VolumeX size={19}/>}</button>
       </div>
     </header>
     {mode==='welcome'&&<section className="welcome" aria-labelledby="welcome-title">
-      <div className="eyebrow">FIELD NOTES &nbsp; / &nbsp; VOL. 01</div>
-      <h1 id="welcome-title">The world<br/> between <i>the lines.</i></h1>
-      <p>A little island for the work I do, the places I go, and the things I come home to.</p>
-      <button className="primary-button" onClick={()=>{enterFocus.current=true;move('overview')}}>{fallback?'Explore the guide':'Come on in'} <ArrowRight size={18}/></button>
+      <img className="welcome-avatar" src={`${import.meta.env.BASE_URL}dean-portrait.jpg`} width="96" height="96" alt="Photo of Dean"/>
+      <div className="eyebrow">SENIOR FRONTEND ENGINEER</div>
+      <h1 id="welcome-title">Hi, I’m <i>Dean.</i></h1>
+      <p>I build fast, accessible websites and apps with React, React Native and TypeScript. I enjoy finding the small design and engineering details that make a complicated task feel simple.</p>
+      <p>Right now I’m building with Next.js and Expo. You’ll find some of my work here, along with a few things I love away from the desk.</p>
+      <button className="primary-button" onClick={()=>{enterFocus.current=true;move('overview')}}>{fallback?'Explore the guide':'Explore my portfolio'} <ArrowRight size={18}/></button>
       {fallback&&!guide&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
     </section>}
     {mode==='transitioning'&&<div className="transition-status" role="status"><span className="pulse-dot"/> {target==='overview'?'Back to the island':`On the way to ${scenes[target].title}`} <button onClick={skip}><SkipForward size={16}/> Skip</button></div>}
-    {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">THE ISLAND &nbsp; / &nbsp; 01–05</div><h2 id="overview-title">Pick a place<br/> to <i>begin.</i></h2><p>{fallback?'Choose a destination from the dock.':'Choose a marker on the island, or use the dock.'}</p></section>}
+    {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">MY PORTFOLIO</div><h2 id="overview-title">Work &amp;<br/> <i>life.</i></h2><p>Start with a project, my work history or a stop away from the desk.</p></section>}
     {mode==='scene'&&scene&&<section className={`scene-panel${panelOpen?'':' collapsed'}`} key={destination} aria-labelledby={panelOpen?'scene-title':undefined} aria-label={panelOpen?undefined:scene.title}>
       <div className="panel-top"><span className="eyebrow">{scene.index} / 05 <span className="chapter-dot" style={{background:scene.color}}/></span><button className="panel-toggle" onClick={togglePanel} aria-expanded={panelOpen} aria-controls="scene-copy" aria-label={panelOpen?'Hide story':'Read story'}>{panelOpen?'−':'+'}</button></div>
       <div id="scene-copy" hidden={!panelOpen}><div className="eyebrow">{scene.eyebrow}</div><h2 id="scene-title">{scene.title}</h2><p>{scene.description}</p>
-      {(destination==='office'||destination==='city')&&<button className="detail-button" onClick={()=>openArchive(destination)}>{destination==='office'?'Project archive':'Career archive'} <MoveUpRight size={15}/></button>}
+      {(destination==='office'||destination==='city')&&<button className="detail-button" onClick={()=>openArchive(destination)}>{destination==='office'?'View project details':'View work history'} <MoveUpRight size={15}/></button>}
       <button className="text-button" onClick={()=>move('overview')}><ArrowLeft size={16}/> Back to the island</button></div>
       {!panelOpen&&<span className="collapsed-label">{scene.title}</span>}
     </section>}
@@ -108,7 +90,7 @@ function App(){
     {archive&&<Details {...archive} onClose={closeArchive}/>}
     {loading&&<div className="island-loading" role="status"><span className="loading-track" aria-hidden="true"/><span>The island is coming into view</span><small>Loading the 3D scenery</small></div>}
     <Dock active={active} move={move}/>
-    <footer className="edge-mark"><span>✦</span> FIVE PLACES, ONE LITTLE WORLD</footer>
+    <footer className="edge-mark"><span>✦</span> DEAN / SENIOR FRONTEND ENGINEER</footer>
   </main>;
 }
 

@@ -32,7 +32,7 @@ async function shot(page,name){
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   await page.screenshot({path:resolve(out,name+'.png'),animations:'disabled',timeout:45000});console.log(name);
 }
-const scenes=[['Workshop','The Workshop'],['City','The Little City'],['Matchday','Matchday'],['Riverside','A Little Breathing Room'],['Home','Home, Sweet Home']];
+const scenes=[['Projects','My projects'],['Work','Where I’ve worked'],['Football','My football teams'],['Outdoors','Getting outside'],['Family','My family']];
 const dock=page=>page.getByRole('navigation',{name:'Explore destinations'});
 const heading=(page,name)=>page.getByRole('heading',{name,exact:true});
 async function waitForWorld(page){
@@ -55,17 +55,17 @@ try{
     await waitForWorld(page);
     await shot(page,'motion-overview');
     await page.emulateMedia({reducedMotion:'no-preference'});
-    await dock(page).getByRole('button',{name:'Workshop'}).dispatchEvent('click');
+    await dock(page).getByRole('button',{name:'Projects'}).dispatchEvent('click');
     await page.getByRole('button',{name:'Skip'}).waitFor();
-    await heading(page,'The Workshop').waitFor({timeout:18000});
+    await heading(page,'My projects').waitFor({timeout:18000});
     await shot(page,'motion-workshop');
     await page.emulateMedia({reducedMotion:'no-preference'});
-    await dock(page).getByRole('button',{name:'Matchday'}).dispatchEvent('click');
-    await heading(page,'Matchday').waitFor({timeout:18000});
+    await dock(page).getByRole('button',{name:'Football'}).dispatchEvent('click');
+    await heading(page,'My football teams').waitFor({timeout:18000});
     await shot(page,'motion-matchday');
     await page.setViewportSize({width:390,height:844});
-    await dock(page).getByRole('button',{name:'Workshop'}).click();
-    await heading(page,'The Workshop').waitFor();
+    await dock(page).getByRole('button',{name:'Projects'}).click();
+    await heading(page,'My projects').waitFor();
     await shot(page,'motion-mobile-workshop');
     await page.close();
   }else{
@@ -82,7 +82,7 @@ try{
   await desktop.emulateMedia({reducedMotion:'no-preference'});
   await desktop.keyboard.press('Tab');
   assert.equal(await desktop.locator(':focus-visible').count(),1,'keyboard focus is visible');
-  await desktop.getByRole('button',{name:'Come on in'}).click();
+  await desktop.getByRole('button',{name:'Explore my portfolio'}).click();
   await desktop.locator('#overview-title').waitFor({timeout:15000});
   samples.render=await desktop.locator('canvas').getAttribute('data-render-stats');
   samples.softwareRenderer=await desktop.locator('canvas').evaluate(canvas=>{
@@ -92,7 +92,7 @@ try{
   await shot(desktop,'desktop-overview');
   samples.overviewMarkers=await desktop.locator('.world-marker:visible').count();
   assert.equal(samples.overviewMarkers,5);
-  const homeMarker=desktop.locator('.world-marker').filter({hasText:'Home'});
+  const homeMarker=desktop.locator('.world-marker').filter({hasText:'Family'});
   const originalMarker=await homeMarker.boundingBox();
   assert.ok(originalMarker);
   await desktop.mouse.move(1015,575);
@@ -100,13 +100,13 @@ try{
   await desktop.mouse.move(1110,605,{steps:5});
   await desktop.mouse.up();
   await desktop.waitForFunction(x=>{
-    const marker=[...document.querySelectorAll('.world-marker')].find(node=>node.textContent.includes('Home'));
+    const marker=[...document.querySelectorAll('.world-marker')].find(node=>node.textContent.includes('Family'));
     return marker&&Math.abs(marker.getBoundingClientRect().x-x)>20;
   },originalMarker.x);
   await desktop.locator('canvas').focus();
   await desktop.keyboard.press('Home');
   await desktop.waitForFunction(x=>{
-    const marker=[...document.querySelectorAll('.world-marker')].find(node=>node.textContent.includes('Home'));
+    const marker=[...document.querySelectorAll('.world-marker')].find(node=>node.textContent.includes('Family'));
     return marker&&Math.abs(marker.getBoundingClientRect().x-x)<1;
   },originalMarker.x);
   samples.pan='drag and keyboard recenter passed';
@@ -116,23 +116,23 @@ try{
     await shot(desktop,'desktop-'+button.toLowerCase());
   }
   await desktop.emulateMedia({reducedMotion:'no-preference'});
-  await dock(desktop).getByRole('button',{name:'Workshop'}).dispatchEvent('click');
-  await dock(desktop).getByRole('button',{name:'City',exact:true}).dispatchEvent('click');
+  await dock(desktop).getByRole('button',{name:'Projects'}).dispatchEvent('click');
+  await dock(desktop).getByRole('button',{name:'Work',exact:true}).dispatchEvent('click');
   await desktop.getByRole('button',{name:'Skip'}).dispatchEvent('click');
-  await heading(desktop,'The Little City').waitFor();
+  await heading(desktop,'Where I’ve worked').waitFor();
   await desktop.emulateMedia({reducedMotion:'reduce'});
-  await desktop.getByRole('button',{name:'Career archive'}).click();
+  await desktop.getByRole('button',{name:'View work history'}).click();
   await desktop.getByRole('dialog').waitFor();await desktop.keyboard.press('Escape');
   await desktop.getByRole('dialog').waitFor({state:'hidden'});
-  assert.equal(await desktop.getByRole('button',{name:'Career archive'}).evaluate(el=>el===document.activeElement),true);
+  assert.equal(await desktop.getByRole('button',{name:'View work history'}).evaluate(el=>el===document.activeElement),true);
   await desktop.getByRole('button',{name:'Ambient sound'}).click();
   assert.equal(await desktop.evaluate(()=>window.audioContexts),1);
   assert.equal(await desktop.getByRole('button',{name:'Ambient sound'}).getAttribute('aria-pressed'),'true');
   await desktop.getByRole('button',{name:'Ambient sound'}).click();
   assert.equal(await desktop.getByRole('button',{name:'Ambient sound'}).getAttribute('aria-pressed'),'false');
-  await dock(desktop).getByRole('button',{name:'Workshop'}).focus();
-  await desktop.keyboard.press('Enter');await heading(desktop,'The Workshop').waitFor();
-  await desktop.getByRole('button',{name:'Project archive'}).click();
+  await dock(desktop).getByRole('button',{name:'Projects'}).focus();
+  await desktop.keyboard.press('Enter');await heading(desktop,'My projects').waitFor();
+  await desktop.getByRole('button',{name:'View project details'}).click();
   await desktop.getByRole('dialog').waitFor();await desktop.getByRole('button',{name:'Close details'}).click();
   await desktop.getByRole('dialog').waitFor({state:'hidden'});
   await desktop.close();
@@ -140,7 +140,7 @@ try{
   const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true,reducedMotion:'reduce'});log(mobile);
   await mobile.goto(base,{waitUntil:'domcontentloaded'});await waitForWorld(mobile);
   if(!rotationOnly)await shot(mobile,'mobile-welcome');
-  await mobile.getByRole('button',{name:'Come on in'}).click();await mobile.locator('#overview-title').waitFor();
+  await mobile.getByRole('button',{name:'Explore my portfolio'}).click();await mobile.locator('#overview-title').waitFor();
   if(!rotationOnly)await shot(mobile,'mobile-overview');
   for(const [button,title] of rotationOnly?scenes.slice(-1):scenes){
     await dock(mobile).getByRole('button',{name:button,exact:true}).tap();
@@ -167,7 +167,7 @@ try{
   });
   await fallback.goto(base,{waitUntil:'domcontentloaded'});
   await fallback.getByRole('button',{name:'Explore the guide'}).click();
-  await dock(fallback).getByRole('button',{name:'Workshop'}).click();await heading(fallback,'The Workshop').waitFor();
+  await dock(fallback).getByRole('button',{name:'Projects'}).click();await heading(fallback,'My projects').waitFor();
   await shot(fallback,'webgl-fallback');
   await fallback.close();
   }

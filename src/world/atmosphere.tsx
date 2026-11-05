@@ -59,9 +59,13 @@ export function Avatar(){
   const arm=useRef<THREE.Group>(null),reduced=useReducedMotion();
   useFrame(({clock})=>{if(arm.current)arm.current.rotation.z=reduced?-.34:-.35+Math.sin(clock.elapsedTime*2.7)*.28});
   return <group position={[6,3.63,38]} rotation={[0,.55,0]} scale={1.3}>
-    <mesh position={[0,1.02,0]} castShadow><capsuleGeometry args={[.34,.85,5,12]}/><meshStandardMaterial color="#b27752"/></mesh>
+    <mesh position={[0,1.02,0]} castShadow><capsuleGeometry args={[.34,.85,5,12]}/><meshStandardMaterial color="#303946"/></mesh>
     <mesh position={[0,1.94,0]} castShadow><sphereGeometry args={[.42,15,10]}/><meshStandardMaterial color="#e5b98e"/></mesh>
-    <mesh position={[0,2.12,-.04]} scale={[1,.55,1]} castShadow><sphereGeometry args={[.44,14,10]}/><meshStandardMaterial color="#5a4e41"/></mesh>
-    <group position={[-.32,1.44,0]} ref={arm}><mesh position={[-.17,.38,0]} rotation={[0,0,.45]} castShadow><capsuleGeometry args={[.12,.64,4,8]}/><meshStandardMaterial color="#b27752"/></mesh><mesh position={[-.36,.78,0]}><sphereGeometry args={[.13,10,7]}/><meshStandardMaterial color="#e5b98e"/></mesh></group>
+    <mesh position={[0,2.15,-.08]} scale={[1,.67,1]} castShadow><sphereGeometry args={[.44,12,8]}/><meshStandardMaterial color="#392f2b"/></mesh>
+    {[-1,1].map(side=><group key={side}>{[0,1,2,3].map(i=><mesh key={i} position={[side*(.34+Math.sin(i)*.08),2.12-i*.12,-.035]} scale={[1,1.18,1]}>
+      <icosahedronGeometry args={[.15,1]}/><meshStandardMaterial color={i%2?'#4c3b34':'#392f2b'}/>
+    </mesh>)}</group>)}
+    <mesh position={[0,1.71,.22]} scale={[1,.64,.72]}><sphereGeometry args={[.32,12,8]}/><meshStandardMaterial color="#564137"/></mesh>
+    <group position={[-.32,1.44,0]} ref={arm}><mesh position={[-.17,.38,0]} rotation={[0,0,.45]} castShadow><capsuleGeometry args={[.12,.64,4,8]}/><meshStandardMaterial color="#303946"/></mesh><mesh position={[-.36,.78,0]}><sphereGeometry args={[.13,10,7]}/><meshStandardMaterial color="#e5b98e"/></mesh></group>
   </group>;
 }
