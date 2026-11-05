@@ -20,10 +20,11 @@
 .world-canvas canvas:focus-visible{outline:2px solid #faf5e8;outline-offset:-4px}
 .island-loading{position:absolute;z-index:7;top:clamp(76px,12vh,105px);left:50%;transform:translateX(-50%);width:min(268px,calc(100% - 32px));display:grid;gap:5px;padding:13px 16px;background:#faf5e8f5;border:1px solid #fff9ec;border-radius:13px;box-shadow:0 8px 32px #29463528;font-size:12px;font-weight:750}.island-loading small{font-size:10px;color:var(--muted);font-weight:600}.loading-track{height:4px;border-radius:4px;background:#dce5d4;overflow:hidden;margin-bottom:3px}.loading-track::after{content:'';display:block;width:42%;height:100%;border-radius:4px;background:#587b5d;animation:loading-sweep 1.4s ease-in-out infinite alternate}@keyframes loading-sweep{from{transform:translateX(-80%)}to{transform:translateX(225%)}}
 @media(max-width:800px){
-  .edition,.edge-mark{display:none}.topbar{padding:13px 15px}.brand{font-size:9px;gap:8px}.brand-symbol{font-size:26px}.header-actions{gap:6px}.wash{background:linear-gradient(0deg,#f1e7cae8 9%,#f1e7ca77 29%,transparent 61%)}
-  .welcome{top:auto;bottom:calc(80px + env(safe-area-inset-bottom));left:19px;right:19px;width:auto;transform:none}.welcome h1{font-size:clamp(42px,10.2vw,66px);margin-top:10px}.welcome h1 br{display:none}.welcome p{margin-top:11px;font-size:13px;max-width:320px}.primary-button{margin-top:15px}.loading{margin-top:8px}.overview-intro{left:18px;top:76px;width:auto;max-width:210px}.overview-intro h2{font-size:36px;margin-top:8px}.overview-intro h2 br{display:none}.overview-intro p{font-size:12px;margin-top:7px}.mode-overview .wash{opacity:0}
-  .dock{bottom:calc(9px + env(safe-area-inset-bottom));width:min(500px,calc(100% - 16px));gap:1px;padding:4px;border-radius:16px}.dock-item{min-width:0;min-height:52px;padding:4px;font-size:9px;gap:5px}.dock-item svg{width:17px;height:17px}.dock-item span{overflow:hidden;text-overflow:ellipsis;max-width:100%}
-  .scene-panel{top:auto;transform:none;bottom:calc(76px + env(safe-area-inset-bottom));left:10px;width:min(390px,calc(100% - 20px));max-height:38dvh;padding:13px 16px;border-radius:14px}.scene-panel h2{font-size:35px;margin:6px 0}.scene-panel p{font-size:13px;margin-bottom:8px}.panel-top{margin-bottom:3px}.panel-toggle{width:44px;height:44px}.scene-panel.collapsed{width:auto}.scene-panel .text-button{min-height:40px}.world-marker{min-height:28px;font-size:9px;padding:4px 7px;gap:4px}.marker-dot{width:5px;height:5px}.transition-status{top:67px}.illustration{width:min(96vw,690px);right:2vw;top:31%}
+  .app{--mobile-edge-gap:13px}
+  .edition,.edge-mark{display:none}.topbar{padding:var(--mobile-edge-gap) 15px}.brand{font-size:9px;gap:8px}.brand-symbol{font-size:26px}.header-actions{gap:6px}.wash{background:linear-gradient(0deg,#f1e7cae8 9%,#f1e7ca77 29%,transparent 61%)}
+  .welcome{top:auto;bottom:calc(71px + var(--mobile-edge-gap));left:19px;right:19px;width:auto;transform:none}.welcome h1{font-size:clamp(42px,10.2vw,66px);margin-top:10px}.welcome h1 br{display:none}.welcome p{margin-top:11px;font-size:13px;max-width:320px}.primary-button{margin-top:15px}.loading{margin-top:8px}.overview-intro{left:18px;top:76px;width:auto;max-width:210px}.overview-intro h2{font-size:36px;margin-top:8px}.overview-intro h2 br{display:none}.overview-intro p{font-size:12px;margin-top:7px}.mode-overview .wash{opacity:0}
+  .dock{bottom:var(--mobile-edge-gap);width:min(500px,calc(100% - 16px));gap:1px;padding:4px;border-radius:16px}.dock-item{min-width:0;min-height:52px;padding:4px;font-size:9px;gap:5px}.dock-item svg{width:17px;height:17px}.dock-item span{overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .scene-panel{top:auto;transform:none;bottom:calc(67px + var(--mobile-edge-gap));left:10px;width:min(390px,calc(100% - 20px));max-height:38dvh;padding:13px 16px;border-radius:14px}.scene-panel h2{font-size:35px;margin:6px 0}.scene-panel p{font-size:13px;margin-bottom:8px}.panel-top{margin-bottom:3px}.panel-toggle{width:44px;height:44px}.scene-panel.collapsed{width:auto}.scene-panel .text-button{min-height:40px}.world-marker{min-height:28px;font-size:9px;padding:4px 7px;gap:4px}.marker-dot{width:5px;height:5px}.transition-status{top:67px}.illustration{width:min(96vw,690px);right:2vw;top:31%}
 }
 @media(max-height:490px) and (orientation:landscape){.topbar{padding:9px 15px}.welcome{top:48%;transform:translateY(-50%);bottom:auto;left:20px;width:34vw}.welcome h1{font-size:36px}.welcome p{font-size:12px;margin-top:9px}.primary-button{margin-top:9px}.dock{bottom:7px}.scene-panel{top:58px;bottom:70px;transform:none;max-height:none;width:34vw}.scene-panel.collapsed{bottom:auto}.overview-intro{top:69px}}
 @media(max-height:490px) and (orientation:landscape){.marker-name{display:none}.marker-number{display:inline}.world-marker{min-height:29px;padding:4px 7px;font-size:10px;gap:5px}}
@@ -69,7 +70,7 @@
 .welcome-avatar{display:block;width:clamp(66px,8vw,96px);height:auto;margin-bottom:17px;border:2px solid #fff7e5;border-radius:50%;box-shadow:0 5px 24px #293d2d3d}
 .welcome h1{font-size:clamp(43px,5.5vw,85px);margin-top:10px}
 .welcome p{max-width:345px;margin-top:12px}
-@media(max-width:700px){.welcome-avatar{width:64px;margin-bottom:9px}.welcome h1{font-size:clamp(40px,10vw,62px)}.mode-welcome .wash{background:linear-gradient(0deg,#f6ecd1f5 8%,#f6ecd1d9 30%,transparent 69%)}}
+@media(max-width:700px){.welcome-avatar{width:64px;margin-bottom:9px}.welcome h1{font-size:clamp(40px,10vw,62px)}.mode-welcome .wash{background:linear-gradient(0deg,#f6ecd1f5 8%,#f6ecd1eb 36%,#f6ecd170 57%,transparent 76%)}}
 @media(max-height:490px) and (orientation:landscape){.welcome-avatar{width:46px;margin-bottom:6px}.welcome h1{font-size:34px}.welcome p{margin-top:6px}}
 .profile-links{display:flex;gap:16px;margin-top:4px}
 .profile-links a{display:inline-flex;align-items:center;gap:5px;min-height:44px;color:var(--ink);font-size:13px;font-weight:750;text-underline-offset:4px}
@@ -132,4 +133,8 @@
 }
 @media(max-height:490px) and (orientation:landscape){
   .scene-panel{--panel-width:34vw;bottom:auto;max-height:calc(100dvh - 128px)}
+}
+
+@media(max-width:800px){
+  .welcome .eyebrow{display:inline-block;padding:5px 8px;border-radius:6px;background:var(--paper)}
 }
