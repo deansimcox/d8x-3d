@@ -32,7 +32,7 @@ async function shot(page,name){
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   await page.screenshot({path:resolve(out,name+'.png'),animations:'disabled',timeout:45000});console.log(name);
 }
-const scenes=[['Projects','My projects'],['Work','Where I’ve worked'],['Football','My football teams'],['Outdoors','Getting outside'],['Family','My family']];
+const scenes=[['Projects','My projects'],['Work','Where I’ve worked'],['Football','My football teams'],['Family','My family'],['Outdoors','Getting outside']];
 const dock=page=>page.getByRole('navigation',{name:'Explore destinations'});
 const heading=(page,name)=>page.getByRole('heading',{name,exact:true});
 async function waitForWorld(page){

@@ -1,5 +1,5 @@
 import {Model} from './models';
-import {anchors,workshopAngle,type Vec3} from './layout';
+import {anchors,random,terrainY,workshopAngle,type Vec3} from './layout';
 import {Block,Blocks,Lamp} from './props';
 import {useExperience} from '../store';
 import {Shape} from 'three';
@@ -7,6 +7,7 @@ import {YardToys} from './yard';
 import {KitchenGarden} from './kitchenGarden';
 import {DeveloperScreens} from './codeDisplay';
 import {DeskChair,WritingDesk} from './workshopFurniture';
+import {cottageSteps} from './trail';
 
 const plaster='#e0c8a4',wood='#78543e',stone='#9d947a';
 const gable=new Shape().moveTo(-3.9,-.7).lineTo(3.9,-.7).lineTo(0,1.61).closePath();
@@ -15,8 +16,34 @@ function Roof({home=false}: {home?:boolean}){
 }
 function Planting({home=false}: {home?:boolean}){
   const groups:Vec3[]=home?[[-4.1,0,3.9],[-2.6,0,4.1],[3.2,0,4.2],[4.3,0,2.5],[5.3,0,-2]]:[[-4.2,0,3.9],[4.4,0,1.5],[-5.1,0,.5],[3.7,0,4.8]];
-  return <>{groups.map((p,i)=><Model key={i} name={i%2?'Flower_4_Group':'Bush_Common_Flowers'} position={p} height={i%2?.55:.85} rotation={i*1.9}/>)}
-    <Blocks items={Array.from({length:7},(_,i)=>({position:[Math.sin(i*.48)*.43,.02,3.6+i*.73],size:[1.55,.16,.61],color:i%2?'#c1b699':'#d1bda0',rotation:i*.16}))}/></>;
+  return <>{groups.map((p,i)=><Model key={i} name={i%2?'Flower_4_Group':'Bush_Common_Flowers'} position={p} height={i%2?.55:.85} rotation={i*1.9}/>)}</>;
+}
+const stoneShapes=Array.from({length:8},(_,index)=>{
+  const shape=new Shape();
+  for(let vertex=0;vertex<9;vertex++){
+    const angle=vertex*Math.PI*2/9;
+    const variation=.82+random(index*31+vertex+70)*.22;
+    const x=Math.cos(angle)*(.50+random(index+64)*.17)*variation;
+    const y=Math.sin(angle)*(.23+random(index+20)*.07)*variation;
+    if(vertex===0)shape.moveTo(x,y);
+    else shape.lineTo(x,y);
+  }
+  shape.closePath();
+  return shape;
+});
+const stoneEdges={depth:.075,bevelEnabled:true,bevelSize:.028,bevelThickness:.025,bevelSegments:1};
+function SteppingStones({home=false}:{home?:boolean}){
+  const anchorY=(home?anchors.family:anchors.office)[1];
+  return <group name={home?'Family stepping stones':'Workshop stepping stones'}>
+    {cottageSteps(home).map(({index,x,z,worldX,worldZ})=>{
+      return <group key={index} position={[x,terrainY(worldX,worldZ)-anchorY-.025,z]} rotation={[0,(random(index+19)-.5)*.48,0]}>
+        <mesh rotation={[-Math.PI/2,0,0]} castShadow receiveShadow>
+          <extrudeGeometry args={[stoneShapes[index],stoneEdges]}/>
+          <meshStandardMaterial color={['#a79f88','#b6ac94','#9c9c89'][index%3]} roughness={.96}/>
+        </mesh>
+      </group>;
+    })}
+  </group>;
 }
 export function Workshop(){
   const active=useExperience(s=>s.mode==='scene'&&s.destination==='office');
@@ -59,6 +86,7 @@ export function Workshop(){
     <Block position={[0,3.86,0]} size={[8.1,.1,6.75]} color="#bc9b73"/>
     <Lamp position={[4.4,0,4.9]} short/>
     <Planting/>
+    <SteppingStones/>
   </group>;
 }
 function GardenLookout(){
@@ -100,5 +128,6 @@ export function Home(){
     <KitchenGarden/>
     <GardenLookout/>
     <Planting home/>
+    <SteppingStones home/>
   </group>;
 }

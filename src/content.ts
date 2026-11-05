@@ -1,4 +1,4 @@
-export const sceneIds = ['office','city','stadium','nature','family'] as const;
+export const sceneIds = ['office','city','stadium','family','nature'] as const;
 export type SceneId = typeof sceneIds[number];
 export type Destination = SceneId | 'overview';
 export type ArchiveEntry = {title:string;summary:string;role?:string;period?:string;steps?:{title:string;text:string}[];tags?:string[];image?:{src:string;alt:string};links?:{label:string;href:string}[]};
@@ -34,6 +34,6 @@ export const scenes: Record<SceneId, {index:string; label:string; title:string; 
  office:{index:'01',label:'Projects',title:'My projects',eyebrow:'DESIGN AND CODE',subtitle:'Design and development',description:'I like designing websites and then building them myself. The Village Wellness Centre is one I took from Figma to a live site.',note:'See how I designed and built the site.',color:'#b6815b'},
  city:{index:'02',label:'Work',title:'Where I’ve worked',eyebrow:'FRONTEND DEVELOPMENT',subtitle:'Working on the web',description:'I’ve worked in frontend development since 2012, first at Precedent and then at HBF. Much of my work has been on websites and apps people use for everyday tasks.',note:'Read about my work at HBF and Precedent.',color:'#6d8c84'},
  stadium:{index:'03',label:'Football',title:'My football teams',eyebrow:'PERTH GLORY AND DERBY COUNTY',subtitle:'Perth Glory and Derby County',description:'I love football. Perth Glory and Derby County are my two teams, which explains the colours in the stands.',note:'The crowd is audible when ambient sound is on.',color:'#7e9274'},
- nature:{index:'04',label:'Outdoors',title:'Getting outside',eyebrow:'AWAY FROM MY DESK',subtitle:'Time outdoors',description:'I love being outdoors. I’m happy going for a walk or a run, and I always enjoy seeing animals along the way.',note:'Follow the river back to the mountain waterfall.',color:'#799b7a'},
- family:{index:'05',label:'Family',title:'My family',eyebrow:'LIFE AT HOME',subtitle:'Family',description:'I love my family. They’re a huge part of my life, and spending time with them is one of my favourite things to do.',note:'The garden and front yard are part of the scene.',color:'#c39570'}
+ family:{index:'04',label:'Family',title:'My family',eyebrow:'LIFE AT HOME',subtitle:'Family',description:'I love my family. They’re a huge part of my life, and spending time with them is one of my favourite things to do.',note:'The garden and front yard are part of the scene.',color:'#c39570'},
+ nature:{index:'05',label:'Outdoors',title:'Getting outside',eyebrow:'AWAY FROM MY DESK',subtitle:'Time outdoors',description:'I love being outdoors. I’m happy going for a walk or a run, and I always enjoy seeing animals along the way.',note:'Follow the river back to the mountain waterfall.',color:'#799b7a'}
 };

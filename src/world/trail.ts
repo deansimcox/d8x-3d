@@ -1,5 +1,5 @@
 import {CatmullRomCurve3,Vector3} from 'three';
-import {distanceToSegment,type Vec3} from './layout';
+import {anchors,distanceToSegment,random,workshopAngle,type Vec3} from './layout';
 
 export const bridgePosition:Vec3=[-26.6,3.6,-25.1];
 export const bridgeRotation=-.12;
@@ -33,4 +33,16 @@ export function nearTrail(x:number,z:number,clearance=0){
     if(distanceToSegment(x,z,a,b)<limit)return true;
   }
   return false;
+}
+
+export function cottageSteps(home:boolean){
+  const [anchorX,,anchorZ]=home?anchors.family:anchors.office;
+  const angle=home?.28:workshopAngle;
+  return Array.from({length:8},(_,index)=>{
+    const x=(home?-index*.1:-2.25-index*.29)+(random(index+40)-.5)*.19;
+    const z=(home?4.78:4.38)+index*(home?.56:.63);
+    const worldX=anchorX+x*Math.cos(angle)+z*Math.sin(angle);
+    const worldZ=anchorZ-x*Math.sin(angle)+z*Math.cos(angle);
+    return {index,x,z,worldX,worldZ};
+  }).filter(({worldX,worldZ})=>!nearTrail(worldX,worldZ,.72));
 }
