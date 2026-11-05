@@ -26,8 +26,10 @@ export function Details({id,entry,direct=false,onClose}: {id:'office'|'city';ent
     onAnimationEnd={event=>{if(event.target===event.currentTarget&&event.animationName==='archive-out')ref.current?.close()}}
     onClick={event=>{if(event.target===event.currentTarget)dismiss()}}>
     <div className="detail-inner">
-      <header className="archive-header">
+      <div className="archive-controls">
         <button className="icon-button modal-close" aria-label="Close details" autoFocus onClick={dismiss}><X size={20}/></button>
+      </div>
+      <header className="archive-header">
         <span className="archive-icon" aria-hidden="true"><Icon size={22}/></span>
         <p className="eyebrow">{project?'01 / DESIGN AND CODE':'02 / FRONTEND DEVELOPMENT'}</p>
         <h2 id="detail-title">{project?'Project details':'Work history'}</h2>
