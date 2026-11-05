@@ -104,7 +104,8 @@
   background: #e1e8d8;
   pointer-events: none;
 }
-.mode-welcome .dock-highlight{opacity:0}
+.dock:not(:has([aria-current=page])) .dock-highlight{opacity:0}
+.is-loading :is(.topbar,.welcome-actions,.profile-links,.dock,.scene-panel,.transition-status){visibility:hidden}
 .dock-item{position:relative;min-width:0}
 .dock-item[aria-current=page]{background:transparent;border-color:transparent}
 

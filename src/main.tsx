@@ -46,7 +46,7 @@ function Dock({active,move}: {active:Destination|null;move:(d:Destination)=>void
   </nav>;
 }
 function App(){
-  const mode=useExperience(s=>s.mode),destination=useExperience(s=>s.destination),target=useExperience(s=>s.target);
+  const mode=useExperience(s=>s.mode),destination=useExperience(s=>s.destination),target=useExperience(s=>s.target),pending=useExperience(s=>s.pending);
   const go=useExperience(s=>s.go),skip=useExperience(s=>s.skip),ready=useExperience(s=>s.ready),failed=useExperience(s=>s.failed);
   const returnToIntro=useExperience(s=>s.returnToIntro);
   const sound=useExperience(s=>s.sound),setSound=useExperience(s=>s.setSound),panelOpen=useExperience(s=>s.panelOpen),togglePanel=useExperience(s=>s.togglePanel);
@@ -56,11 +56,11 @@ function App(){
   const [audioError,setAudioError]=useState(false);
   const [available]=useState(supportsWebGL);
   const fallback=failed||!available,loading=loadWorld&&!fallback&&!ready;
-  const scene=destination==='overview'?null:scenes[destination],active=mode==='welcome'?null:mode==='transitioning'?target:destination;
+  const scene=destination==='overview'?null:scenes[destination],active=pending??(mode==='welcome'?null:mode==='transitioning'?target:destination);
   const move=(id:Destination)=>go(id);
   const overviewTitle=useRef<HTMLHeadingElement>(null),enterFocus=useRef(false);
   useEffect(()=>{if(mode==='overview'&&enterFocus.current){overviewTitle.current?.focus({preventScroll:true});enterFocus.current=false}},[mode]);
-  useEffect(()=>{if(fallback&&mode==='transitioning')skip()},[fallback,mode,skip]);
+  useEffect(()=>{if(!available)useExperience.getState().fail()},[available]);
   useEffect(()=>mixSound(destination),[destination]);
   useEffect(()=>{
     const sync=()=>{
@@ -80,8 +80,8 @@ function App(){
     const enabled=!sound;setSound(enabled);setAudioError(false);
     try{await setAudio(enabled,destination)}catch{setSound(false);setAudioError(true)}
   }
-  return <main className={`app mode-${mode}${fallback?' guide-mode':''}`}>
-    <div className="world-canvas">{fallback||!loadWorld?<IslandIllustration/>:<WorldBoundary><Suspense fallback={null}><World/></Suspense></WorldBoundary>}</div>
+  return <main className={`app mode-${mode}${fallback?' guide-mode':''}${loading?' is-loading':''}`}>
+    <div className="world-canvas" ref={node=>{if(node)node.inert=loading}}>{fallback||!loadWorld?<IslandIllustration/>:<WorldBoundary><Suspense fallback={null}><World/></Suspense></WorldBoundary>}</div>
     <div className="wash" aria-hidden="true"/>
     <header className="topbar">
       <button className="brand" onClick={()=>{enterFocus.current=false;returnToIntro()}} aria-label="d8x.dev, back to intro" title="Back to intro"><svg className="brand-symbol" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 1v22M1 12h22M4.2 4.2l15.6 15.6m0-15.6L4.2 19.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg><span className="brand-name">d8x.dev</span></button>
