@@ -32,8 +32,10 @@ function IslandIllustration(){return <svg className="illustration" viewBox="0 0 
   <path d="M342 64 351 234 429 187Z" fill="#c8c5ab" opacity=".5"/><path d="M359 156 Q334 182 360 195 Q398 215 321 229 L282 252 290 305" fill="none" stroke="#b9dcd1" strokeWidth="7"/>
   {[[176,212],[210,224],[486,214],[521,226],[461,231],[203,197],[548,214]].map(([x,y],i)=><path key={x} d={`M${x-10} ${y} L${x} ${y-26-i%3*4} ${x+10} ${y}Z`} fill={i%2?'#64896b':'#537a60'}/>)}
 </svg>}
-function Dock({active,move}: {active:Destination;move:(d:Destination)=>void}){
-  return <nav className="dock" aria-label="Explore destinations">
+function Dock({active,move}: {active:Destination|null;move:(d:Destination)=>void}){
+  const index=active&&active!=='overview'?sceneIds.indexOf(active)+1:0;
+  return <nav className="dock" aria-label="Explore destinations" style={{'--dock-index':index} as React.CSSProperties}>
+    <span className="dock-highlight" aria-hidden="true"/>
     <button className="dock-item" onClick={()=>move('overview')} aria-label="Island overview" aria-current={active==='overview'?'page':undefined}><Mountain size={19}/><span>Overview</span></button>
     {sceneIds.map(id=>{const Icon=icons[id];return <button key={id} className="dock-item" onClick={()=>move(id)} aria-current={active===id?'page':undefined}><Icon size={19}/><span>{scenes[id].label}</span></button>})}
   </nav>;
@@ -41,15 +43,16 @@ function Dock({active,move}: {active:Destination;move:(d:Destination)=>void}){
 function App(){
   const mode=useExperience(s=>s.mode),destination=useExperience(s=>s.destination),target=useExperience(s=>s.target);
   const go=useExperience(s=>s.go),skip=useExperience(s=>s.skip),ready=useExperience(s=>s.ready),failed=useExperience(s=>s.failed);
+  const returnToIntro=useExperience(s=>s.returnToIntro);
   const sound=useExperience(s=>s.sound),setSound=useExperience(s=>s.setSound),panelOpen=useExperience(s=>s.panelOpen),togglePanel=useExperience(s=>s.togglePanel);
   const archive=useExperience(s=>s.archive),openArchive=useExperience(s=>s.openArchive),closeArchive=useExperience(s=>s.closeArchive);
   const [audioError,setAudioError]=useState(false);
   const [available]=useState(supportsWebGL);
   const fallback=failed||!available,loading=!fallback&&!ready;
-  const scene=destination==='overview'?null:scenes[destination],active=mode==='transitioning'?target:destination;
+  const scene=destination==='overview'?null:scenes[destination],active=mode==='welcome'?null:mode==='transitioning'?target:destination;
   const move=(id:Destination)=>go(id);
-  const overviewButton=useRef<HTMLButtonElement>(null),enterFocus=useRef(false);
-  useEffect(()=>{if(mode==='overview'&&enterFocus.current){overviewButton.current?.focus({preventScroll:true});enterFocus.current=false}},[mode]);
+  const overviewTitle=useRef<HTMLHeadingElement>(null),enterFocus=useRef(false);
+  useEffect(()=>{if(mode==='overview'&&enterFocus.current){overviewTitle.current?.focus({preventScroll:true});enterFocus.current=false}},[mode]);
   useEffect(()=>{if(fallback&&mode==='transitioning')skip()},[fallback,mode,skip]);
   useEffect(()=>mixSound(destination),[destination]);
   async function toggleSound(){
@@ -60,7 +63,7 @@ function App(){
     <div className="world-canvas">{fallback?<IslandIllustration/>:<WorldBoundary><Suspense fallback={null}><World/></Suspense></WorldBoundary>}</div>
     <div className="wash" aria-hidden="true"/>
     <header className="topbar">
-      <button ref={overviewButton} className="brand" onClick={()=>move('overview')} aria-label="d8x.dev, island overview"><span className="brand-symbol" aria-hidden="true">✳</span><span className="brand-name">d8x.dev</span></button>
+      <button className="brand" onClick={()=>{enterFocus.current=false;returnToIntro()}} aria-label="d8x.dev, back to intro" title="Back to intro"><span className="brand-symbol" aria-hidden="true">✳</span><span className="brand-name">d8x.dev</span></button>
       <div className="header-actions">
         <span className="edition">DEAN / DEVELOPER PORTFOLIO</span>
         <button className="icon-button" onClick={toggleSound} aria-label="Ambient sound" aria-pressed={sound} title={sound?'Mute ambient sound':'Enable ambient sound'}>{sound?<Volume2 size={19}/>:<VolumeX size={19}/>}</button>
@@ -80,13 +83,13 @@ function App(){
       {fallback&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
     </section>}
     {mode==='transitioning'&&<div className="transition-status" role="status"><span className="pulse-dot"/> {target==='overview'?'Back to the island':`On the way to ${scenes[target].title}`} <button onClick={skip}><SkipForward size={16}/> Skip</button></div>}
-    {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">MY PORTFOLIO</div><h2 id="overview-title">Work &amp;<br/> <i>life.</i></h2><p>Start with a project, my work history or a stop away from the desk.</p></section>}
+    {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">MY PORTFOLIO</div><h2 id="overview-title" ref={overviewTitle} tabIndex={-1}>Work &amp;<br/> <i>life.</i></h2><p>Start with a project, my work history or a stop away from the desk.</p></section>}
     {mode==='scene'&&scene&&<section className={`scene-panel${panelOpen?'':' collapsed'}`} key={destination} aria-labelledby={panelOpen?'scene-title':undefined} aria-label={panelOpen?undefined:scene.title}>
-      <div className="panel-top"><span className="eyebrow">{scene.index} / 05 <span className="chapter-dot" style={{background:scene.color}}/></span><button className="panel-toggle" onClick={togglePanel} aria-expanded={panelOpen} aria-controls="scene-copy" aria-label={panelOpen?'Hide story':'Read story'}>{panelOpen?'−':'+'}</button></div>
-      <div id="scene-copy" hidden={!panelOpen}><div className="eyebrow">{scene.eyebrow}</div><h2 id="scene-title">{scene.title}</h2><p>{scene.description}</p>
+      <div className="panel-top">{panelOpen?<span className="eyebrow">{scene.index} / 05 <span className="chapter-dot" style={{background:scene.color}}/></span>:<span className="collapsed-label" aria-hidden="true">{scene.title}</span>}<button className="panel-toggle" onClick={togglePanel} aria-expanded={panelOpen} aria-controls="scene-copy" aria-label={panelOpen?'Hide story':'Read story'}>{panelOpen?'−':'+'}</button></div>
+      <div className="scene-panel-body"><div id="scene-copy" ref={node=>{if(node)node.inert=!panelOpen}} aria-hidden={!panelOpen}><div className="eyebrow">{scene.eyebrow}</div><h2 id="scene-title">{scene.title}</h2><p>{scene.description}</p>
       {(destination==='office'||destination==='city')&&<button className="detail-button" onClick={()=>openArchive(destination)}>{destination==='office'?'View project details':'View work history'} <MoveUpRight size={15}/></button>}
       <button className="text-button" onClick={()=>move('overview')}><ArrowLeft size={16}/> Back to the island</button></div>
-      {!panelOpen&&<span className="collapsed-label">{scene.title}</span>}
+      </div>
     </section>}
     {audioError&&<p className="audio-note" role="status">Ambient sound is unavailable on this device.</p>}
     {archive&&<Details {...archive} onClose={closeArchive}/>}

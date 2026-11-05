@@ -53,11 +53,12 @@ function flightPath(from:THREE.Vector3,to:THREE.Vector3,entering:boolean){
 export function CameraRig() {
   const journey=useRef<Journey|null>(null),look=useRef(vec(poses.welcome.target));
   const offset=useRef({x:0,y:0});
+  const settledScene=useRef<string|null>(null);
   const reduced=useReducedMotion();
   const pan=useScenePan();
   const invalidate=useThree(s=>s.invalidate);
   useEffect(()=>useExperience.subscribe(()=>invalidate()),[invalidate]);
-  useFrame(({camera:raw,clock,size})=>{
+  useFrame(({camera:raw,clock,size},delta)=>{
     const camera=raw as THREE.PerspectiveCamera;
     const state=useExperience.getState(),travel=state.mode==='transitioning';
     const id=state.mode==='welcome'?'welcome':travel?state.target:state.destination;
@@ -68,7 +69,14 @@ export function CameraRig() {
     const y=portrait?(id==='welcome'?.185:id==='overview'?-.015:state.panelOpen?.17:.035):0;
     const final=()=>{camera.position.set(...pose.position);look.current.set(...pose.target);camera.fov=fov;offset.current={x,y}};
     if(!travel||reduced) {
+      const previousOffset=offset.current;
       final();journey.current=null;
+      if(!reduced&&state.mode==='scene'&&settledScene.current===id){
+        offset.current={
+          x:THREE.MathUtils.damp(previousOffset.x,x,12,delta),
+          y:THREE.MathUtils.damp(previousOffset.y,y,12,delta),
+        };
+      }
       if(travel)state.arrived();
     } else {
       if(journey.current?.serial!==state.serial) {
@@ -88,6 +96,7 @@ export function CameraRig() {
       offset.current={x:THREE.MathUtils.lerp(flight.offsetX,x,k),y:THREE.MathUtils.lerp(flight.offsetY,y,k)};
       if(t===1){final();journey.current=null;state.arrived()}
     }
+    settledScene.current=state.mode==='scene'?id:null;
     camera.lookAt(look.current);
     if(!travel&&state.mode!=='welcome'){
       if(state.mode==='scene')camera.rotateOnWorldAxis(worldUp,pan.current.yaw);
