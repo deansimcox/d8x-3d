@@ -7,6 +7,11 @@ import {windMaterial} from './wind';
 export function Vegetation(){
   const groups=useMemo(()=>{
     const trees:Placement[][]=[[],[],[]],rocks:Placement[]=[],flowers:Placement[]=[],bushes:Placement[]=[];
+    // Break the sightline from the pitch to the cottage without crossing the path.
+    const ridgeTrees=[[33,-14.3,13.4],[31,-17.4,14.1],[27,-20.5,13.2]];
+    ridgeTrees.forEach(([x,z,height],i)=>{
+      trees[i%2].push({position:[x,terrainY(x,z)-.05,z],height,rotation:i*1.1});
+    });
     const maxTrees=window.matchMedia('(max-width: 800px)').matches?104:146;
     let treesPlaced=0;
     for(let i=0;i<1250;i++) {
