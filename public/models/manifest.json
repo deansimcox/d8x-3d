@@ -1,0 +1,182 @@
+[
+  {
+    "file": "CommonTree_1.glb",
+    "pack": "quaternius-nature",
+    "bytes": 880788
+  },
+  {
+    "file": "CommonTree_3.glb",
+    "pack": "quaternius-nature",
+    "bytes": 686192
+  },
+  {
+    "file": "Pine_1.glb",
+    "pack": "quaternius-nature",
+    "bytes": 618760
+  },
+  {
+    "file": "Bush_Common_Flowers.glb",
+    "pack": "quaternius-nature",
+    "bytes": 381388
+  },
+  {
+    "file": "Fern_1.glb",
+    "pack": "quaternius-nature",
+    "bytes": 233300
+  },
+  {
+    "file": "Flower_3_Group.glb",
+    "pack": "quaternius-nature",
+    "bytes": 430992
+  },
+  {
+    "file": "Flower_4_Group.glb",
+    "pack": "quaternius-nature",
+    "bytes": 465456
+  },
+  {
+    "file": "Rock_Medium_1.glb",
+    "pack": "quaternius-nature",
+    "bytes": 75152
+  },
+  {
+    "file": "Rock_Medium_2.glb",
+    "pack": "quaternius-nature",
+    "bytes": 71292
+  },
+  {
+    "file": "Roof_RoundTiles_6x8.glb",
+    "pack": "quaternius-village",
+    "bytes": 1013112
+  },
+  {
+    "file": "Prop_Chimney.glb",
+    "pack": "quaternius-village",
+    "bytes": 905992
+  },
+  {
+    "file": "Door_1_Round.glb",
+    "pack": "quaternius-village",
+    "bytes": 513452
+  },
+  {
+    "file": "Window_Wide_Round1.glb",
+    "pack": "quaternius-village",
+    "bytes": 501568
+  },
+  {
+    "file": "Prop_Vine1.glb",
+    "pack": "quaternius-village",
+    "bytes": 106004
+  },
+  {
+    "file": "Prop_WoodenFence_Single.glb",
+    "pack": "quaternius-village",
+    "bytes": 481316
+  },
+  {
+    "file": "desk.glb",
+    "pack": "kenney-furniture",
+    "bytes": 15048
+  },
+  {
+    "file": "chairDesk.glb",
+    "pack": "kenney-furniture",
+    "bytes": 39016
+  },
+  {
+    "file": "computerScreen.glb",
+    "pack": "kenney-furniture",
+    "bytes": 6404
+  },
+  {
+    "file": "computerKeyboard.glb",
+    "pack": "kenney-furniture",
+    "bytes": 3476
+  },
+  {
+    "file": "books.glb",
+    "pack": "kenney-furniture",
+    "bytes": 6864
+  },
+  {
+    "file": "bookcaseOpen.glb",
+    "pack": "kenney-furniture",
+    "bytes": 18020
+  },
+  {
+    "file": "pottedPlant.glb",
+    "pack": "kenney-furniture",
+    "bytes": 7576
+  },
+  {
+    "file": "bench.glb",
+    "pack": "kenney-furniture",
+    "bytes": 10756
+  },
+  {
+    "file": "rugDoormat.glb",
+    "pack": "kenney-furniture",
+    "bytes": 13812
+  },
+  {
+    "file": "lampRoundTable.glb",
+    "pack": "kenney-furniture",
+    "bytes": 6604
+  },
+  {
+    "file": "building-a.glb",
+    "pack": "kenney-city",
+    "bytes": 113784
+  },
+  {
+    "file": "building-c.glb",
+    "pack": "kenney-city",
+    "bytes": 107636
+  },
+  {
+    "file": "building-f.glb",
+    "pack": "kenney-city",
+    "bytes": 153796
+  },
+  {
+    "file": "building-h.glb",
+    "pack": "kenney-city",
+    "bytes": 132232
+  },
+  {
+    "file": "building-j.glb",
+    "pack": "kenney-city",
+    "bytes": 445496
+  },
+  {
+    "file": "detail-awning.glb",
+    "pack": "kenney-city",
+    "bytes": 10372
+  },
+  {
+    "file": "apple.glb",
+    "pack": "kenney-food",
+    "bytes": 25260
+  },
+  {
+    "file": "loaf-baguette.glb",
+    "pack": "kenney-food",
+    "bytes": 23716
+  },
+  {
+    "file": "cup-tea.glb",
+    "pack": "kenney-food",
+    "bytes": 20672
+  },
+  {
+    "file": "plate.glb",
+    "pack": "kenney-food",
+    "bytes": 19372
+  },
+  {
+    "file": "croissant.glb",
+    "pack": "kenney-food",
+    "bytes": 25240
+  }
+]
