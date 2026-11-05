@@ -72,11 +72,53 @@ function WorkshopWindowWall({position,rotation=0,width,center,opening,bottom,top
     ]}/>
   </group>;
 }
+const floorColors=['#b18460','#b88d68','#ae815e','#bd936d','#b68b65'];
+const floorboards=Array.from({length:22},(_,row)=>{
+  const x=(row-10.5)*.354;
+  const offset=[.92,1.6,2.27][row%3];
+  const joints=[-3.3,-3.3+offset,-1.02+offset,1.26+offset,3.3].filter(z=>z<=3.3);
+  return joints.slice(1).map((end,index)=>{
+    const start=joints[index];
+    return {
+      position:[x,.417,(start+end)/2] as Vec3,
+      size:[.344,.026,end-start-.012] as Vec3,
+      color:floorColors[Math.floor(random(row*17+index+22)*floorColors.length)],
+    };
+  });
+}).flat();
+const trimColor='#f5eee0';
+function WorkshopFinishes(){
+  function trim(y:number,height:number,depth:number){
+    const x=3.895-depth/2,z=3.295-depth/2;
+    return [
+      {position:[0,y,z] as Vec3,size:[7.79,height,depth] as Vec3},
+      {position:[0,y,-z] as Vec3,size:[7.79,height,depth] as Vec3},
+      {position:[-x,y,0] as Vec3,size:[depth,height,6.59-2*depth] as Vec3},
+      {position:[x,y,0] as Vec3,size:[depth,height,6.59-2*depth] as Vec3},
+    ].map(piece=>({...piece,color:trimColor}));
+  }
+  return <>
+    <Block position={[0,.33,0]} size={[8.35,.17,7.05]} color="#805d43"/>
+    <Blocks items={floorboards} castShadow={false}/>
+    <mesh position={[0,3.86,0]} castShadow receiveShadow>
+      <boxGeometry args={[8.1,.1,6.75]}/>
+      <meshStandardMaterial color="#fffaf1" roughness={.88} emissive="#f8f2e7" emissiveIntensity={.24}/>
+    </mesh>
+    <Blocks items={[
+      ...trim(.51,.16,.07),
+      ...trim(.603,.032,.093),
+    ]}/>
+    <Blocks emissive="#fff4e8" emissiveIntensity={.32} items={[
+      ...trim(3.75,.12,.12),
+      ...trim(3.79,.04,.20),
+    ]}/>
+  </>;
+}
 export function Workshop(){
   const active=useExperience(s=>s.mode==='scene'&&s.destination==='office');
   return <group position={anchors.office} rotation={[0,workshopAngle,0]}>
     <Block position={[0,.12,0]} size={[8.7,.38,7.4]} color={stone}/>
-    <Block position={[0,.34,0]} size={[8.35,.18,7.05]} color="#af855d"/>
+    <WorkshopFinishes/>
     <WorkshopWindowWall position={[0,0,-3.42]} width={8.3} center={.48} opening={3.55} bottom={2.63} top={3.59}/>
     <WorkshopWindowWall position={[-4.02,0,0]} rotation={Math.PI/2} width={6.9} center={.9} opening={2.3} bottom={1.53} top={3.36}/>
     <WorkshopWindowWall position={[4.02,0,0]} rotation={-Math.PI/2} width={6.9} center={-.9} opening={2.3} bottom={1.53} top={3.36}/>
@@ -112,7 +154,6 @@ export function Workshop(){
     </DestinationDetail>
     <Model name="Prop_Vine1" position={[-4.23,.38,2.97]} height={2.85} rotation={-Math.PI/2}/>
     <pointLight position={[1.9,3.25,.2]} intensity={1.65} color="#ffe0b8" distance={5}/>
-    <Block position={[0,3.86,0]} size={[8.1,.1,6.75]} color="#d9bd97"/>
     <Lamp position={[4.4,0,4.9]} short/>
     <Planting/>
     <SteppingStones/>
