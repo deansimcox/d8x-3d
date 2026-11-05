@@ -46,14 +46,40 @@ function SteppingStones({home=false}:{home?:boolean}){
     })}
   </group>;
 }
+function WorkshopWindowWall({position,rotation=0,width,center,opening,bottom,top}:{
+  position:Vec3;rotation?:number;width:number;center:number;opening:number;bottom:number;top:number;
+}){
+  const wallBottom=.15,wallTop=3.85;
+  const left=center-opening/2,right=center+opening/2,mid=(bottom+top)/2;
+  const wall=(x0:number,x1:number,y0:number,y1:number)=>({
+    position:[(x0+x1)/2,(y0+y1)/2,0] as Vec3,
+    size:[x1-x0,y1-y0,.25] as Vec3,
+    color:plaster,
+  });
+  return <group position={position} rotation={[0,rotation,0]}>
+    <Blocks items={[
+      wall(-width/2,left,wallBottom,wallTop),
+      wall(right,width/2,wallBottom,wallTop),
+      wall(left,right,wallBottom,bottom),
+      wall(left,right,top,wallTop),
+    ]}/>
+    <Blocks items={[
+      {position:[center,bottom,0],size:[opening+.28,.13,.54],color:wood},
+      {position:[center,top,0],size:[opening+.18,.11,.37],color:wood},
+      {position:[left,mid,0],size:[.11,top-bottom,.36],color:wood},
+      {position:[right,mid,0],size:[.11,top-bottom,.36],color:wood},
+      {position:[center,mid,0],size:[.07,top-bottom,.19],color:wood},
+    ]}/>
+  </group>;
+}
 export function Workshop(){
   const active=useExperience(s=>s.mode==='scene'&&s.destination==='office');
   return <group position={anchors.office} rotation={[0,workshopAngle,0]}>
     <Block position={[0,.12,0]} size={[8.7,.38,7.4]} color={stone}/>
     <Block position={[0,.34,0]} size={[8.35,.18,7.05]} color="#af855d"/>
-    <Block position={[0,2,-3.42]} size={[8.3,3.7,.25]} color={plaster}/>
-    <Block position={[-4.02,2,0]} size={[.28,3.7,6.9]} color={plaster}/>
-    <Block position={[4.02,2,0]} size={[.28,3.7,6.9]} color={plaster}/>
+    <WorkshopWindowWall position={[0,0,-3.42]} width={8.3} center={.48} opening={3.55} bottom={2.63} top={3.59}/>
+    <WorkshopWindowWall position={[-4.02,0,0]} rotation={Math.PI/2} width={6.9} center={.9} opening={2.3} bottom={1.53} top={3.36}/>
+    <WorkshopWindowWall position={[4.02,0,0]} rotation={-Math.PI/2} width={6.9} center={-.9} opening={2.3} bottom={1.53} top={3.36}/>
     <Block position={[-2.29,2,3.42]} size={[3.82,3.65,.24]} color={plaster}/>
     <Block position={[3.21,2,3.42]} size={[2,3.65,.24]} color={plaster}/>
     <Block position={[.95,.86,3.42]} size={[2.66,1.39,.24]} color={plaster}/>
@@ -85,8 +111,8 @@ export function Workshop(){
       <Model name="officePlantPothos" position={[3.26,.43,.18]} height={1.22} rotation={-.8}/>
     </DestinationDetail>
     <Model name="Prop_Vine1" position={[-4.23,.38,2.97]} height={2.85} rotation={-Math.PI/2}/>
-    <pointLight position={[1.9,3.25,.2]} intensity={2.6} color="#ffd09d" distance={5}/>
-    <Block position={[0,3.86,0]} size={[8.1,.1,6.75]} color="#bc9b73"/>
+    <pointLight position={[1.9,3.25,.2]} intensity={1.65} color="#ffe0b8" distance={5}/>
+    <Block position={[0,3.86,0]} size={[8.1,.1,6.75]} color="#d9bd97"/>
     <Lamp position={[4.4,0,4.9]} short/>
     <Planting/>
     <SteppingStones/>
