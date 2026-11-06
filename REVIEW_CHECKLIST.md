@@ -8,6 +8,7 @@ The site builds to `dist/`. The checks below apply to the release candidate and,
 - [ ] Confirm the mobile logo and dock insets in portrait. Check short landscape viewports and real iOS and Android devices for clipping, camera framing, load time and rendering performance.
 - [ ] Confirm the profile links, project link and public asset credits. Verify that the lighthouse credit, model manifest and bundled licence files are reachable on the preview host.
 - [ ] Open `/#projects` and `/#work` in a fresh tab. Confirm that the archive opens without waiting for 3D, the project images load, and Escape returns to the intro.
-- [ ] Upload `dist/` to the chosen static host and verify asset paths, direct access to `/credits.html`, custom-domain DNS and HTTPS.
+- [ ] In GitHub, set **Settings → Pages → Source** to **GitHub Actions**. The [Pages workflow](.github/workflows/deploy.yml) publishes `dist/` on pushes to `master` and can also run manually from Actions. Check the deployment URL and its credits page before moving the custom domain.
+- [ ] After moving `d8x.dev` to this repository, run the Pages workflow again to build for the domain root. Check HTTPS, asset paths, and direct access to `/credits.html` on the custom domain.
 - [ ] Check the browser title, favicon and page description. Decide whether to add a social share image and canonical URL for launch.
 - [ ] Smoke-test the final public URL and confirm a previous build can be restored from the host.
