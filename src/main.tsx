@@ -1,10 +1,12 @@
-import React,{Suspense,lazy,useEffect,useRef,useState} from 'react';
+import React,{Suspense,lazy,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
+import {animate} from 'motion/mini';
 import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,Minus,Plus} from 'lucide-react';
 import {sceneIds,scenes,type Destination} from './content';
 import {useExperience} from './store';
 import {mixSound,setAudio} from './audio';
 import {Details} from './Details';
+import {useReducedMotion} from './world/motion';
 import './style.css';
 
 const World=lazy(()=>import('./world/World').then(module=>({default:module.World})));
@@ -48,11 +50,38 @@ function App(){
   const [audioError,setAudioError]=useState(false);
   const [available]=useState(supportsWebGL);
   const fallback=failed||!available,loading=loadWorld&&!fallback&&!ready;
+  const [revealComplete,setRevealComplete]=useState(false);
+  const revealing=loadWorld&&ready&&!fallback&&!revealComplete;
   const scene=destination==='overview'?null:scenes[destination],active=pending??(mode==='welcome'?null:mode==='transitioning'?target:destination);
   const move=(id:Destination)=>go(id);
   const overviewTitle=useRef<HTMLHeadingElement>(null),enterFocus=useRef(false);
+  const welcome=useRef<HTMLElement>(null);
+  const reducedMotion=useReducedMotion();
+  useLayoutEffect(()=>{
+    const intro=welcome.current;
+    if(!intro||reducedMotion)return;
+    const beats=[
+      ['.welcome-avatar',0,.55,'translateY(14px) scale(.94)'],
+      ['.eyebrow',.12,.36,'translateY(6px)'],
+      ['#welcome-title > :nth-child(1)',.22,.45,'translateY(16px) scale(.94)'],
+      ['#welcome-title > :nth-child(2)',.53,.32,'translateY(9px)'],
+      ['#welcome-title > :nth-child(3)',.66,.36,'translateY(9px)'],
+      ['.welcome-bio',.78,.32,'translateY(5px)'],
+    ] as const;
+    const animations=beats.map(([selector,delay,duration,from])=>animate(
+      intro.querySelectorAll(selector),
+      {opacity:[0,1],transform:[from,'none']},
+      {delay,duration,ease:[.2,.72,.22,1]},
+    ));
+    return ()=>animations.forEach(animation=>animation.cancel());
+  },[mode,reducedMotion]);
   useEffect(()=>{if(mode==='overview'&&enterFocus.current){overviewTitle.current?.focus({preventScroll:true});enterFocus.current=false}},[mode]);
   useEffect(()=>{if(!available)useExperience.getState().fail()},[available]);
+  useEffect(()=>{
+    if(!revealing)return;
+    const timeout=window.setTimeout(()=>setRevealComplete(true),700);
+    return ()=>window.clearTimeout(timeout);
+  },[revealing]);
   useEffect(()=>mixSound(destination),[destination]);
   useEffect(()=>{
     const sync=()=>{
@@ -72,7 +101,7 @@ function App(){
     const enabled=!sound;setSound(enabled);setAudioError(false);
     try{await setAudio(enabled,destination)}catch{setSound(false);setAudioError(true)}
   }
-  return <main className={`app mode-${mode}${fallback?' guide-mode':''}${loading?' is-loading':''}`}>
+  return <main className={`app mode-${mode}${fallback?' guide-mode':''}${loading?' is-loading':''}${revealing?' is-revealing':''}`}>
     <div className="world-canvas" ref={node=>{if(node)node.inert=loading}}>{fallback||!loadWorld?<IslandIllustration/>:<WorldBoundary><Suspense fallback={null}><World/></Suspense></WorldBoundary>}</div>
     <div className="wash" aria-hidden="true"/>
     <header className="topbar">
@@ -82,12 +111,14 @@ function App(){
         <button className="icon-button" onClick={toggleSound} aria-label="Ambient sound" aria-pressed={sound} title={sound?'Mute ambient sound':'Enable ambient sound'}>{sound?<Volume2 size={19} aria-hidden="true" focusable="false"/>:<VolumeX size={19} aria-hidden="true" focusable="false"/>}</button>
       </div>
     </header>
-    {mode==='welcome'&&<section className="welcome" aria-labelledby="welcome-title">
+    {mode==='welcome'&&<section className="welcome" ref={welcome} aria-labelledby="welcome-title">
       <img className="welcome-avatar" src={`${import.meta.env.BASE_URL}dean-portrait.jpg`} width="96" height="96" alt="Photo of Dean"/>
       <div className="eyebrow">SENIOR FRONTEND ENGINEER</div>
-      <h1 id="welcome-title">Hi, I’m <i>Dean.</i></h1>
-      <p>I build fast, accessible websites and apps with React, React Native and TypeScript. I enjoy the design and engineering work that makes a complicated task feel simple.</p>
-      <p>Lately I’ve been building with Next.js and Expo. The island brings together some of that work and a few things I care about outside it.</p>
+      <h1 id="welcome-title"><span>Hi,</span>{' '}<span>I’m</span>{' '}<i>Dean.</i></h1>
+      <div className="welcome-bio">
+        <p>I build fast, accessible websites and apps with React, React Native and TypeScript. I enjoy the design and engineering work that makes a complicated task feel simple.</p>
+        <p>Lately I’ve been building with Next.js and Expo. The island brings together some of that work and a few things I care about outside it.</p>
+      </div>
       <div className="welcome-actions">
         <button className="primary-button" onClick={()=>{enterFocus.current=true;move('overview')}}>{fallback?'Explore the guide':'Explore my portfolio'} <ArrowRight size={18} aria-hidden="true" focusable="false"/></button>
         <div className="archive-shortcuts">
@@ -113,7 +144,7 @@ function App(){
     </section>}
     {audioError&&<p className="audio-note" role="status">Ambient sound is unavailable on this device.</p>}
     {directArchive?<Details key={directArchive} id={directArchive} direct onClose={closeDirectArchive}/>:archive&&<Details key={archive.id} {...archive} onClose={closeArchive}/>}
-    {loading&&<div className="island-loading" role="status"><span className="loading-track" aria-hidden="true"/><span>The island is coming into view</span><small>Loading the 3D scenery</small></div>}
+    {(loading||revealing)&&<div className="island-loading" role={loading?'status':undefined} aria-hidden={!loading}><span className="loading-track" aria-hidden="true"/><span>The island is coming into view</span><small>Loading the 3D scenery</small></div>}
     <Dock active={active} move={move}/>
     <footer className="edge-mark"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M6 0Q7 5 12 6Q7 7 6 12Q5 7 0 6Q5 5 6 0Z" fill="currentColor"/></svg> DEAN / SENIOR FRONTEND ENGINEER</footer>
   </main>;
