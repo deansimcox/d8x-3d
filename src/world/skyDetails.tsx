@@ -5,6 +5,8 @@ import {useReducedMotion} from './motion';
 import {Block} from './props';
 import type {Vec3} from './layout';
 import {Model} from './models';
+import {useExperience} from '../store';
+import {AirMailFlight} from './AirMailFlight';
 
 function Balloon(){
   const balloon=useRef<THREE.Group>(null),reduced=useReducedMotion();
@@ -34,8 +36,10 @@ function Balloon(){
 function VintagePlane(){
   const plane=useRef<THREE.Group>(null),propeller=useRef<THREE.Group>(null);
   const reduced=useReducedMotion();
+  const flying=useExperience(s=>s.mode==='flight');
+  const canFly=useExperience(s=>s.mode==='overview'&&s.ready);
   useFrame(({clock})=>{
-    if(!plane.current||!propeller.current)return;
+    if(flying||!plane.current||!propeller.current)return;
     const time=(clock.elapsedTime+5)%43;
     const progress=time/23;
     plane.current.visible=!reduced&&progress<1;
@@ -44,7 +48,10 @@ function VintagePlane(){
     plane.current.rotation.set(.06*Math.sin(progress*Math.PI*3),Math.PI/2-.067,.025*Math.cos(progress*Math.PI));
     propeller.current.rotation.z=clock.elapsedTime*24;
   });
-  return <group ref={plane} visible={false} scale={1.15}>
+  return <>
+  {flying&&<AirMailFlight plane={plane} propeller={propeller}/>}
+  <group ref={plane} visible={false} scale={1.15}
+    onClick={canFly?event=>{if(!plane.current?.visible)return;event.stopPropagation();useExperience.getState().startFlight()}:undefined}>
     <mesh rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.59,.25,4.7,10]}/><meshStandardMaterial color="#9b4435" flatShading/></mesh>
     <mesh position={[0,.45,-.15]} scale={[.39,.26,.67]}><sphereGeometry args={[1,10,6]}/><meshStandardMaterial color="#513e32"/></mesh>
     {[.03,1.28].map(y=><group key={y} position={[0,y,.28]}>
@@ -57,7 +64,7 @@ function VintagePlane(){
     {[-.49,.49].map(x=><mesh key={x} position={[x,-.61,.75]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.25,.25,.13,10]}/><meshStandardMaterial color="#4b433c"/></mesh>)}
     <group ref={propeller} position={[0,0,2.48]}><Block position={[0,0,0]} size={[.19,2.32,.10]} color="#614932"/></group>
     <mesh position={[0,0,2.4]}><sphereGeometry args={[.28,10,7]}/><meshStandardMaterial color="#c99b62"/></mesh>
-  </group>;
+  </group></>;
 }
 function Flock(){
   const birds=useRef<THREE.Group>(null),reduced=useReducedMotion();

@@ -1,7 +1,7 @@
 import React,{Suspense,lazy,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {animate} from 'motion/mini';
-import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,Minus,Plus} from 'lucide-react';
+import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,Minus,Plus,Plane} from 'lucide-react';
 import {sceneIds,scenes,type Destination} from './content';
 import {useExperience} from './store';
 import {mixSound,setAudio} from './audio';
@@ -45,6 +45,8 @@ function App(){
   const returnToIntro=useExperience(s=>s.returnToIntro);
   const sound=useExperience(s=>s.sound),setSound=useExperience(s=>s.setSound),panelOpen=useExperience(s=>s.panelOpen),togglePanel=useExperience(s=>s.togglePanel);
   const archive=useExperience(s=>s.archive),openArchive=useExperience(s=>s.openArchive),closeArchive=useExperience(s=>s.closeArchive);
+  const startFlight=useExperience(s=>s.startFlight),exitFlight=useExperience(s=>s.exitFlight);
+  const rings=useExperience(s=>s.flightRings),delivered=useExperience(s=>s.flightDelivered);
   const [directArchive,setDirectArchive]=useState(linkedArchive);
   const [loadWorld,setLoadWorld]=useState(()=>!linkedArchive());
   const [audioError,setAudioError]=useState(false);
@@ -55,6 +57,7 @@ function App(){
   const scene=destination==='overview'?null:scenes[destination],active=pending??(mode==='welcome'?null:mode==='transitioning'?target:destination);
   const move=(id:Destination)=>go(id);
   const overviewTitle=useRef<HTMLHeadingElement>(null),enterFocus=useRef(false);
+  const flightButton=useRef<HTMLButtonElement>(null),restoreFlightFocus=useRef(false);
   const welcome=useRef<HTMLElement>(null);
   const reducedMotion=useReducedMotion();
   useLayoutEffect(()=>{
@@ -77,6 +80,11 @@ function App(){
     return ()=>animations.forEach(animation=>animation.cancel());
   },[mode,reducedMotion]);
   useEffect(()=>{if(mode==='overview'&&enterFocus.current){overviewTitle.current?.focus({preventScroll:true});enterFocus.current=false}},[mode]);
+  useEffect(()=>{
+    if(mode==='flight')restoreFlightFocus.current=true;
+    if(mode==='overview'&&restoreFlightFocus.current)flightButton.current?.focus({preventScroll:true});
+    if(mode!=='flight'&&mode!=='transitioning')restoreFlightFocus.current=false;
+  },[mode]);
   useEffect(()=>{if(!available)useExperience.getState().fail()},[available]);
   useEffect(()=>{
     if(!revealing)return;
@@ -135,7 +143,16 @@ function App(){
       {fallback&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
     </section>}
     {mode==='transitioning'&&<div className="transition-status" role="status"><span className="pulse-dot"/> {target==='overview'?'Back to the island':`Travelling to ${scenes[target].label}`} <button onClick={skip}><SkipForward size={16} aria-hidden="true" focusable="false"/> Skip</button></div>}
-    {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">MY PORTFOLIO</div><h2 id="overview-title" ref={overviewTitle} tabIndex={-1}>Work &amp;<br/> <i>life.</i></h2><p>{fallback?'Pick a stop to explore my work and life away from the desk.':'Drag to turn the island. Scroll or pinch to zoom.'}</p></section>}
+    {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">MY PORTFOLIO</div><h2 id="overview-title" ref={overviewTitle} tabIndex={-1}>Work &amp;<br/> <i>life.</i></h2><p>{fallback?'Pick a stop to explore my work and life away from the desk.':'Drag to turn the island. Scroll or pinch to zoom.'}</p>
+      {!fallback&&<button className="detail-button flight-launch" ref={flightButton} onClick={startFlight}><Plane size={16} aria-hidden="true" focusable="false"/> Fly the biplane</button>}
+    </section>}
+    {mode==='flight'&&<section className="flight-hud" aria-labelledby="flight-title">
+      <div><h2 id="flight-title">Island Air Mail</h2>
+        <p role="status">{delivered?'Mail delivered!':rings===3?'Fly through the green ring by the lighthouse.':`${rings} / 3 airmail rings`}</p>
+        {!delivered&&<p>Drag or hold the arrow keys to steer. Miss a ring? Take another lap.</p>}
+      </div>
+      <button className="detail-button" onClick={exitFlight}>{delivered?'Back to Overview':'End flight'}</button>
+    </section>}
     {scene&&<section hidden={mode!=='scene'} className={`scene-panel${panelOpen?'':' collapsed'}`} aria-labelledby={panelOpen?'scene-title':undefined} aria-label={panelOpen?undefined:scene.title}>
       <div className="panel-top">{panelOpen?<span className="eyebrow">{scene.index} / 05 <span className="chapter-dot" style={{background:scene.color}}/></span>:<span className="collapsed-label" aria-hidden="true">{scene.title}</span>}<button className="panel-toggle" onClick={togglePanel} aria-expanded={panelOpen} aria-controls="scene-copy" aria-label={panelOpen?'Hide story':'Read story'}>{panelOpen?<Minus size={18} aria-hidden="true" focusable="false"/>:<Plus size={18} aria-hidden="true" focusable="false"/>}</button></div>
       <div className="scene-panel-body"><div id="scene-copy" ref={node=>{if(node)node.inert=!panelOpen}} aria-hidden={!panelOpen}><div className="eyebrow">{scene.eyebrow}</div><h2 id="scene-title">{scene.title}</h2><p>{scene.description}</p>

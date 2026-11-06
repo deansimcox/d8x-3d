@@ -17,7 +17,7 @@ export function useScenePan(){
     };
     const enabled=()=>{
       const {mode,ready}=useExperience.getState();
-      return ready&&mode!=='transitioning';
+      return ready&&mode!=='transitioning'&&mode!=='flight';
     };
     const overview=()=>useExperience.getState().mode==='overview';
     const deferIdle=()=>{angles.current.idleAfter=performance.now()+1400};

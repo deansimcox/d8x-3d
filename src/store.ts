@@ -1,13 +1,14 @@
 import {create} from 'zustand';
 import type {Destination} from './content';
 
-type Mode='welcome'|'transitioning'|'overview'|'scene';
+type Mode='welcome'|'transitioning'|'overview'|'scene'|'flight';
 type State={
   mode:Mode;destination:Destination;target:Destination;pending:Destination|null;serial:number;sound:boolean;panelOpen:boolean;ready:boolean;failed:boolean;archive:{id:'office'|'city';entry?:number}|null;
   enter:()=>void;go:(d:Destination)=>void;arrived:()=>void;skip:()=>void;setSound:(sound:boolean)=>void;
   returnToIntro:()=>void;
   togglePanel:()=>void;setReady:(ready:boolean)=>void;fail:()=>void;
   openArchive:(id:'office'|'city',entry?:number)=>void;closeArchive:()=>void;
+  flightRings:number;flightDelivered:boolean;startFlight:()=>void;recordRing:()=>void;deliverMail:()=>void;exitFlight:()=>void;
 };
 const settled=(d:Destination)=>({destination:d,target:d,mode:(d==='overview'?'overview':'scene') as Mode});
 function navigate(state:State,destination:Destination):Partial<State>{
@@ -21,7 +22,7 @@ export const useExperience=create<State>((set,get)=>({
   enter:()=>get().go('overview'),
   returnToIntro:()=>set({mode:'welcome',destination:'overview',target:'overview',pending:null,panelOpen:true,archive:null}),
   go:d=>set(s=>{
-    if((s.mode==='transitioning'&&s.target===d)||(s.mode!=='welcome'&&s.mode!=='transitioning'&&s.destination===d))return s;
+    if((s.mode==='transitioning'&&s.target===d)||((s.mode==='overview'||s.mode==='scene')&&s.destination===d))return s;
     return navigate(s,d);
   }),
   arrived:()=>set(s=>s.mode==='transitioning'?settled(s.target):s),
@@ -30,9 +31,14 @@ export const useExperience=create<State>((set,get)=>({
   setReady:ready=>set(s=>ready&&s.pending?{...navigate({...s,ready},s.pending),ready}:{ready}),
   fail:()=>set(s=>{
     if(s.failed)return s;
-    const requested=s.pending??(s.mode==='transitioning'?s.target:null);
+    const requested=s.pending??(s.mode==='transitioning'?s.target:s.mode==='flight'?'overview':null);
     return {failed:true,ready:false,pending:null,...(requested?settled(requested):{})};
   }),
   openArchive:(id,entry)=>set(s=>s.mode==='scene'&&s.destination===id?{archive:{id,entry}}:s),
   closeArchive:()=>set({archive:null}),
+  flightRings:0,flightDelivered:false,
+  startFlight:()=>set(s=>s.mode==='overview'&&s.ready&&!s.failed?{mode:'flight',flightRings:0,flightDelivered:false}:s),
+  recordRing:()=>set(s=>s.mode==='flight'&&s.flightRings<3?{flightRings:s.flightRings+1}:s),
+  deliverMail:()=>set(s=>s.mode==='flight'?{flightDelivered:true}:s),
+  exitFlight:()=>set(s=>s.mode==='flight'?navigate(s,'overview'):s),
 }));

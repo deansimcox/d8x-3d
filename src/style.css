@@ -205,3 +205,11 @@
   }
   :is(button,a):active>:is(svg,.brand-symbol){transform:scale(.94)}
 }
+
+.flight-launch{margin-top:12px;pointer-events:auto}
+.flight-hud{position:absolute;z-index:6;top:clamp(74px,12vh,102px);left:50%;transform:translateX(-50%);width:min(400px,calc(100% - 24px));display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid #fff9ec;border-radius:15px;background:#faf5e8ef;box-shadow:0 8px 32px #29463528}
+.flight-hud h2{font:600 21px/1.1 var(--serif);margin:0 0 4px}
+.flight-hud p{font-size:12px;line-height:1.4;margin:4px 0 0;color:var(--muted)}
+.flight-hud [role=status]{font-weight:750;color:var(--ink)}
+.flight-hud button{flex:none}
+.mode-flight canvas{cursor:grab}

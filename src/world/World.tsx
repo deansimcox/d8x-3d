@@ -54,6 +54,7 @@ function ContextWatcher(){
   useEffect(()=>{
     gl.domElement.setAttribute('aria-label',mode==='overview'
       ?'Island overview. Drag sideways or use left and right to rotate. Scroll, pinch, or use plus and minus to zoom. Press Home to reset the view.'
+      :mode==='flight'?'Air Mail flight. Drag or use the arrow keys to steer. Press Escape to exit.'
       :mode==='welcome'?'Island intro. Drag sideways or use left and right to rotate.'
       :'Island view. Drag or use arrow keys to look around. Press Home to recenter.');
   },[gl,mode]);
@@ -95,8 +96,9 @@ function Scene(){
 }
 export function World(){
   const reduced=useReducedMotion();
+  const flight=useExperience(s=>s.mode==='flight');
   const dpr=Math.min(window.devicePixelRatio||1,window.matchMedia('(max-width: 800px)').matches?1.15:1.5);
-  return <Canvas shadows="soft" dpr={dpr} frameloop={reduced?'demand':'always'} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} camera={{position:poses.welcome.position,fov:42,near:.2,far:720}} onCreated={({gl})=>{gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=1.05;gl.outputColorSpace=THREE.SRGBColorSpace}}>
+  return <Canvas shadows="soft" dpr={dpr} frameloop={reduced&&!flight?'demand':'always'} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}} camera={{position:poses.welcome.position,fov:42,near:.2,far:720}} onCreated={({gl})=>{gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=1.05;gl.outputColorSpace=THREE.SRGBColorSpace}}>
     <Wind/><CameraRig/><ContextWatcher/><FrameMetrics/><Scene/>
   </Canvas>;
 }

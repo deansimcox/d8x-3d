@@ -74,6 +74,7 @@ export function CameraRig() {
   const offset=useRef({x:0,y:0});
   const welcomeOrbit=useRef(0);
   const overviewYaw=useRef(0);
+  const wasFlying=useRef(false);
   const settledScene=useRef<string|null>(null);
   const reduced=useReducedMotion();
   const pan=useScenePan();
@@ -82,6 +83,12 @@ export function CameraRig() {
   useFrame(({camera:raw,clock,size},delta)=>{
     const camera=raw as THREE.PerspectiveCamera;
     const state=useExperience.getState(),travel=state.mode==='transitioning';
+    if(state.mode==='flight'){wasFlying.current=true;return}
+    if(wasFlying.current){
+      camera.getWorldDirection(look.current).multiplyScalar(55).add(camera.position);
+      offset.current={x:0,y:0};
+      wasFlying.current=false;
+    }
     const id=state.mode==='welcome'?'welcome':travel?state.target:state.destination;
     const enteringOverview=travel&&id==='overview'&&welcomeOrbit.current>0&&!reduced;
     if(id!=='welcome'||reduced)welcomeOrbit.current=0;
