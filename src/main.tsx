@@ -64,17 +64,22 @@ function App(){
     const intro=welcome.current;
     if(!intro||reducedMotion)return;
     const beats=[
-      ['.welcome-avatar, #welcome-title',0,.42,'translateY(9px)'],
-      ['.eyebrow, .welcome-bio',.25,.42,'translateY(5px)'],
+      ['.welcome-avatar',0,.42,'translateY(9px)'],
+      ['.welcome-wave-slot',1.45,.32,'translateY(4px) scale(.62)'],
+      ['.eyebrow, .welcome-bio',1.56,.42,'translateY(5px)'],
     ] as const;
     const animations=beats.map(([selector,delay,duration,from])=>animate(
       intro.querySelectorAll(selector),
       {opacity:[0,1],transform:[from,'none']},
       {delay,duration,ease:[.2,.72,.22,1],transform:{delay,duration,ease:[.22,1.48,.44,1]}},
     ));
+    intro.querySelectorAll('.welcome-letter').forEach((letter,index)=>{
+      const pauseAfterHi=index>=3?.22:0;
+      animations.push(animate(letter,{opacity:[0,1]},{delay:.4+index*.062+pauseAfterHi,duration:.045}));
+    });
     animations.push(animate(intro.querySelectorAll('.welcome-wave'),{
       transform:['rotate(0deg)','rotate(-22deg)','rotate(24deg)','rotate(-18deg)','rotate(19deg)','rotate(0deg)'],
-    },{delay:2,duration:.95,ease:'easeInOut'}));
+    },{delay:2.13,duration:.95,ease:'easeInOut'}));
     return ()=>animations.forEach(animation=>animation.cancel());
   },[mode,reducedMotion]);
   useEffect(()=>{if(mode==='overview'&&enterFocus.current){overviewTitle.current?.focus({preventScroll:true});enterFocus.current=false}},[mode]);
@@ -121,9 +126,12 @@ function App(){
     {mode==='welcome'&&<section className="welcome" ref={welcome} aria-labelledby="welcome-title">
       <img className="welcome-avatar" src={`${import.meta.env.BASE_URL}dean-portrait.jpg`} width="96" height="96" alt="Photo of Dean"/>
       <div className="eyebrow">SENIOR FRONTEND ENGINEER</div>
-      <h1 id="welcome-title">Hi, I’m <i>Dean.</i>{' '}<svg className="welcome-wave" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+      <h1 id="welcome-title" aria-label="Hi, I’m Dean."><span aria-hidden="true">
+        {Array.from('Hi, I’m ',(letter,index)=><span key={index} className="welcome-letter">{letter}</span>)}
+        <i>{Array.from('Dean.',(letter,index)=><span key={index} className="welcome-letter">{letter}</span>)}</i>{' '}
+      </span><span className="welcome-wave-slot" aria-hidden="true"><svg className="welcome-wave" viewBox="0 0 32 32" focusable="false">
         <path d="M11 28c-2-1-3-3-4-5l-3-6a2 2 0 0 1 3-2l4 4-3-9a1.6 1.6 0 0 1 3-1l3 6-1-10a1.6 1.6 0 0 1 3 0l1 9 2-9a1.6 1.6 0 0 1 3 1l-1 9 3-6a1.6 1.6 0 0 1 3 1l-2 11c-1 6-5 9-10 9Z" fill="#ecd0a4" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
-      </svg></h1>
+      </svg></span></h1>
       <div className="welcome-bio">
         <p>I build fast, accessible websites and apps with React, React Native and TypeScript. I enjoy the design and engineering work that makes a complicated task feel simple.</p>
         <p>Lately I’ve been building with Next.js and Expo. The island brings together some of that work and a few things I care about outside it.</p>
