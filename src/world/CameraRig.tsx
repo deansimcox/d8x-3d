@@ -10,6 +10,7 @@ import {useScenePan} from './scenePan';
 const vec=(v:Pose['position'])=>new THREE.Vector3(...v);
 const worldUp=new THREE.Vector3(0,1,0);
 const welcomeOrbitSpeed=.035;
+const overviewOrbitSpeed=.024;
 const overviewTurn=.075;
 const ease=(t:number)=>t*t*t*(t*(t*6-15)+10);
 type Journey={serial:number;start:number;duration:number;move:(t:number,p:THREE.Vector3)=>void;look:THREE.Vector3;fov:number;offsetX:number;offsetY:number;entering:boolean};
@@ -102,9 +103,11 @@ export function CameraRig() {
     if(!travel||reduced) {
       const previousOffset=offset.current;
       final();journey.current=null;
-      if(id==='welcome'&&state.ready&&!reduced){
-        welcomeOrbit.current=(welcomeOrbit.current+welcomeOrbitSpeed*Math.min(delta,.1))%(Math.PI*2);
-        camera.position.sub(look.current).applyAxisAngle(worldUp,welcomeOrbit.current).add(look.current);
+      if(id==='welcome'&&state.ready){
+        if(!reduced&&!pan.current.held&&performance.now()>=pan.current.idleAfter){
+          welcomeOrbit.current=(welcomeOrbit.current+welcomeOrbitSpeed*Math.min(delta,.1))%(Math.PI*2);
+        }
+        camera.position.sub(look.current).applyAxisAngle(worldUp,welcomeOrbit.current-pan.current.yaw).add(look.current);
       }
       if(!reduced&&state.mode==='scene'&&settledScene.current===id){
         offset.current={
@@ -135,10 +138,15 @@ export function CameraRig() {
       if(t===1){final();journey.current=null;state.arrived()}
     }
     settledScene.current=state.mode==='scene'?id:null;
+    if(state.mode==='overview'){
+      if(!reduced&&!pan.current.held&&performance.now()>=pan.current.idleAfter){
+        pan.current.yaw=(pan.current.yaw-overviewOrbitSpeed*Math.min(delta,.1))%(Math.PI*2);
+      }
+      camera.position.sub(look.current).applyAxisAngle(worldUp,-pan.current.yaw).multiplyScalar(1-pan.current.zoom).add(look.current);
+    }
     camera.lookAt(look.current);
-    if(!travel&&state.mode!=='welcome'){
-      if(state.mode==='scene')camera.rotateOnWorldAxis(worldUp,pan.current.yaw);
-      else camera.rotateY(pan.current.yaw);
+    if(state.mode==='scene'){
+      camera.rotateOnWorldAxis(worldUp,pan.current.yaw);
       camera.rotateX(pan.current.pitch);
     }
     camera.setViewOffset(size.width,size.height,offset.current.x*size.width,offset.current.y*size.height,size.width,size.height);

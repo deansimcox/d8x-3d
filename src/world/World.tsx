@@ -44,13 +44,20 @@ function Ready(){
 }
 function ContextWatcher(){
   const {gl}=useThree(),fail=useExperience(s=>s.fail);
+  const mode=useExperience(s=>s.mode);
   useEffect(()=>{
     const canvas=gl.domElement;
     canvas.tabIndex=0;
-    canvas.setAttribute('aria-label','Island view. Drag or use arrow keys to look around. Press Home to recenter.');
     canvas.addEventListener('webglcontextlost',fail);
     return()=>canvas.removeEventListener('webglcontextlost',fail);
-  },[gl,fail]);return null;
+  },[gl,fail]);
+  useEffect(()=>{
+    gl.domElement.setAttribute('aria-label',mode==='overview'
+      ?'Island overview. Drag sideways or use left and right to rotate. Scroll, pinch, or use plus and minus to zoom. Press Home to reset the view.'
+      :mode==='welcome'?'Island intro. Drag sideways or use left and right to rotate.'
+      :'Island view. Drag or use arrow keys to look around. Press Home to recenter.');
+  },[gl,mode]);
+  return null;
 }
 function FrameMetrics(){
   const elapsed=useRef(0),frames=useRef(0);
