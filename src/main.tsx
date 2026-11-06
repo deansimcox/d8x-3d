@@ -36,7 +36,7 @@ function Dock({active,move}: {active:Destination|null;move:(d:Destination)=>void
   return <nav className="dock" aria-label="Explore destinations" style={{'--dock-index':index} as React.CSSProperties}>
     <span className="dock-highlight" aria-hidden="true"/>
     <button className="dock-item" onClick={()=>move('overview')} aria-label="Island overview" aria-current={active==='overview'?'page':undefined}><Mountain size={19} aria-hidden="true" focusable="false"/><span>Overview</span></button>
-    {sceneIds.map(id=>{const Icon=icons[id];return <button key={id} className="dock-item" onClick={()=>move(id)} aria-current={active===id?'page':undefined}><Icon size={19} aria-hidden="true" focusable="false"/><span>{scenes[id].label}</span></button>})}
+    {sceneIds.map(id=>{const Icon=icons[id];return <button key={id} className="dock-item" data-destination={id} onClick={()=>move(id)} aria-current={active===id?'page':undefined}><Icon size={19} aria-hidden="true" focusable="false"/><span>{scenes[id].label}</span></button>})}
   </nav>;
 }
 function App(){
@@ -71,7 +71,7 @@ function App(){
     const animations=beats.map(([selector,delay,duration,from])=>animate(
       intro.querySelectorAll(selector),
       {opacity:[0,1],transform:[from,'none']},
-      {delay,duration,ease:[.2,.72,.22,1]},
+      {delay,duration,ease:[.2,.72,.22,1],transform:{delay,duration,ease:[.22,1.48,.44,1]}},
     ));
     return ()=>animations.forEach(animation=>animation.cancel());
   },[mode,reducedMotion]);

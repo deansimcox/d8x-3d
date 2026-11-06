@@ -1,6 +1,7 @@
 import {useEffect,useRef} from 'react';
 import {useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three';
+import type {Destination} from '../content';
 import {useExperience} from '../store';
 import {anchors,poses,workshopAngle,workshopApproach,workshopWindow,type Pose} from './layout';
 import {useReducedMotion} from './motion';
@@ -9,6 +10,7 @@ import {useScenePan} from './scenePan';
 const vec=(v:Pose['position'])=>new THREE.Vector3(...v);
 const worldUp=new THREE.Vector3(0,1,0);
 const welcomeOrbitSpeed=.035;
+const overviewTurn=.075;
 const ease=(t:number)=>t*t*t*(t*(t*6-15)+10);
 type Journey={serial:number;start:number;duration:number;move:(t:number,p:THREE.Vector3)=>void;look:THREE.Vector3;fov:number;offsetX:number;offsetY:number;entering:boolean};
 function route(from:THREE.Vector3,to:THREE.Vector3,leadIn?:THREE.Vector3) {
@@ -26,12 +28,21 @@ function route(from:THREE.Vector3,to:THREE.Vector3,leadIn?:THREE.Vector3) {
   points.push(to);
   return new THREE.CatmullRomCurve3(points);
 }
-function flightPath(from:THREE.Vector3,to:THREE.Vector3,entering:boolean){
+function introGlide(from:THREE.Vector3,to:THREE.Vector3){
+  const heading=Math.atan2(from.x,from.z);
+  const startRadius=Math.hypot(from.x,from.z),endRadius=Math.hypot(to.x,to.z);
+  return (t:number,position:THREE.Vector3)=>{
+    const progress=ease(t),angle=heading+overviewTurn*progress;
+    const radius=THREE.MathUtils.lerp(startRadius,endRadius,progress);
+    position.set(Math.sin(angle)*radius,THREE.MathUtils.lerp(from.y,to.y,progress),Math.cos(angle)*radius);
+  };
+}
+function flightPath(from:THREE.Vector3,to:THREE.Vector3,destination:Destination){
   const approach=vec(workshopApproach),dx=from.x-anchors.office[0],dz=from.z-anchors.office[2];
   const localX=dx*Math.cos(workshopAngle)-dz*Math.sin(workshopAngle);
   const localZ=dx*Math.sin(workshopAngle)+dz*Math.cos(workshopAngle);
   const atWindow=Math.abs(localX-.95)<.25&&Math.abs(from.y-workshopWindow[1])<.35&&localZ>=2.7&&localZ<7.19;
-  if(entering){
+  if(destination==='office'){
     if(atWindow)return (t:number,p:THREE.Vector3)=>p.lerpVectors(from,to,ease(t));
 
     // Align the final outdoor segment with the window, then ease across both
@@ -43,7 +54,13 @@ function flightPath(from:THREE.Vector3,to:THREE.Vector3,entering:boolean){
     path.add(new THREE.LineCurve3(approach,to));
     return (t:number,p:THREE.Vector3)=>p.copy(path.getPoint(ease(t)));
   }
-  const outside=route(atWindow?approach:from,to);
+  const origin=atWindow?approach:from;
+  const angle=Math.atan2(origin.x,origin.z)-Math.atan2(to.x,to.z);
+  const approachAngle=Math.atan2(Math.sin(angle),Math.cos(angle));
+  const leadIn=destination==='overview'&&Math.abs(approachAngle)>.01
+    ?to.clone().applyAxisAngle(worldUp,THREE.MathUtils.clamp(approachAngle*.18,-overviewTurn,overviewTurn))
+    :undefined;
+  const outside=route(origin,to,leadIn);
   return (t:number,p:THREE.Vector3)=>{
     if(atWindow){
       if(t<.25)p.lerpVectors(from,approach,ease(t/.25));
@@ -55,6 +72,7 @@ export function CameraRig() {
   const journey=useRef<Journey|null>(null),look=useRef(vec(poses.welcome.target));
   const offset=useRef({x:0,y:0});
   const welcomeOrbit=useRef(0);
+  const overviewYaw=useRef(0);
   const settledScene=useRef<string|null>(null);
   const reduced=useReducedMotion();
   const pan=useScenePan();
@@ -64,13 +82,23 @@ export function CameraRig() {
     const camera=raw as THREE.PerspectiveCamera;
     const state=useExperience.getState(),travel=state.mode==='transitioning';
     const id=state.mode==='welcome'?'welcome':travel?state.target:state.destination;
+    const enteringOverview=travel&&id==='overview'&&welcomeOrbit.current>0&&!reduced;
     if(id!=='welcome'||reduced)welcomeOrbit.current=0;
+    if(id!=='overview'||reduced)overviewYaw.current=0;
+    if(enteringOverview){
+      overviewYaw.current=Math.atan2(camera.position.x,camera.position.z)+overviewTurn
+        -Math.atan2(poses.overview.position[0],poses.overview.position[2]);
+    }
     const pose=poses[id],portrait=size.width/size.height<1.05;
     const portraitFov={welcome:30,overview:35,office:22,city:19,stadium:16,nature:13,family:17};
     const fov=pose.fov+(portrait?portraitFov[id]:0);
     const x=portrait?(id==='office'?.16:0):id==='welcome'?-.145:id==='overview'?-.075:state.panelOpen?-.115:0;
     const y=portrait?(id==='welcome'?.185:id==='overview'?-.015:state.panelOpen?.17:.035):0;
-    const final=()=>{camera.position.set(...pose.position);look.current.set(...pose.target);camera.fov=fov;offset.current={x,y}};
+    const final=()=>{
+      camera.position.set(...pose.position);
+      if(id==='overview')camera.position.applyAxisAngle(worldUp,overviewYaw.current);
+      look.current.set(...pose.target);camera.fov=fov;offset.current={x,y};
+    };
     if(!travel||reduced) {
       const previousOffset=offset.current;
       final();journey.current=null;
@@ -88,7 +116,10 @@ export function CameraRig() {
     } else {
       if(journey.current?.serial!==state.serial) {
         const destination=vec(pose.position);
-        journey.current={serial:state.serial,start:clock.elapsedTime,duration:id==='office'?3.85:THREE.MathUtils.clamp(2.35+camera.position.distanceTo(destination)/85,2.5,4),move:flightPath(camera.position.clone(),destination,id==='office'),look:look.current.clone(),fov:camera.fov,offsetX:offset.current.x,offsetY:offset.current.y,entering:id==='office'};
+        if(id==='overview')destination.applyAxisAngle(worldUp,overviewYaw.current);
+        const from=camera.position.clone();
+        const move=enteringOverview?introGlide(from,destination):flightPath(from,destination,state.target);
+        journey.current={serial:state.serial,start:clock.elapsedTime,duration:id==='office'?3.85:THREE.MathUtils.clamp(2.35+from.distanceTo(destination)/85,2.5,4),move,look:look.current.clone(),fov:camera.fov,offsetX:offset.current.x,offsetY:offset.current.y,entering:id==='office'};
       }
       const flight=journey.current,t=Math.min(1,(clock.elapsedTime-flight.start)/flight.duration),k=ease(t);
       flight.move(t,camera.position);
