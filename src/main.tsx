@@ -86,8 +86,8 @@ function App(){
       <img className="welcome-avatar" src={`${import.meta.env.BASE_URL}dean-portrait.jpg`} width="96" height="96" alt="Photo of Dean"/>
       <div className="eyebrow">SENIOR FRONTEND ENGINEER</div>
       <h1 id="welcome-title">Hi, I’m <i>Dean.</i></h1>
-      <p>I build fast, accessible websites and apps with React, React Native and TypeScript. I enjoy finding the small design and engineering details that make a complicated task feel simple.</p>
-      <p>Right now I’m building with Next.js and Expo. You’ll find some of my work here, along with a few things I love away from the desk.</p>
+      <p>I build fast, accessible websites and apps with React, React Native and TypeScript. I enjoy the design and engineering work that makes a complicated task feel simple.</p>
+      <p>Lately I’ve been building with Next.js and Expo. The island brings together some of that work and a few things I care about outside it.</p>
       <div className="welcome-actions">
         <button className="primary-button" onClick={()=>{enterFocus.current=true;move('overview')}}>{fallback?'Explore the guide':'Explore my portfolio'} <ArrowRight size={18} aria-hidden="true" focusable="false"/></button>
         <div className="archive-shortcuts">
@@ -102,8 +102,8 @@ function App(){
       </nav>
       {fallback&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
     </section>}
-    {mode==='transitioning'&&<div className="transition-status" role="status"><span className="pulse-dot"/> {target==='overview'?'Back to the island':`On the way to ${scenes[target].title}`} <button onClick={skip}><SkipForward size={16} aria-hidden="true" focusable="false"/> Skip</button></div>}
-    {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">MY PORTFOLIO</div><h2 id="overview-title" ref={overviewTitle} tabIndex={-1}>Work &amp;<br/> <i>life.</i></h2><p>Start with a project, my work history or a stop away from the desk.</p></section>}
+    {mode==='transitioning'&&<div className="transition-status" role="status"><span className="pulse-dot"/> {target==='overview'?'Back to the island':`Travelling to ${scenes[target].label}`} <button onClick={skip}><SkipForward size={16} aria-hidden="true" focusable="false"/> Skip</button></div>}
+    {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">MY PORTFOLIO</div><h2 id="overview-title" ref={overviewTitle} tabIndex={-1}>Work &amp;<br/> <i>life.</i></h2><p>Pick a stop on the island to explore my work or see what I get up to away from the desk.</p></section>}
     {scene&&<section hidden={mode!=='scene'} className={`scene-panel${panelOpen?'':' collapsed'}`} aria-labelledby={panelOpen?'scene-title':undefined} aria-label={panelOpen?undefined:scene.title}>
       <div className="panel-top">{panelOpen?<span className="eyebrow">{scene.index} / 05 <span className="chapter-dot" style={{background:scene.color}}/></span>:<span className="collapsed-label" aria-hidden="true">{scene.title}</span>}<button className="panel-toggle" onClick={togglePanel} aria-expanded={panelOpen} aria-controls="scene-copy" aria-label={panelOpen?'Hide story':'Read story'}>{panelOpen?<Minus size={18} aria-hidden="true" focusable="false"/>:<Plus size={18} aria-hidden="true" focusable="false"/>}</button></div>
       <div className="scene-panel-body"><div id="scene-copy" ref={node=>{if(node)node.inert=!panelOpen}} aria-hidden={!panelOpen}><div className="eyebrow">{scene.eyebrow}</div><h2 id="scene-title">{scene.title}</h2><p>{scene.description}</p>

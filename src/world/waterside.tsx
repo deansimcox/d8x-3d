@@ -15,6 +15,9 @@ const riverLip=fullStream.getPoints(180).findIndex(p=>!onIsland(p.x,p.z,1));
 const stream=new THREE.CatmullRomCurve3(fullStream.getPoints(180).slice(0,riverLip<0?undefined:riverLip+1).filter((_,i)=>i%4===0||i===riverLip));
 const mountainPoolT=.16;
 const mountainPool=stream.getPoint(mountainPoolT);
+const rugWidth=4.5,rugDepth=3.7;
+const rugRadius=Math.hypot(rugWidth/2,rugDepth/2);
+const picnicX=anchors.nature[0]-.2,picnicZ=anchors.nature[2]-.85;
 function ribbon(curve:THREE.Curve<THREE.Vector3>,segments:number,width:(t:number)=>number,fallAcross?:THREE.Vector3) {
   const positions=[],indices=[],uv=[];
   for(let i=0;i<=segments;i++) {
@@ -55,7 +58,8 @@ export function Waterside() {
     const rocks=Array.from({length:27},(_,i):Placement=>{
       const t=.08+i*.03,p=stream.getPoint(t),v=stream.getTangent(t),offset=(i%2?-1:1)*(width(t)+.3);
       return {position:[p.x-v.z*offset,3.55,p.z+v.x*offset],height:.35+random(i+95)*.75,rotation:random(i+11)*6.28};
-    }).filter(({position:[x,,z],height})=>!nearTrail(x,z,height));
+    }).filter(({position:[x,,z],height})=>
+      !nearTrail(x,z,height)&&Math.hypot(x-picnicX,z-picnicZ)>rugRadius+height*1.5);
     const mountainAcross=new THREE.Vector3(.6,0,-.8);
     return {water:ribbon(stream,128,width),shore:ribbon(stream,128,t=>width(t)+.35),falls:[ribbon(fall,34,t=>.73+t*.52,mountainAcross),ribbon(spill,46,t=>width(1)*(1-.32*t),across)],stones:rocks,fall,spill,across,mountainAcross};
   },[]);
@@ -155,9 +159,9 @@ function Basket(){
     <mesh position={[0,.79,0]} castShadow><torusGeometry args={[.67,.055,8,24,Math.PI]}/><meshStandardMaterial color="#a5713c" roughness={.92}/></mesh>
   </group>;
 }
-export function Picnic(){return <group position={anchors.nature} rotation={[0,-.55,0]}>
+export function Picnic(){return <group position={[picnicX,terrainY(picnicX,picnicZ)-.05,picnicZ]} rotation={[0,-.55,0]}>
   <Butterflies/>
-  <Block position={[0,.03,0]} size={[4.5,.12,3.7]} color="#aa6754"/>
+  <Block position={[0,.07,0]} size={[rugWidth,.04,rugDepth]} color="#aa6754"/>
   <Blocks castShadow={false} items={Array.from({length:16},(_,i)=>i<9?{position:[-2+i*.5,.102,0],size:[.065,.016,3.68],color:'#e4b98e'}:{position:[0,.106,-1.5+(i-9)*.5],size:[4.47,.014,.067],color:'#e4b98e'})}/>
   <group position={[-.68,.12,-.29]} rotation={[0,.24,0]}><Basket/></group>
   <Model name="plate" position={[1,.12,.41]} width={1.08}/>
@@ -166,5 +170,5 @@ export function Picnic(){return <group position={anchors.nature} rotation={[0,-.
   <Model name="cup-tea" position={[-.14,.12,1.11]} height={.36}/>
   <Model name="loaf-baguette" position={[-1.51,.12,.95]} width={.76} rotation={-.76}/>
   <Model name="Fern_1" position={[3.4,0,-1.8]} height={.88}/><Model name="Flower_4_Group" position={[-3.2,0,-1.75]} height={.55}/>
-  <Model name="Flower_3_Group" position={[2.9,0,1.9]} height={.59}/><Model name="Rock_Medium_1" position={[-3.75,0,.1]} height={.85}/>
+  <Model name="Flower_3_Group" position={[2.9,0,1.9]} height={.59}/>
 </group>}
