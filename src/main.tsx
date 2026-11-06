@@ -28,15 +28,7 @@ function supportsWebGL(){
     context.getExtension('WEBGL_lose_context')?.loseContext();return true;
   }catch{return false}
 }
-function IslandIllustration(){return <svg className="illustration" viewBox="0 0 700 420" aria-hidden="true">
-  <defs><linearGradient id="earth" x2="0" y2="1"><stop stopColor="#a29c7e"/><stop offset="1" stopColor="#687a69"/></linearGradient></defs>
-  <path d="M28 202 Q88 176 139 190 Q117 156 193 165 Q225 156 254 191 M479 268 Q552 246 602 264 Q642 252 685 271" fill="none" stroke="#f9f5df" strokeWidth="8" strokeLinecap="round" opacity=".7"/>
-  <path d="M99 222 L158 305 270 333 347 389 466 342 554 298 617 224 526 185 358 162 179 177Z" fill="url(#earth)"/>
-  <path d="M99 222 179 177 358 162 526 185 617 224 520 249 384 259 247 253Z" fill="#a2b181"/>
-  <path d="M232 215 341 57 429 187 468 217 351 235Z" fill="#7b8e80"/><path d="M305 112 341 57 381 117 358 111 341 128 330 109Z" fill="#f5eee0"/>
-  <path d="M342 64 351 234 429 187Z" fill="#c8c5ab" opacity=".5"/><path d="M359 156 Q334 182 360 195 Q398 215 321 229 L282 252 290 305" fill="none" stroke="#b9dcd1" strokeWidth="7"/>
-  {[[176,212],[210,224],[486,214],[521,226],[461,231],[203,197],[548,214]].map(([x,y],i)=><path key={x} d={`M${x-10} ${y} L${x} ${y-26-i%3*4} ${x+10} ${y}Z`} fill={i%2?'#64896b':'#537a60'}/>)}
-</svg>}
+function IslandIllustration(){return <img className="illustration" src={`${import.meta.env.BASE_URL}island-illustration.svg`} width="760" height="480" alt=""/>}
 function Dock({active,move}: {active:Destination|null;move:(d:Destination)=>void}){
   const index=active&&active!=='overview'?sceneIds.indexOf(active)+1:0;
   return <nav className="dock" aria-label="Explore destinations" style={{'--dock-index':index} as React.CSSProperties}>
@@ -98,12 +90,15 @@ function App(){
       <p>Right now I’m building with Next.js and Expo. You’ll find some of my work here, along with a few things I love away from the desk.</p>
       <div className="welcome-actions">
         <button className="primary-button" onClick={()=>{enterFocus.current=true;move('overview')}}>{fallback?'Explore the guide':'Explore my portfolio'} <ArrowRight size={18} aria-hidden="true" focusable="false"/></button>
-        <a className="direct-projects" href="#projects" aria-haspopup="dialog">View projects</a>
+        <div className="archive-shortcuts">
+          <a href="#projects" aria-haspopup="dialog">View projects</a>
+          <a href="#work" aria-haspopup="dialog">Work history</a>
+        </div>
       </div>
       <nav className="profile-links" aria-label="Profiles and credits">
         <a href="https://www.linkedin.com/in/dean-simcox/" target="_blank" rel="noopener noreferrer">LinkedIn <MoveUpRight size={13} aria-hidden="true" focusable="false"/></a>
         <a href="https://github.com/deansimcox" target="_blank" rel="noopener noreferrer">GitHub <MoveUpRight size={13} aria-hidden="true" focusable="false"/></a>
-        <a href={`${import.meta.env.BASE_URL}credits.html`}>Asset credits</a>
+        <a className="intro-credits" href={`${import.meta.env.BASE_URL}credits.html`}>Asset credits</a>
       </nav>
       {fallback&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
     </section>}
