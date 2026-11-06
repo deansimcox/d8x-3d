@@ -8,6 +8,7 @@ import {useScenePan} from './scenePan';
 
 const vec=(v:Pose['position'])=>new THREE.Vector3(...v);
 const worldUp=new THREE.Vector3(0,1,0);
+const welcomeOrbitSpeed=.035;
 const ease=(t:number)=>t*t*t*(t*(t*6-15)+10);
 type Journey={serial:number;start:number;duration:number;move:(t:number,p:THREE.Vector3)=>void;look:THREE.Vector3;fov:number;offsetX:number;offsetY:number;entering:boolean};
 function route(from:THREE.Vector3,to:THREE.Vector3,leadIn?:THREE.Vector3) {
@@ -53,6 +54,7 @@ function flightPath(from:THREE.Vector3,to:THREE.Vector3,entering:boolean){
 export function CameraRig() {
   const journey=useRef<Journey|null>(null),look=useRef(vec(poses.welcome.target));
   const offset=useRef({x:0,y:0});
+  const welcomeOrbit=useRef(0);
   const settledScene=useRef<string|null>(null);
   const reduced=useReducedMotion();
   const pan=useScenePan();
@@ -62,6 +64,7 @@ export function CameraRig() {
     const camera=raw as THREE.PerspectiveCamera;
     const state=useExperience.getState(),travel=state.mode==='transitioning';
     const id=state.mode==='welcome'?'welcome':travel?state.target:state.destination;
+    if(id!=='welcome'||reduced)welcomeOrbit.current=0;
     const pose=poses[id],portrait=size.width/size.height<1.05;
     const portraitFov={welcome:30,overview:35,office:22,city:19,stadium:16,nature:13,family:17};
     const fov=pose.fov+(portrait?portraitFov[id]:0);
@@ -71,6 +74,10 @@ export function CameraRig() {
     if(!travel||reduced) {
       const previousOffset=offset.current;
       final();journey.current=null;
+      if(id==='welcome'&&state.ready&&!reduced){
+        welcomeOrbit.current=(welcomeOrbit.current+welcomeOrbitSpeed*Math.min(delta,.1))%(Math.PI*2);
+        camera.position.sub(look.current).applyAxisAngle(worldUp,welcomeOrbit.current).add(look.current);
+      }
       if(!reduced&&state.mode==='scene'&&settledScene.current===id){
         offset.current={
           x:THREE.MathUtils.damp(previousOffset.x,x,12,delta),
