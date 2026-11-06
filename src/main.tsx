@@ -62,11 +62,12 @@ function App(){
     if(!intro||reducedMotion)return;
     const beats=[
       ['.welcome-avatar',0,.55,'translateY(14px) scale(.94)'],
-      ['.eyebrow',.12,.36,'translateY(6px)'],
-      ['#welcome-title > :nth-child(1)',.22,.45,'translateY(16px) scale(.94)'],
-      ['#welcome-title > :nth-child(2)',.53,.32,'translateY(9px)'],
-      ['#welcome-title > :nth-child(3)',.66,.36,'translateY(9px)'],
-      ['.welcome-bio',.78,.32,'translateY(5px)'],
+      ['#welcome-title > :nth-child(1)',.71,.4,'translateY(16px) scale(.94)'],
+      ['#welcome-title > :nth-child(2)',1.32,.3,'translateY(9px)'],
+      ['#welcome-title > :nth-child(3)',1.43,.34,'translateY(9px)'],
+      ['.eyebrow',1.97,.32,'translateY(6px)'],
+      ['.welcome-bio > :first-child',2.09,.34,'translateY(5px)'],
+      ['.welcome-bio > :last-child',2.23,.34,'translateY(5px)'],
     ] as const;
     const animations=beats.map(([selector,delay,duration,from])=>animate(
       intro.querySelectorAll(selector),
