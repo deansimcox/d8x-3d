@@ -70,7 +70,7 @@
 }
 .welcome-avatar{display:block;width:clamp(66px,8vw,96px);height:auto;margin-bottom:17px;border:2px solid #fff7e5;border-radius:50%;box-shadow:0 5px 24px #293d2d3d}
 .welcome h1{font-size:clamp(43px,5.5vw,85px);margin-top:10px}
-#welcome-title>*{display:inline-block}
+.welcome-wave{display:inline-block;width:.88em;height:.88em;vertical-align:-.02em;color:var(--rust);transform-origin:48% 90%}
 .welcome p{max-width:345px;margin-top:12px}
 @media(max-width:700px){.welcome-avatar{width:64px;margin-bottom:9px}.welcome h1{font-size:clamp(40px,10vw,62px)}.mode-welcome .wash{background:linear-gradient(0deg,#f6ecd1f5 8%,#f6ecd1eb 36%,#f6ecd170 57%,transparent 76%)}}
 @media(max-height:490px) and (orientation:landscape){.welcome-avatar{width:46px;margin-bottom:6px}.welcome h1{font-size:34px}.welcome p{margin-top:6px}}

@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import type {Destination} from './content';
+import {sceneIds,type Destination} from './content';
 
 type Mode='welcome'|'transitioning'|'overview'|'scene'|'flight';
 type State={
@@ -11,6 +11,17 @@ type State={
   flightRings:number;flightDelivered:boolean;startFlight:()=>void;recordRing:()=>void;deliverMail:()=>void;exitFlight:()=>void;
 };
 const settled=(d:Destination)=>({destination:d,target:d,mode:(d==='overview'?'overview':'scene') as Mode});
+const sessionKey='d8x.last-scene';
+function readScene(){
+  if(location.hash==='#projects'||location.hash==='#work')return;
+  try{
+    const saved=sessionStorage.getItem(sessionKey);
+    if(saved==='overview')return settled(saved);
+    const scene=sceneIds.find(id=>id===saved);
+    if(scene)return settled(scene);
+  }catch{/* Storage can be disabled. */}
+}
+const restoredScene=readScene();
 function navigate(state:State,destination:Destination):Partial<State>{
   const instant=state.failed||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!state.ready&&!instant)return {pending:destination};
@@ -18,7 +29,7 @@ function navigate(state:State,destination:Destination):Partial<State>{
   return {...next,pending:null,panelOpen:true,archive:null};
 }
 export const useExperience=create<State>((set,get)=>({
-  mode:'welcome',destination:'overview',target:'overview',pending:null,serial:0,sound:false,panelOpen:true,ready:false,failed:false,archive:null,
+  mode:'welcome',destination:'overview',target:'overview',...restoredScene,pending:null,serial:0,sound:false,panelOpen:true,ready:false,failed:false,archive:null,
   enter:()=>get().go('overview'),
   returnToIntro:()=>set({mode:'welcome',destination:'overview',target:'overview',pending:null,panelOpen:true,archive:null}),
   go:d=>set(s=>{
@@ -42,3 +53,10 @@ export const useExperience=create<State>((set,get)=>({
   deliverMail:()=>set(s=>s.mode==='flight'?{flightDelivered:true}:s),
   exitFlight:()=>set(s=>s.mode==='flight'?navigate(s,'overview'):s),
 }));
+useExperience.subscribe((state,previous)=>{
+  if(state.mode===previous.mode&&state.destination===previous.destination)return;
+  try{
+    if(state.mode==='welcome')sessionStorage.removeItem(sessionKey);
+    if(state.mode==='scene'||state.mode==='overview')sessionStorage.setItem(sessionKey,state.destination);
+  }catch{/* Navigation works without storage. */}
+});

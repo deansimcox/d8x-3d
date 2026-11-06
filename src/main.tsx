@@ -64,19 +64,17 @@ function App(){
     const intro=welcome.current;
     if(!intro||reducedMotion)return;
     const beats=[
-      ['.welcome-avatar',0,.55,'translateY(14px) scale(.94)'],
-      ['#welcome-title > :nth-child(1)',.71,.4,'translateY(16px) scale(.94)'],
-      ['#welcome-title > :nth-child(2)',1.32,.3,'translateY(9px)'],
-      ['#welcome-title > :nth-child(3)',1.43,.34,'translateY(9px)'],
-      ['.eyebrow',1.97,.32,'translateY(6px)'],
-      ['.welcome-bio > :first-child',2.09,.34,'translateY(5px)'],
-      ['.welcome-bio > :last-child',2.23,.34,'translateY(5px)'],
+      ['.welcome-avatar, #welcome-title',0,.42,'translateY(9px)'],
+      ['.eyebrow, .welcome-bio',.25,.42,'translateY(5px)'],
     ] as const;
     const animations=beats.map(([selector,delay,duration,from])=>animate(
       intro.querySelectorAll(selector),
       {opacity:[0,1],transform:[from,'none']},
       {delay,duration,ease:[.2,.72,.22,1],transform:{delay,duration,ease:[.22,1.48,.44,1]}},
     ));
+    animations.push(animate(intro.querySelectorAll('.welcome-wave'),{
+      transform:['rotate(0deg)','rotate(-22deg)','rotate(24deg)','rotate(-18deg)','rotate(19deg)','rotate(0deg)'],
+    },{delay:2,duration:.95,ease:'easeInOut'}));
     return ()=>animations.forEach(animation=>animation.cancel());
   },[mode,reducedMotion]);
   useEffect(()=>{if(mode==='overview'&&enterFocus.current){overviewTitle.current?.focus({preventScroll:true});enterFocus.current=false}},[mode]);
@@ -123,7 +121,9 @@ function App(){
     {mode==='welcome'&&<section className="welcome" ref={welcome} aria-labelledby="welcome-title">
       <img className="welcome-avatar" src={`${import.meta.env.BASE_URL}dean-portrait.jpg`} width="96" height="96" alt="Photo of Dean"/>
       <div className="eyebrow">SENIOR FRONTEND ENGINEER</div>
-      <h1 id="welcome-title"><span>Hi,</span>{' '}<span>I’m</span>{' '}<i>Dean.</i></h1>
+      <h1 id="welcome-title">Hi, I’m <i>Dean.</i>{' '}<svg className="welcome-wave" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M11 28c-2-1-3-3-4-5l-3-6a2 2 0 0 1 3-2l4 4-3-9a1.6 1.6 0 0 1 3-1l3 6-1-10a1.6 1.6 0 0 1 3 0l1 9 2-9a1.6 1.6 0 0 1 3 1l-1 9 3-6a1.6 1.6 0 0 1 3 1l-2 11c-1 6-5 9-10 9Z" fill="#ecd0a4" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+      </svg></h1>
       <div className="welcome-bio">
         <p>I build fast, accessible websites and apps with React, React Native and TypeScript. I enjoy the design and engineering work that makes a complicated task feel simple.</p>
         <p>Lately I’ve been building with Next.js and Expo. The island brings together some of that work and a few things I care about outside it.</p>
