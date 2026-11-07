@@ -299,5 +299,19 @@
     "bytes": 58132,
     "source": "https://poly.pizza/m/BgSZXwmm7k",
     "license": "CC0-1.0"
+  },
+  {
+    "file": "familySwing.glb",
+    "pack": "poly-pizza-island-details",
+    "bytes": 410948,
+    "source": "https://poly.pizza/m/3mFM6lFd9P9",
+    "license": "CC-BY-3.0"
+  },
+  {
+    "file": "familySandpit.glb",
+    "pack": "poly-pizza-island-details",
+    "bytes": 28304,
+    "source": "https://poly.pizza/m/07KqBahqHXK",
+    "license": "CC-BY-3.0"
   }
 ]

@@ -9,6 +9,7 @@ import {DeveloperScreens} from './codeDisplay';
 import {DeskChair,WritingDesk} from './workshopFurniture';
 import {cottageSteps} from './trail';
 import {DestinationDetail} from './DestinationDetail';
+import {FamilyPlay} from './familyPlay';
 
 const plaster='#e0c8a4',wood='#78543e',stone='#9d947a';
 const gable=new Shape().moveTo(-3.9,-.7).lineTo(3.9,-.7).lineTo(0,1.61).closePath();
@@ -195,6 +196,7 @@ export function Home(){
     {[-6.4,6.4].map(x=><group key={x}>{[-2.1,.3,2.7].map(z=><Model key={z} name="Prop_WoodenFence_Single" position={[x,0,z]} width={2.4} rotation={Math.PI/2}/>)}</group>)}
     <Lamp position={[-1.45,.25,3.95]} short/>
     <YardToys/>
+    <DestinationDetail id="family"><FamilyPlay/></DestinationDetail>
     <KitchenGarden/>
     <GardenLookout/>
     <Planting home/>

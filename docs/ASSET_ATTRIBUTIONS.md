@@ -1,8 +1,10 @@
 # Asset inventory and licences
 
-The current scene uses 40 GLB models, including four that load when their destinations are first visited. Another 17 remain in the static bundle from earlier iterations. All 57 files and their sizes are listed in the [model manifest](../public/models/manifest.json).
+The current scene uses 42 bundled GLB models, including six that load when their destinations are first visited. Another 17 remain in the static bundle from earlier iterations. All 59 bundled files and their sizes are listed in the [model manifest](../public/models/manifest.json).
 
 ## Attribution on the live site
+
+- **Wood Swing by Poly by Google** and **Sandbox by sirkitree** require attribution under [CC BY 3.0 Unported](https://creativecommons.org/licenses/by/3.0/). The credits page names both creators and records the mesh split and rim recolour. [Wood Swing](https://poly.pizza/m/3mFM6lFd9P9) · [Sandbox](https://poly.pizza/m/07KqBahqHXK)
 
 - **Lighthouse by Poly by Google** requires attribution under [CC BY 3.0 Unported](https://creativecommons.org/licenses/by/3.0/). The intro links to the [public credits page](../public/credits.html), which names the creator, links the source and licence, and notes that the beacon was added separately. The GLB is used as supplied. [Original lighthouse](https://poly.pizza/m/0t2ZYRBsqX-)
 - **CC0 models** do not require author credit. The credits page names their creators as well. The licences bundled with the original Quaternius and Kenney archives are preserved in [public/models](../public/models/). Individual downloads are documented by their source pages. [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
@@ -49,6 +51,8 @@ The current scene uses 40 GLB models, including four that load when their destin
 | `officePlantPothos.glb` | Isa Lousberg | [Pothos Plant Small](https://poly.pizza/m/JVoJ2itVzh) | CC0-1.0 |
 | `officePlantZZ.glb` | Isa Lousberg | [ZZ Plant Pot](https://poly.pizza/m/0uJQPU1oAK) | CC0-1.0 |
 | `isletLighthouse.glb` | Poly by Google | [Lighthouse](https://poly.pizza/m/0t2ZYRBsqX-) | CC-BY-3.0 |
+| `familySwing.glb` | Poly by Google | [Wood Swing](https://poly.pizza/m/3mFM6lFd9P9), split to animate the seat | CC-BY-3.0 |
+| `familySandpit.glb` | sirkitree | [Sandbox](https://poly.pizza/m/07KqBahqHXK), recoloured rim | CC-BY-3.0 |
 | `woodlandDeer.glb` | Quaternius | [Deer](https://poly.pizza/m/T6Cs7tmMHJ) | CC0-1.0 |
 | `ridgeTelescope.glb` | CreativeTrio | [Telescope](https://poly.pizza/m/RjyTCQvA8b) | CC0-1.0 |
 | `skyFerry.glb` | Quaternius | [Sail Boat](https://poly.pizza/m/BgSZXwmm7k) | CC0-1.0 |
