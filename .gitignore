@@ -5,3 +5,4 @@ assets/source/
 .asset-tools/
 artifacts/
 *.log
+src/assets/americanRobin.glb

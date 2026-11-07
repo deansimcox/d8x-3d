@@ -16,6 +16,7 @@ import {Picnic,Trails,Waterside} from './waterside';
 import {useReducedMotion} from './motion';
 import {windClock,windEnabled} from './wind';
 import {WoodlandDeer} from './woodlandDeer';
+import {RiversideRobin} from './riversideRobin';
 import {DestinationDetail} from './DestinationDetail';
 
 function Wind(){
@@ -90,7 +91,7 @@ function Scene(){
     <directionalLight ref={fill} position={[44,24,-45]} intensity={.75} color="#c5ddd1"/>
     <Atmosphere/><group ref={terrain}><Terrain/></group><Trails/>
     <Suspense fallback={null}><Vegetation/><Waterside/><Workshop/><City/><Stadium/><Picnic/><Home/>
-    <DestinationDetail id="nature"><WoodlandDeer/></DestinationDetail>
+    <DestinationDetail id="nature"><WoodlandDeer/></DestinationDetail>`n    <DestinationDetail id="nature"><RiversideRobin/></DestinationDetail>
     {welcome&&<Avatar/>}<Markers terrain={terrain}/><Ready/></Suspense>
   </>;
 }

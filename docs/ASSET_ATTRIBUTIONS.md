@@ -100,3 +100,7 @@ The bundled MP3s were prepared from Freesound's high-quality previews and are cr
 ## Preparing models
 
 The [asset preparation script](../scripts/prepare-assets.py) converts selected source-pack models to self-contained GLBs and embeds and downsizes textures. The separate Poly Pizza models are bundled as downloaded. The retained Innerscene stadium was processed with [prepare-stadium.py](../scripts/prepare-stadium.py) to resize textures and remove glass transmission.
+
+## Optional American robin
+
+[American Robin by Soltorch Games](https://soltorchgames.itch.io/animated-low-poly-bird-sample) uses the creator's bundled asset licence. It permits shipping the bird inside the finished site and restricts redistributing it as a reusable asset. Keep the ZIP and source files outside the public repository. To enable the robin, download the free sample, then copy `GLB/American_Robin_Mesh.glb` to `src/assets/americanRobin.glb` in the build workspace before running `npm run build`. The file is gitignored. Builds without it still render the Outdoors scene and all three procedural sky flocks. For a deployment from a clean checkout, supply the file to the build or upload a production build made with the file present.

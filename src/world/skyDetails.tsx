@@ -7,6 +7,7 @@ import type {Vec3} from './layout';
 import {Model} from './models';
 import {useExperience} from '../store';
 import {AirMailFlight} from './AirMailFlight';
+import {SkyFlocks} from './skyFlocks';
 
 function Balloon(){
   const balloon=useRef<THREE.Group>(null),reduced=useReducedMotion();
@@ -65,24 +66,6 @@ function VintagePlane(){
     <group ref={propeller} position={[0,0,2.48]}><Block position={[0,0,0]} size={[.19,2.32,.10]} color="#614932"/></group>
     <mesh position={[0,0,2.4]}><sphereGeometry args={[.28,10,7]}/><meshStandardMaterial color="#c99b62"/></mesh>
   </group></>;
-}
-function Flock(){
-  const birds=useRef<THREE.Group>(null),reduced=useReducedMotion();
-  useFrame(({clock})=>{
-    const t=reduced?0:clock.elapsedTime;
-    birds.current?.children.forEach((bird,i)=>{
-      const a=t*.20+i*.085+1.85;
-      bird.position.set(Math.cos(a)*(36+i*.75),25+i*.76+Math.sin(a*2)*2.4,Math.sin(a)*31-5);
-      bird.rotation.y=-a;
-      const flap=reduced?.15:Math.sin(t*6+i*.78)*.7;
-      bird.children[1].rotation.z=flap;
-      bird.children[2].rotation.z=-flap;
-    });
-  });
-  return <group ref={birds}>{Array.from({length:6},(_,i)=><group key={i}>
-    <mesh scale={[.15,.12,.36]}><sphereGeometry args={[1,8,6]}/><meshStandardMaterial color="#4a464d"/></mesh>
-    {[-1,1].map(side=><group key={side}><mesh position={[side*.38,.035,-.09]} rotation={[0,side*.24,side*.12]} scale={[.5,.046,.15]}><sphereGeometry args={[1,8,5]}/><meshStandardMaterial color="#f2e9d3"/></mesh></group>)}
-  </group>)}</group>;
 }
 const islets:{position:Vec3;scale:number;turn:number}[]=[
   {position:[-106,-5,-91],scale:1.5,turn:.32},{position:[-5,-13,-145],scale:1.1,turn:1.2},
@@ -148,6 +131,6 @@ export function SkyDetails({dusk}:{dusk:{value:number}}){
         <mesh position={[3.2,3.55,-1.2]}><coneGeometry args={[2.5,3.2,5]}/><meshStandardMaterial color="#86a197" fog={false} flatShading/></mesh>
       </>}
     </group>)}
-    <Balloon/><Flock/><VintagePlane/><SkyFerry/>
+    <Balloon/><SkyFlocks/><VintagePlane/><SkyFerry/>
   </>;
 }
