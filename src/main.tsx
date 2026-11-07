@@ -1,12 +1,14 @@
 import React,{Suspense,lazy,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {animate} from 'motion/mini';
-import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,Minus,Plus,Plane,RotateCcw} from 'lucide-react';
+import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,Minus,Plus,Plane,RotateCcw,Github,Linkedin,Info} from 'lucide-react';
 import {sceneIds,scenes,type Destination} from './content';
 import {useExperience} from './store';
 import {airMailGates} from './airMail';
 import {mixSound,setAudio} from './audio';
 import {Details} from './Details';
+import {Credits} from './Credits';
+import {BrandExplainer} from './BrandExplainer';
 import {useReducedMotion} from './world/motion';
 import './style.css';
 
@@ -70,6 +72,8 @@ function App(){
   const continueFlight=useExperience(s=>s.continueFlight),freestyle=useExperience(s=>s.flightFreestyle);
   const rings=useExperience(s=>s.flightRings),delivered=useExperience(s=>s.flightDelivered);
   const [directArchive,setDirectArchive]=useState(linkedArchive);
+  const [creditsOpen,setCreditsOpen]=useState(false);
+  const [explainerOpen,setExplainerOpen]=useState(false);
   const [loadWorld,setLoadWorld]=useState(()=>!linkedArchive());
   const [audioError,setAudioError]=useState(false);
   const [available]=useState(supportsWebGL);
@@ -166,10 +170,11 @@ function App(){
         </div>
       </div>
       <nav className="profile-links" aria-label="Profiles and credits">
-        <a href="https://www.linkedin.com/in/dean-simcox/" target="_blank" rel="noopener noreferrer">LinkedIn <MoveUpRight size={13} aria-hidden="true" focusable="false"/></a>
-        <a href="https://github.com/deansimcox" target="_blank" rel="noopener noreferrer">GitHub <MoveUpRight size={13} aria-hidden="true" focusable="false"/></a>
-        <a className="intro-credits" href={`${import.meta.env.BASE_URL}credits.html`}>Asset credits</a>
+        <a href="https://www.linkedin.com/in/dean-simcox/" target="_blank" rel="noopener noreferrer"><Linkedin size={15} aria-hidden="true" focusable="false"/> LinkedIn</a>
+        <a href="https://github.com/deansimcox" target="_blank" rel="noopener noreferrer"><Github size={15} aria-hidden="true" focusable="false"/> GitHub</a>
+        <button className="intro-credits" aria-haspopup="dialog" onClick={()=>setCreditsOpen(true)}>Asset credits</button>
       </nav>
+      <button className="brand-explainer" aria-haspopup="dialog" onClick={()=>setExplainerOpen(true)}><Info size={14} aria-hidden="true" focusable="false"/> Why d8x?</button>
       {fallback&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
     </section>}
     {mode==='transitioning'&&<div className="transition-status" role="status"><span className="pulse-dot"/> {target==='overview'?'Back to the island':`Travelling to ${scenes[target].label}`} <button onClick={skip}><SkipForward size={16} aria-hidden="true" focusable="false"/> Skip</button></div>}
@@ -196,6 +201,8 @@ function App(){
     </section>}
     {audioError&&<p className="audio-note" role="status">Ambient sound is unavailable on this device.</p>}
     {directArchive?<Details key={directArchive} id={directArchive} direct onClose={closeDirectArchive}/>:archive&&<Details key={archive.id} {...archive} onClose={closeArchive}/>}
+    {creditsOpen&&<Credits onClose={()=>setCreditsOpen(false)}/>}
+    {explainerOpen&&<BrandExplainer onClose={()=>setExplainerOpen(false)}/>}
     {(loading||revealing)&&<div className="island-loading" role={loading?'status':undefined} aria-hidden={!loading}><span className="loading-track" aria-hidden="true"/><span>The island is coming into view</span><small>Loading the 3D scenery</small></div>}
     <Dock active={active} move={move}/>
     <footer className="edge-mark"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M6 0Q7 5 12 6Q7 7 6 12Q5 7 0 6Q5 5 6 0Z" fill="currentColor"/></svg> DEAN / SENIOR FRONTEND ENGINEER</footer>

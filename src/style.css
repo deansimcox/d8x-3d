@@ -76,10 +76,21 @@
 @media(max-width:700px){.welcome-avatar{width:64px;margin-bottom:9px}.welcome h1{font-size:clamp(40px,10vw,62px)}.mode-welcome .wash{background:linear-gradient(0deg,#f6ecd1f5 8%,#f6ecd1eb 36%,#f6ecd170 57%,transparent 76%)}}
 @media(max-height:490px) and (orientation:landscape){.welcome-avatar{width:46px;margin-bottom:6px}.welcome h1{font-size:34px}.welcome p{margin-top:6px}}
 .profile-links{display:flex;align-items:center;gap:14px;max-width:345px;margin-top:10px;border-top:1px solid #54635138}
-.profile-links a{display:inline-flex;align-items:center;gap:4px;min-height:44px;color:var(--muted);font-size:12px;font-weight:600;text-underline-offset:3px}
-.intro-credits{margin-left:auto}
-.profile-links a:hover{color:var(--rust)}
-.profile-links a:focus-visible{outline:3px solid var(--rust);outline-offset:3px;border-radius:4px}
+.profile-links :is(a,button){display:inline-flex;align-items:center;gap:4px;min-height:44px;color:var(--muted);font-size:12px;font-weight:600;text-underline-offset:3px}
+.intro-credits{margin-left:auto;padding:0;border:0;background:transparent;text-decoration:underline}
+.profile-links :is(a,button):hover,.brand-explainer:hover{color:var(--rust)}
+.profile-links :is(a,button):focus-visible,.brand-explainer:focus-visible{outline:3px solid var(--rust);outline-offset:3px;border-radius:4px}
+.brand-explainer{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:700}
+.detail-modal.brand-modal{width:min(410px,calc(100% - 28px))}
+.brand-modal .archive-body p{margin:0;line-height:1.65;color:var(--muted)}
+@media(prefers-reduced-motion:no-preference){
+  .profile-links a svg,.brand-explainer svg{transition:transform .18s ease-out}
+  .profile-links a:is(:hover,:focus-visible) svg,.brand-explainer:is(:hover,:focus-visible) svg{transform:translateY(-2px)}
+}
+.credits-modal h3{font:600 23px/1.15 var(--serif);margin:22px 0 8px}
+.credits-body h3:first-child{margin-top:0}
+.credits-body :is(p,ul){font-size:14px;line-height:1.6}
+.credits-body a{color:var(--archive-accent);text-underline-offset:3px}
 .brand-name{font-size:14px;letter-spacing:.025em}
 .welcome-actions{display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-top:25px}
 .welcome-actions .primary-button{margin-top:0}
@@ -120,7 +131,7 @@
   pointer-events: none;
 }
 .dock:not(:has([aria-current=page])) .dock-highlight{opacity:0}
-.is-loading :is(.topbar,.welcome-actions,.profile-links,.dock,.scene-panel,.transition-status){visibility:hidden}
+.is-loading :is(.topbar,.welcome-actions,.profile-links,.brand-explainer,.dock,.scene-panel,.transition-status){visibility:hidden}
 .is-revealing .island-loading{visibility:hidden;pointer-events:none}
 
 @media(prefers-reduced-motion:no-preference){
@@ -131,8 +142,8 @@
   .is-revealing .dock{--reveal-y:14px;animation:controls-in .42s var(--reveal-ease) .14s both}
   .is-revealing .welcome-actions .primary-button{--reveal-y:9px;animation:controls-in .36s var(--reveal-ease) .28s both}
   .is-revealing .primary-button svg{animation:explore-arrow-in .32s var(--reveal-ease) .34s backwards}
-  .is-revealing :is(.archive-shortcuts,.profile-links){--reveal-y:4px;animation:controls-in .28s var(--reveal-ease) .39s both}
-  .is-revealing :is(.topbar,.dock,.primary-button,.archive-shortcuts,.profile-links):focus-within{animation:none}
+  .is-revealing :is(.archive-shortcuts,.profile-links,.brand-explainer){--reveal-y:4px;animation:controls-in .28s var(--reveal-ease) .39s both}
+  .is-revealing :is(.topbar,.dock,.primary-button,.archive-shortcuts,.profile-links,.brand-explainer):focus-within{animation:none}
   @keyframes controls-in{
     from{opacity:0;translate:0 var(--reveal-y)}
     to{opacity:1;translate:0 0}

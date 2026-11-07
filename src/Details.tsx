@@ -1,30 +1,12 @@
-import {useEffect,useRef,useState} from 'react';
 import {ArrowLeft,Building2,Code2,MoveUpRight,X} from 'lucide-react';
 import {archives} from './content';
+import {useArchiveDialog} from './useArchiveDialog';
 
 export function Details({id,entry,direct=false,onClose}: {id:'office'|'city';entry?:number;direct?:boolean;onClose:()=>void}){
-  const ref=useRef<HTMLDialogElement>(null);
-  const [closing,setClosing]=useState(false);
+  const {dismiss,dialogProps}=useArchiveDialog(onClose);
   const entries=entry!==undefined&&archives[id][entry]?[archives[id][entry]]:archives[id];
   const project=id==='office',Icon=project?Code2:Building2;
-  useEffect(()=>{
-    const dialog=ref.current;
-    if(dialog&&!dialog.open)dialog.showModal();
-  },[]);
-  useEffect(()=>{
-    if(!closing)return;
-    const timer=window.setTimeout(()=>ref.current?.close(),350);
-    return ()=>window.clearTimeout(timer);
-  },[closing]);
-  function dismiss(){
-    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)ref.current?.close();
-    else setClosing(true);
-  }
-  return <dialog ref={ref} className="detail-modal" data-kind={id} data-closing={closing||undefined}
-    aria-labelledby="detail-title" onClose={onClose}
-    onCancel={event=>{event.preventDefault();dismiss()}}
-    onAnimationEnd={event=>{if(event.target===event.currentTarget&&event.animationName==='archive-out')ref.current?.close()}}
-    onClick={event=>{if(event.target===event.currentTarget)dismiss()}}>
+  return <dialog {...dialogProps} className="detail-modal" data-kind={id} aria-labelledby="detail-title">
     <div className="detail-inner">
       <div className="archive-controls">
         <button className="icon-button modal-close" aria-label="Close details" autoFocus onClick={dismiss}><X size={20} aria-hidden="true" focusable="false"/></button>
