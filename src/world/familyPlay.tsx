@@ -18,26 +18,35 @@ const swingPosition=familyLawnPosition(5.2,9);
 const sandpitPosition=familyLawnPosition(1.8,11.65);
 const goalPosition=familyLawnPosition(-5.45,7.8);
 const ballPosition=familyLawnPosition(-4.6,9.45);
-const gardenTrees=[
-  {position:familyLawnPosition(-7.1,-4.1),height:12.7,rotation:.7},
-  {position:familyLawnPosition(7.1,-5.1),height:13.2,rotation:2.3},
-  {position:familyLawnPosition(10.6,-3.3),height:10.1,rotation:1.5},
-  {position:familyLawnPosition(-4.8,-6.5),height:14.1,rotation:1.2},
-  {position:familyLawnPosition(-.9,-7.5),height:16,rotation:2.7},
-  {position:familyLawnPosition(3.3,-7.2),height:13.5,rotation:3.9},
-  {position:familyLawnPosition(-10.2,-1.1),height:12.3,rotation:4.7},
-  {position:familyLawnPosition(-9.6,2.6),height:10.4,rotation:3.1},
-  {position:familyLawnPosition(13.7,-.6),height:12.7,rotation:5.1},
-  {position:familyLawnPosition(14,3.8),height:10.6,rotation:.3},
-  {position:familyLawnPosition(16.8,2.7),height:14.1,rotation:2.8},
-  {position:familyLawnPosition(18.3,6.1),height:11.8,rotation:4.3},
-  {position:familyLawnPosition(15.8,7.1),height:9.5,rotation:1.4},
+type TreeSpec=[x:number,z:number,height:number,rotation:number];
+const familyGrove:{name:string;trees:TreeSpec[]}[]=[
+  {name:'CommonTree_1',trees:[
+    [-12.1,-3.7,12.7,.7],[-16.1,-2.8,11.8,4.7],[-13.6,2.6,10.4,3.1],
+    [7.1,-5.1,13.2,2.3],[13.7,-.6,12.7,5.1],[16.8,2.7,14.1,2.8],
+    [-7.2,-10.4,5.8,2.8],[-2.9,-10.8,4.3,4.1],[1.7,-10.8,5.2,.5],
+    [6.8,-8.2,5.1,3.5],[-10.7,5.2,4.7,1.2],[-16.6,.5,6.3,3.9],
+  ]},
+  {name:'CommonTree_3',trees:[
+    [-11,-7.4,13.1,1.2],[-5.8,-8.2,14.6,2.4],[3.3,-7.2,13.5,3.9],[10.6,-3.3,10.1,1.5],
+    [18.3,6.1,11.8,4.3],[14,3.8,10.6,.3],
+    [-10.7,-10.3,5.2,.8],[-5.4,-10.9,6.1,2.3],[-.4,-11.4,4.8,1.9],
+    [4.7,-9.6,5.6,2.7],[8,-7.6,4.1,3.4],[-13.3,-7.1,6.4,1.7],
+    [-15.4,-5.6,5.1,2.5],[-11.7,3.9,5.8,2.1],
+  ]},
+  {name:'Pine_1',trees:[
+    [-.9,-7.5,15.3,2.7],[-15.7,-7.1,12.4,1.8],[15.8,7.1,9.5,1.4],
+    [-12.5,-9.2,6.1,2.9],[-8.9,-11.3,4.6,.2],[-3.9,-12,5.3,1.2],
+    [.1,-9.7,6.2,4.8],[3.8,-10.8,4.9,3.8],[-14.9,-1.3,7.2,2],
+    [-9.2,5.2,5.7,.2],
+  ]},
 ];
+const familyTreeModels=familyGrove.map(({name,trees})=>({
+  name,placements:trees.map(([x,z,height,rotation])=>({position:familyLawnPosition(x,z),height,rotation})),
+}));
 
 export function FamilyTrees(){
-  return <ModelInstances name="CommonTree_1" placements={gardenTrees} wind/>;
+  return <>{familyTreeModels.map(({name,placements})=><ModelInstances key={name} name={name} placements={placements} wind/>)}</>;
 }
-
 function Football(){
   const geometry=useMemo(()=>{
     const ball=new DodecahedronGeometry(.23);

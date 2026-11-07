@@ -10,6 +10,7 @@ import {DeskChair,WritingDesk} from './workshopFurniture';
 import {cottageSteps} from './trail';
 import {DestinationDetail} from './DestinationDetail';
 import {FamilyPlay,FamilyTrees,familyLawnPosition} from './familyPlay';
+import {ChimneySmoke} from './chimneySmoke';
 
 const plaster='#e0c8a4',wood='#78543e',stone='#9d947a';
 const gable=new Shape().moveTo(-3.9,-.7).lineTo(3.9,-.7).lineTo(0,1.61).closePath();
@@ -171,7 +172,7 @@ function GardenLookout(){
     }))}/>
     {[-1.13,1.13].map(side=><Block key={side} position={[side,.62,.87]} size={[.12,.86,.13]} color="#805b43"/>)}
     <Block position={[0,1.01,.87]} size={[2.43,.12,.15]} color="#92664a"/>
-    <Model name="ridgeTelescope" position={[0,.238,-.13]} height={1.67} rotation={.62}/>
+    <Model name="ridgeTelescope" position={[0,.238,-.13]} height={1.67} rotation={-.46}/>
   </group>;
 }
 
@@ -181,6 +182,7 @@ export function Home(){
     <Block position={[0,1.95,0]} size={[8.85,3.65,7.28]} color="#ead3af"/>
     <Block position={[0,3.61,0]} size={[9.05,.25,7.5]} color={wood}/>
     <Roof home/>
+    <ChimneySmoke position={[2.6,7.4,-1.55]}/>
     <mesh position={[0,4.48,3.64]} scale={[1.12,1.15,1]} castShadow receiveShadow>
       <shapeGeometry args={[gable]}/><meshStandardMaterial color="#ead3af"/>
     </mesh>

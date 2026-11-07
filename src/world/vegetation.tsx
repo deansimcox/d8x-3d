@@ -7,6 +7,8 @@ import {cottageSteps,nearTrail} from './trail';
 
 const steps=[...cottageSteps(false),...cottageSteps(true)];
 const nearSteps=(x:number,z:number)=>steps.some(({worldX,worldZ})=>Math.hypot(x-worldX,z-worldZ)<1.15);
+// Open the view across the trail from the goal, leaving the tree uphill.
+const inFamilyGoalSightline=(x:number,z:number)=>x>6&&x<9.2&&z>-26.4&&z<-23.8;
 
 export function Vegetation(){
   const groups=useMemo(()=>{
@@ -23,7 +25,10 @@ export function Vegetation(){
       if(!onIsland(x,z,.93)||Math.hypot(x,z+5)<18||nearRiver(x,z,3)||nearTrail(x,z,1.25)||nearSteps(x,z))continue;
       const rotation=random(i+44)*Math.PI*2;
       const y=terrainY(x,z);
-      if(!protectedView(x,z,1.8)&&!nearTrail(x,z,2.5)&&treesPlaced<maxTrees&&random(i+4)>.38){trees[i%3].push({position:[x,y-.05,z],height:5+random(i+71)*5,rotation});treesPlaced++}
+      if(!protectedView(x,z,1.8)&&!nearTrail(x,z,2.5)&&treesPlaced<maxTrees&&random(i+4)>.38){
+        if(!inFamilyGoalSightline(x,z))trees[i%3].push({position:[x,y-.05,z],height:5+random(i+71)*5,rotation});
+        treesPlaced++;
+      }
       else if(!protectedView(x,z,-2)&&bushes.length<55)bushes.push({position:[x,y,z],height:.6+random(i)*.7,rotation});
       if(rocks.length<55&&!protectedView(x,z,0))rocks.push({position:[x,y-.08,z],height:.6+random(i+85)*1.1,rotation});
       if(flowers.length<95&&random(i+33)>.6)flowers.push({position:[x,y,z],height:.25+random(i+82)*.3,rotation});
