@@ -51,7 +51,7 @@ function FlightComplete({onContinue,onExit}:{onContinue:()=>void;onExit:()=>void
     onCancel={event=>{event.preventDefault();onContinue()}}>
     <span className="eyebrow">ISLAND AIR MAIL</span>
     <h2 id="flight-complete-title">Good job!</h2>
-    <p id="flight-complete-copy">You delivered the mail to the lighthouse.</p>
+    <p id="flight-complete-copy">You delivered mail all around the island.</p>
     <div className="flight-complete-actions">
       <button className="primary-button" onClick={onContinue}><Plane size={16} aria-hidden="true" focusable="false"/> Keep flying</button>
       <button className="detail-button" onClick={onExit}>Back to Overview</button>

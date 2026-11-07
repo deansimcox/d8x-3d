@@ -192,7 +192,10 @@ export function AirMailFlight({plane,propeller}:{
     const hit=next&&passes(next,ringRadius);
     const delivery=!next&&!flight.flightDelivered&&passes(lighthouse,11);
     if(hit||delivery){
-      drops.current.push({origin:position.clone().setY(position.y-.7),direction:direction.clone()});
+      const outward=right.clone().multiplyScalar(drops.current.length%2===0?1:-1);
+      const origin=position.clone().addScaledVector(outward,.58);
+      origin.y+=.15;
+      drops.current.push({origin,direction:direction.clone().setY(0).normalize(),outward});
       if(hit)flight.recordRing();
       else flight.deliverMail();
     }

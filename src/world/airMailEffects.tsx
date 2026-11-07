@@ -77,10 +77,13 @@ export function FlightRing({center,rotation,radius,active,complete,delivery=fals
   </group>;
 }
 
-export type Drop={origin:THREE.Vector3;direction:THREE.Vector3};
+export type Drop={origin:THREE.Vector3;direction:THREE.Vector3;outward:THREE.Vector3};
+
+const tossApex=.44;
 
 export function ParcelDrop({drop}: {drop:Drop}){
   const parcel=useRef<THREE.Group>(null);
+  const box=useRef<THREE.Group>(null);
   const chute=useRef<THREE.Group>(null);
   const time=useRef(0);
   const cords=useMemo(()=>{
@@ -95,22 +98,33 @@ export function ParcelDrop({drop}: {drop:Drop}){
   },[]);
 
   useFrame((_,delta)=>{
-    if(!parcel.current||!chute.current||time.current>=4.6)return;
+    if(!parcel.current||!box.current||!chute.current||time.current>=4.6)return;
     time.current+=Math.min(delta,.08);
     const t=time.current;
-    const opening=THREE.MathUtils.smoothstep(t,.12,.53);
+    const extension=THREE.MathUtils.smoothstep(t,.32,.63);
+    const opening=THREE.MathUtils.smoothstep(t,.43,.85);
+    const spread=opening+.1*Math.sin(opening*Math.PI);
+    const rise=Math.min(t,tossApex);
+    const descent=Math.max(0,t-tossApex);
     parcel.current.visible=t<4.6;
-    parcel.current.position.copy(drop.origin).addScaledVector(drop.direction,9*(1-Math.exp(-t*1.3)));
-    parcel.current.position.y-=2.3*t;
-    parcel.current.rotation.set(.09*Math.sin(t*4),t*.55,.11*Math.cos(t*3));
+    parcel.current.position.copy(drop.origin)
+      .addScaledVector(drop.direction,15*(1-Math.exp(-t)))
+      .addScaledVector(drop.outward,6.5*(1-Math.exp(-t*1.7))+.28*t);
+    parcel.current.position.y+=7*rise*(1-rise/(2*tossApex))-2.45*(descent-(1-Math.exp(-descent*6))/6);
+    const tumble=1-opening;
+    box.current.rotation.set(.65*Math.sin(t*5)*tumble,t*.8,.46*Math.sin(t*7)*tumble);
+    parcel.current.rotation.set(.08*Math.sin(t*4)*opening,0,.13*Math.sin(t*3)*opening);
     parcel.current.scale.setScalar(1-THREE.MathUtils.smoothstep(t,4,4.6));
-    chute.current.scale.setScalar(Math.max(.01,opening));
+    chute.current.visible=extension>0;
+    chute.current.scale.set(Math.max(.025,spread),extension,Math.max(.025,spread));
   });
 
   return <group ref={parcel} position={drop.origin}>
-    <mesh><boxGeometry args={[.9,.69,.76]}/><meshStandardMaterial color="#b97542" roughness={.86}/></mesh>
-    <mesh><boxGeometry args={[.17,.702,.772]}/><meshStandardMaterial color="#f4d19c"/></mesh>
-    <group ref={chute} scale={.01}>
+    <group ref={box}>
+      <mesh><boxGeometry args={[.9,.69,.76]}/><meshStandardMaterial color="#b97542" roughness={.86}/></mesh>
+      <mesh><boxGeometry args={[.17,.702,.772]}/><meshStandardMaterial color="#f4d19c"/></mesh>
+    </group>
+    <group ref={chute} visible={false}>
       <lineSegments geometry={cords}><lineBasicMaterial color="#f8e7c4"/></lineSegments>
       {Array.from({length:6},(_,i)=><mesh key={i} position={[0,2.2,0]} scale={[1,.64,1]}>
         <sphereGeometry args={[1.4,8,8,i*Math.PI/3,Math.PI/3,0,Math.PI/2]}/>
