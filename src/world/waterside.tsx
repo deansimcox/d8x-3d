@@ -7,6 +7,7 @@ import {Model,ModelInstances,type Placement} from './models';
 import {Block,Blocks} from './props';
 import {useReducedMotion} from './motion';
 import {Butterflies} from './butterflies';
+import {mountainSurfaceY} from './terrain';
 import {dusk} from './atmosphere';
 import {bridgePosition,bridgeRotation,nearTrail,trailCurve,trailSegments,trailWidth} from './trail';
 
@@ -30,6 +31,56 @@ function ribbon(curve:THREE.Curve<THREE.Vector3>,segments:number,width:(t:number
   }
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();return g;
 }
+const cascadeWidth=(t:number)=>.12+1.13*t**1.25;
+
+function mountainCascade(fall:THREE.Curve<THREE.Vector3>,across:THREE.Vector3){
+  const waterPositions:number[]=[],rockPositions:number[]=[],colors:number[]=[];
+  const waterIndices:number[]=[],rockIndices:number[]=[];
+  const surface=new THREE.Color('#788171'),shadow=new THREE.Color('#545e54');
+  const segments=64;
+  for(let i=0;i<=segments;i++){
+    const t=i/segments,center=fall.getPointAt(t),width=cascadeWidth(t);
+    const shoreBlend=1-THREE.MathUtils.smoothstep(t,.42,.72);
+    const poolBlend=THREE.MathUtils.smoothstep(t,.76,.92);
+    const surfaceY=mountainSurfaceY(center.x,center.z);
+    const edges=[-1,0,1].map(side=>{
+      const p=center.clone().addScaledVector(across,side*width);
+      const incline=shoreBlend*(side===0?0:mountainSurfaceY(p.x,p.z)-surfaceY);
+      p.y+=incline;
+      waterPositions.push(p.x,p.y,p.z);
+      return p;
+    });
+    // Sink both shoulders into the slope to avoid open edges in profile.
+    const banks=[-1,1].map(side=>{
+      const p=center.clone().addScaledVector(across,side*(width+.22+.52*t));
+      p.y=mountainSurfaceY(p.x,p.z)-.17;
+      return p;
+    });
+    const profile=[banks[0],...edges.map(p=>p.clone().setY(THREE.MathUtils.lerp(p.y-.055,3.33,poolBlend))),banks[1]];
+    profile.forEach((p,j)=>{
+      rockPositions.push(p.x,p.y,p.z);
+      const tint=surface.clone().lerp(shadow,(j===0||j===4?.4:.15)+random(i*5+j)*.21);
+      colors.push(tint.r,tint.g,tint.b);
+    });
+    if(i===segments)continue;
+    for(let j=0;j<2;j++){
+      const a=i*3+j,b=a+3;
+      waterIndices.push(a,b,a+1,b,b+1,a+1);
+    }
+    for(let j=0;j<4;j++){
+      const a=i*5+j,b=a+5;
+      rockIndices.push(a,b,a+1,b,b+1,a+1);
+    }
+  }
+  const water=new THREE.BufferGeometry(),rock=new THREE.BufferGeometry();
+  water.setAttribute('position',new THREE.Float32BufferAttribute(waterPositions,3));
+  water.setIndex(waterIndices);
+  rock.setAttribute('position',new THREE.Float32BufferAttribute(rockPositions,3));
+  rock.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+  rock.setIndex(rockIndices);
+  rock.computeVertexNormals();
+  return {water,rock};
+}
 export function Waterside() {
   const reduced=useReducedMotion();
   const flow=useRef<THREE.InstancedMesh>(null);
@@ -38,19 +89,30 @@ export function Waterside() {
   const waterMaterial=useMemo(()=>new THREE.MeshBasicMaterial({color:'#559e99',side:THREE.DoubleSide}),[]);
   const daylight=useMemo(()=>new THREE.Color('#559e99'),[]);
   const evening=useMemo(()=>new THREE.Color('#386c73'),[]);
-  const {water,shore,falls,stones,fall,spill,across,mountainAcross}=useMemo(()=>{
+  const {water,shore,cascade,edgeFall,stones,fall,spill,across,mountainAcross}=useMemo(()=>{
     const width=(t:number)=>{
       const impact=(t-mountainPoolT)/.035;
       return 1.35+.32*Math.sin(t*11)+t*.33+.43*Math.exp(-impact*impact);
     };
+    const upperRoute=new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-.65,0,-5.7),new THREE.Vector3(-1.05,0,-7.7),
+      new THREE.Vector3(-2.65,0,-10.3),new THREE.Vector3(-3.65,0,-12.7),
+      new THREE.Vector3(-4.65,0,-14.9),
+    ]);
+    const source=upperRoute.getPoints(16).map((point,index)=>{
+      point.y=mountainSurfaceY(point.x,point.z)+.20-Math.max(0,1-index/4)*.27;
+      return point;
+    });
+    // The lower cascade steepens above the pool, with bedrock closing the space behind it.
     const fall=new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-3.1,17,-15.4),
-      new THREE.Vector3(-5.6,14,-17.1),
-      new THREE.Vector3(-9.8,8.3,-19.8),
+      ...source,
+      new THREE.Vector3(-6.3,11.5,-17.1),
+      new THREE.Vector3(-8.9,8.6,-19.3),
       new THREE.Vector3(-10.9,5.7,-20.6),
-      // Pass through the pool surface so the fall and stream overlap at the join.
       mountainPool.clone().setY(mountainPool.y-.25),
     ]);
+    const mountainAcross=new THREE.Vector3(.85,0,-.52).normalize();
+    const cascade=mountainCascade(fall,mountainAcross);
     const lip=stream.getPoint(1);
     const out=stream.getTangent(1),across=new THREE.Vector3(-out.z,0,out.x);
     const drop=(distance:number,y:number)=>lip.clone().addScaledVector(out,distance).setY(y);
@@ -60,8 +122,8 @@ export function Waterside() {
       return {position:[p.x-v.z*offset,3.55,p.z+v.x*offset],height:.35+random(i+95)*.75,rotation:random(i+11)*6.28};
     }).filter(({position:[x,,z],height})=>
       !nearTrail(x,z,height)&&Math.hypot(x-picnicX,z-picnicZ)>rugRadius+height*1.5);
-    const mountainAcross=new THREE.Vector3(.6,0,-.8);
-    return {water:ribbon(stream,128,width),shore:ribbon(stream,128,t=>width(t)+.35),falls:[ribbon(fall,34,t=>.73+t*.52,mountainAcross),ribbon(spill,46,t=>width(1)*(1-.32*t),across)],stones:rocks,fall,spill,across,mountainAcross};
+
+    return {water:ribbon(stream,128,width),shore:ribbon(stream,128,t=>width(t)+.35),cascade,edgeFall:ribbon(spill,46,t=>width(1)*(1-.32*t),across),stones:rocks,fall,spill,across,mountainAcross};
   },[]);
   const transform=useMemo(()=>new THREE.Object3D(),[]);
   const tangent=useMemo(()=>new THREE.Vector3(),[]);
@@ -82,9 +144,12 @@ export function Waterside() {
         const upper=i<30,curve=upper?fall:spill;
         const phase=(i/30+time*(.42+random(i+4)*.13))%1;
         const t=.03+.94*phase**1.32;
-        curve.getPoint(t,transform.position);
-        curve.getTangent(t,tangent);
-        transform.position.addScaledVector(upper?mountainAcross:across,(random(i+36)-.5)*(1.32+t*.46));
+        if(upper)curve.getPointAt(t,transform.position);
+        else curve.getPoint(t,transform.position);
+        if(upper)curve.getTangentAt(t,tangent);
+        else curve.getTangent(t,tangent);
+        const sprayWidth=upper?cascadeWidth(t)*1.6:1.32+t*.46;
+        transform.position.addScaledVector(upper?mountainAcross:across,(random(i+36)-.5)*sprayWidth);
         transform.position.x-=upper?.14:.18;
         if(upper)transform.position.z-=.12;
         transform.quaternion.setFromUnitVectors(vertical,tangent);
@@ -110,7 +175,9 @@ export function Waterside() {
   return <group>
     <mesh geometry={shore} position={[0,-.033,0]} receiveShadow><meshStandardMaterial color="#b9a584" side={THREE.DoubleSide}/></mesh>
     <mesh geometry={water} material={waterMaterial}/>
-    {falls.map((geometry,i)=><mesh key={i} geometry={geometry} material={waterMaterial}/>)}
+    <mesh geometry={cascade.rock} receiveShadow><meshStandardMaterial vertexColors flatShading roughness={1} side={THREE.DoubleSide}/></mesh>
+    <mesh geometry={cascade.water} material={waterMaterial}/>
+    <mesh geometry={edgeFall} material={waterMaterial}/>
     <mesh position={[mountainPool.x,3.651,mountainPool.z]} rotation={[-Math.PI/2,0,0]}>
       <ringGeometry args={[.63,.74,24]}/><meshBasicMaterial color="#d2e9d8" transparent opacity={.58}/>
     </mesh>
