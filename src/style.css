@@ -70,14 +70,20 @@
 }
 .welcome-avatar{display:block;width:clamp(66px,8vw,96px);height:auto;margin-bottom:17px;border:2px solid #fff7e5;border-radius:50%;box-shadow:0 5px 24px #293d2d3d}
 .welcome h1{font-size:clamp(43px,5.5vw,85px);margin-top:10px}
-.welcome-wave-slot{display:inline-block;width:.88em;height:.88em;vertical-align:-.02em}
+.welcome-wave-slot{display:inline-block;width:.88em;height:.88em;vertical-align:-.02em;transform-origin:50% 88%}
 .welcome-wave{display:block;width:100%;height:100%;color:var(--rust);transform-origin:48% 90%}
 .welcome p{max-width:345px;margin-top:12px}
 @media(max-width:700px){.welcome-avatar{width:64px;margin-bottom:9px}.welcome h1{font-size:clamp(40px,10vw,62px)}.mode-welcome .wash{background:linear-gradient(0deg,#f6ecd1f5 8%,#f6ecd1eb 36%,#f6ecd170 57%,transparent 76%)}}
 @media(max-height:490px) and (orientation:landscape){.welcome-avatar{width:46px;margin-bottom:6px}.welcome h1{font-size:34px}.welcome p{margin-top:6px}}
 .profile-links{display:flex;align-items:center;gap:14px;max-width:345px;margin-top:10px;border-top:1px solid #54635138}
 .profile-links :is(a,button){display:inline-flex;align-items:center;gap:4px;min-height:44px;color:var(--muted);font-size:12px;font-weight:600;text-underline-offset:3px}
-.intro-credits{margin-left:auto;padding:0;border:0;background:transparent;text-decoration:underline}
+.intro-credits{margin-left:auto;padding:0;border:0;background:transparent}
+.profile-links a,.archive-shortcuts a{text-decoration:none}
+.link-underline{position:relative}
+.link-underline::before,.link-underline::after{content:"";position:absolute;inset:auto 0 -3px;border-radius:2px;background:currentColor}
+.link-underline::before{height:1px;opacity:.62}
+.link-underline::after{height:2px;transform:scaleX(0);transform-origin:left}
+:is(a,button):is(:hover,:focus-visible) .link-underline::after{transform:scaleX(1)}
 .profile-links :is(a,button):hover,.brand-explainer:hover{color:var(--rust)}
 .profile-links :is(a,button):focus-visible,.brand-explainer:focus-visible{outline:3px solid var(--rust);outline-offset:3px;border-radius:4px}
 .brand-explainer{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:700}
@@ -86,6 +92,7 @@
 @media(prefers-reduced-motion:no-preference){
   .profile-links a svg,.brand-explainer svg{transition:transform .18s ease-out}
   .profile-links a:is(:hover,:focus-visible) svg,.brand-explainer:is(:hover,:focus-visible) svg{transform:translateY(-2px)}
+  .link-underline::after{transition:transform .24s cubic-bezier(.22,.75,.25,1)}
 }
 .credits-modal h3{font:600 23px/1.15 var(--serif);margin:22px 0 8px}
 .credits-body h3:first-child{margin-top:0}

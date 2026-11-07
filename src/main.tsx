@@ -91,7 +91,6 @@ function App(){
     if(!intro||reducedMotion)return;
     const beats=[
       ['.welcome-avatar',0,.42,'translateY(9px)'],
-      ['.welcome-wave-slot',1.45,.32,'translateY(4px) scale(.62)'],
       ['.eyebrow, .welcome-bio',1.56,.42,'translateY(5px)'],
     ] as const;
     const animations=beats.map(([selector,delay,duration,from])=>animate(
@@ -103,6 +102,10 @@ function App(){
       const pauseAfterHi=index>=3?.22:0;
       animations.push(animate(letter,{opacity:[0,1]},{delay:.4+index*.062+pauseAfterHi,duration:.045}));
     });
+    animations.push(animate(intro.querySelectorAll('.welcome-wave-slot'),{
+      opacity:[0,1,1,1],
+      transform:['translateY(.58em) scale(.24)','translateY(-.17em) scale(1.09)','translateY(.035em) scale(.98)','translateY(0) scale(1)'],
+    },{delay:1.45,duration:.59,times:[0,.58,.83,1],ease:'easeOut'}));
     animations.push(animate(intro.querySelectorAll('.welcome-wave'),{
       transform:['rotate(0deg)','rotate(-22deg)','rotate(24deg)','rotate(-18deg)','rotate(19deg)','rotate(0deg)'],
     },{delay:2.13,duration:.95,ease:'easeInOut'}));
@@ -165,14 +168,14 @@ function App(){
       <div className="welcome-actions">
         <button className="primary-button" onClick={()=>{enterFocus.current=true;move('overview')}}>{fallback?'Explore the guide':'Explore my portfolio'} <ArrowRight size={18} aria-hidden="true" focusable="false"/></button>
         <div className="archive-shortcuts">
-          <a href="#projects" aria-haspopup="dialog">View projects</a>
-          <a href="#work" aria-haspopup="dialog">Work history</a>
+          <a href="#projects" aria-haspopup="dialog"><span className="link-underline">View projects</span></a>
+          <a href="#work" aria-haspopup="dialog"><span className="link-underline">Work history</span></a>
         </div>
       </div>
       <nav className="profile-links" aria-label="Profiles and credits">
-        <a href="https://www.linkedin.com/in/dean-simcox/" target="_blank" rel="noopener noreferrer"><Linkedin size={15} aria-hidden="true" focusable="false"/> LinkedIn</a>
-        <a href="https://github.com/deansimcox" target="_blank" rel="noopener noreferrer"><Github size={15} aria-hidden="true" focusable="false"/> GitHub</a>
-        <button className="intro-credits" aria-haspopup="dialog" onClick={()=>setCreditsOpen(true)}>Asset credits</button>
+        <a href="https://www.linkedin.com/in/dean-simcox/" target="_blank" rel="noopener noreferrer"><Linkedin size={15} aria-hidden="true" focusable="false"/> <span className="link-underline">LinkedIn</span></a>
+        <a href="https://github.com/deansimcox" target="_blank" rel="noopener noreferrer"><Github size={15} aria-hidden="true" focusable="false"/> <span className="link-underline">GitHub</span></a>
+        <button className="intro-credits" aria-haspopup="dialog" onClick={()=>setCreditsOpen(true)}><span className="link-underline">Asset credits</span></button>
       </nav>
       <button className="brand-explainer" aria-haspopup="dialog" onClick={()=>setExplainerOpen(true)}><Info size={14} aria-hidden="true" focusable="false"/> Why d8x?</button>
       {fallback&&<span className="loading">3D is unavailable. The illustrated guide is open.</span>}
