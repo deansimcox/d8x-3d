@@ -57,7 +57,7 @@ function ContextWatcher(){
       ?'Island overview. Drag sideways or use left and right to rotate. Scroll, pinch, or use plus and minus to zoom. Press Home to reset the view.'
       :mode==='flight'?'Air Mail flight. Drag or use the arrow keys to steer. Press Escape to exit.'
       :mode==='welcome'?'Island intro. Drag sideways or use left and right to rotate.'
-      :'Island view. Drag or use arrow keys to look around. Press Home to recenter.');
+      :'Island view. Drag or use arrow keys to look around. Scroll, pinch, or use plus and minus to zoom. Press Home to reset the view.');
   },[gl,mode]);
   return null;
 }

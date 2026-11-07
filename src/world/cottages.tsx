@@ -9,7 +9,7 @@ import {DeveloperScreens} from './codeDisplay';
 import {DeskChair,WritingDesk} from './workshopFurniture';
 import {cottageSteps} from './trail';
 import {DestinationDetail} from './DestinationDetail';
-import {FamilyPlay} from './familyPlay';
+import {FamilyPlay,FamilyTrees,familyLawnPosition} from './familyPlay';
 
 const plaster='#e0c8a4',wood='#78543e',stone='#9d947a';
 const gable=new Shape().moveTo(-3.9,-.7).lineTo(3.9,-.7).lineTo(0,1.61).closePath();
@@ -160,8 +160,9 @@ export function Workshop(){
     <SteppingStones/>
   </group>;
 }
+const lookoutPosition=familyLawnPosition(10,6.9);
 function GardenLookout(){
-  return <group position={[6.5,-.10,7.4]} rotation={[0,.3,0]}>
+  return <group position={lookoutPosition} rotation={[0,.3,0]}>
     <Block position={[0,.06,0]} size={[2.54,.23,1.93]} color="#76543e"/>
     <Blocks items={Array.from({length:6},(_,i)=>({
       position:[(i-2.5)*.412,.19,0],
@@ -199,6 +200,7 @@ export function Home(){
     <DestinationDetail id="family"><FamilyPlay/></DestinationDetail>
     <KitchenGarden/>
     <GardenLookout/>
+    <FamilyTrees/>
     <Planting home/>
     <SteppingStones home/>
   </group>;

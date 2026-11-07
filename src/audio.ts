@@ -14,6 +14,7 @@ type Engine={
   ctx:AudioContext;master:GainNode;beds:GainNode[];
   cues:Partial<Record<CueScene,GainNode>>;loading:Set<CueScene>;
   destination:Destination;enabled:boolean;
+  chickenSquawk?:Promise<AudioBuffer|undefined>;
 };
 let engine:Engine|undefined;
 let revision=0;
@@ -32,6 +33,24 @@ function makeEngine():Engine{
     src.connect(filter).connect(gain).connect(master);src.start();return gain;
   });
   return {ctx,master,beds,cues:{},loading:new Set(),destination:'overview',enabled:false};
+}
+function loadChickenSquawk(state:Engine){
+  return state.chickenSquawk??=fetch(`${import.meta.env.BASE_URL}audio/chicken-squawk.mp3`)
+    .then(async response=>response.ok?state.ctx.decodeAudioData(await response.arrayBuffer()):undefined)
+    .catch(()=>undefined);
+}
+
+export async function playChickenSquawk(){
+  const state=engine;
+  if(!state?.enabled||state.destination!=='family')return;
+  const buffer=await loadChickenSquawk(state);
+  if(!buffer||!state.enabled||state.destination!=='family'||state.ctx.state!=='running')return;
+  const source=state.ctx.createBufferSource(),gain=state.ctx.createGain();
+  source.buffer=buffer;
+  gain.gain.value=.48;
+  source.connect(gain).connect(state.master);
+  source.onended=()=>{source.disconnect();gain.disconnect()};
+  source.start();
 }
 async function loadCue(state:Engine,id:CueScene){
   const {ctx,master,cues,loading}=state;
@@ -60,6 +79,7 @@ export function mixSound(destination:Destination){
   engine.destination=destination;
   if(!engine.enabled)return;
   const {ctx,beds,cues,loading}=engine;
+  if(destination==='family')void loadChickenSquawk(engine);
   beds.forEach((bed,i)=>bed.gain.setTargetAtTime(mixes[destination][i],ctx.currentTime,.72));
   if(destination!=='overview'&&!cues[destination]&&!loading.has(destination)){
     void loadCue(engine,destination);

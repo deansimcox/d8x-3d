@@ -9,6 +9,7 @@ import {useScenePan} from './scenePan';
 
 const vec=(v:Pose['position'])=>new THREE.Vector3(...v);
 const worldUp=new THREE.Vector3(0,1,0);
+const scaleFov=(fov:number,scale:number)=>THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(fov)/2)*scale));
 const welcomeOrbitSpeed=.035;
 const overviewOrbitSpeed=.024;
 const overviewTurn=.075;
@@ -98,9 +99,9 @@ export function CameraRig() {
         -Math.atan2(poses.overview.position[0],poses.overview.position[2]);
     }
     const pose=poses[id],portrait=size.width/size.height<1.05;
-    const portraitFov={welcome:30,overview:35,office:22,city:19,stadium:16,nature:13,family:17};
+    const portraitFov={welcome:30,overview:35,office:22,city:19,stadium:16,nature:13,family:24};
     const fov=pose.fov+(portrait?portraitFov[id]:0);
-    const x=portrait?(id==='office'?.16:0):id==='welcome'?-.145:id==='overview'?-.075:state.panelOpen?-.115:0;
+    const x=portrait?(id==='office'?.16:id==='family'?.025:0):id==='welcome'?-.145:id==='overview'?-.075:state.panelOpen?-.115:0;
     const y=portrait?(id==='welcome'?.185:id==='overview'?-.015:state.panelOpen?.17:.035):0;
     const final=()=>{
       camera.position.set(...pose.position);
@@ -149,10 +150,14 @@ export function CameraRig() {
       if(!reduced&&!pan.current.held&&performance.now()>=pan.current.idleAfter){
         pan.current.yaw=(pan.current.yaw-overviewOrbitSpeed*Math.min(delta,.1))%(Math.PI*2);
       }
-      camera.position.sub(look.current).applyAxisAngle(worldUp,-pan.current.yaw).multiplyScalar(1-pan.current.zoom).add(look.current);
+      const dolly=Math.min(pan.current.zoom,.25);
+      camera.position.sub(look.current).applyAxisAngle(worldUp,-pan.current.yaw).multiplyScalar(1-dolly).add(look.current);
+      camera.fov=scaleFov(camera.fov,(1-pan.current.zoom)/(1-dolly));
     }
     camera.lookAt(look.current);
     if(state.mode==='scene'){
+      // Keep the camera at its authored position, especially inside the workshop.
+      camera.fov=scaleFov(camera.fov,1-pan.current.zoom);
       camera.rotateOnWorldAxis(worldUp,pan.current.yaw);
       camera.rotateX(pan.current.pitch);
     }

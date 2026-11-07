@@ -100,6 +100,7 @@ The bundled MP3s were prepared from Freesound's high-quality previews and are cr
 | `audio/city-square.mp3` | [AMBPubl_Public Square 02_KVV AUDIO_FREE](https://freesound.org/people/KVV_Audio/sounds/828010/) by KVV Audio, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | High-pass filtered, crossfaded at the loop seam, and re-encoded. |
 | `audio/stadium-crowd.mp3` | [Norwegian football match/soccer game ambience](https://freesound.org/s/206003/) by habbis92, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | Excerpted, high-pass filtered, crossfaded at the loop seam, and re-encoded. |
 | `audio/chickens.mp3` | [Chicken clucking](https://freesound.org/people/Breviceps/sounds/456803/) by Breviceps, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | Quiet excerpt at 2.25–3.95 seconds, filtered, faded, spaced with silence, and re-encoded. |
+| `audio/chicken-squawk.mp3` | [Chicken clucking](https://freesound.org/people/Breviceps/sounds/456803/) by Breviceps, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | Isolated 1.17–1.76 second call, filtered and faded for chicken taps. |
 
 ## Preparing models
 

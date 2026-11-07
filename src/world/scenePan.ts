@@ -19,10 +19,13 @@ export function useScenePan(){
       const {mode,ready}=useExperience.getState();
       return ready&&mode!=='transitioning'&&mode!=='flight';
     };
-    const overview=()=>useExperience.getState().mode==='overview';
+    const canZoom=()=>{
+      const {mode}=useExperience.getState();
+      return mode==='overview'||mode==='scene';
+    };
     const deferIdle=()=>{angles.current.idleAfter=performance.now()+1400};
     const zoomBy=(amount:number)=>{
-      angles.current.zoom=MathUtils.clamp(angles.current.zoom+amount,0,.2);
+      angles.current.zoom=MathUtils.clamp(angles.current.zoom+amount,-.22,.65);
       deferIdle();
       invalidate();
     };
@@ -37,7 +40,7 @@ export function useScenePan(){
     const reset=()=>{angles.current={yaw:0,pitch:0,zoom:0,held:false,idleAfter:0};invalidate()};
     const start=(event:PointerEvent)=>{
       if(event.button!==0||!enabled())return;
-      if(overview()&&event.pointerType==='touch'){
+      if(canZoom()&&event.pointerType==='touch'){
         touches.set(event.pointerId,event);
         if(touches.size>1){drag=undefined;suppressClick=true;canvas.classList.remove('is-panning');return}
       }
@@ -71,7 +74,7 @@ export function useScenePan(){
       canvas.classList.remove('is-panning');
     };
     const wheel=(event:WheelEvent)=>{
-      if(!enabled()||!overview())return;
+      if(!enabled()||!canZoom())return;
       event.preventDefault();
       const units=event.deltaMode===1?16:event.deltaMode===2?canvas.clientHeight:1;
       zoomBy(MathUtils.clamp(-event.deltaY*units*.00045,-.08,.08));
@@ -90,8 +93,8 @@ export function useScenePan(){
         case 'ArrowRight':shift(-step,0);break;
         case 'ArrowUp':if(!inScene)return;shift(0,-step);break;
         case 'ArrowDown':if(!inScene)return;shift(0,step);break;
-        case '+':case '=':if(!overview())return;zoomBy(.04);break;
-        case '-':if(!overview())return;zoomBy(-.04);break;
+        case '+':case '=':if(!canZoom())return;zoomBy(.04);break;
+        case '-':if(!canZoom())return;zoomBy(-.04);break;
         case 'Home':if(useExperience.getState().mode==='welcome')return;reset();deferIdle();break;
         default:return;
       }

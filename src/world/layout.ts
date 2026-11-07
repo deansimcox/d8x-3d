@@ -6,7 +6,7 @@ export type Pose = {position: Vec3; target: Vec3; fov: number};
 // Landmark dimensions deliberately stay unchanged.
 export const anchors: Record<SceneId, Vec3> = {
   office: [-29, 3.65, 24], city: [29, 3.65, 21],
-  stadium: [39, 3.65, -3], nature: [-22, 3.65, -29], family: [3, 3.65, -39],
+  stadium: [39, 3.65, -3], nature: [-22, 3.65, -29], family: [3, 3.65, -44],
 };
 export const workshopAngle=.23;
 export function workshopPoint(x:number,y:number,z:number):Vec3 {
@@ -22,7 +22,7 @@ export const poses: Record<Destination | 'welcome', Pose> = {
   city: {position: [48, 22, 46], target: [27, 7, 21], fov: 43},
   stadium: {position: [63, 18, 12], target: [39, 4.4, -3.4], fov: 52},
   nature: {position: [-30, 11, -43], target: [-22.7, 4.5, -28.3], fov: 41},
-  family: {position: [23, 16, -20], target: [2, 6, -39], fov: 42},
+  family: {position: [24, 18, -18], target: [3.6, 5.6, -40.3], fov: 44},
 };
 
 export const riverPoints = [[-8.4,-16.8],[-12,-21],[-18,-25],[-29,-25],[-40,-25.6],[-48,-26],[-55,-25],[-64,-24]];
@@ -43,7 +43,8 @@ export function nearRiver(x: number,z: number,margin=3) {
   return riverPoints.slice(1).some((b,i)=>distanceToSegment(x,z,[riverPoints[i][0],0,riverPoints[i][1]],[b[0],0,b[1]])<margin);
 }
 export function islandRadius(angle: number) {
-  return 1 + .07*Math.sin(3*angle+.6)+.045*Math.sin(7*angle+1.4)+.022*Math.sin(13*angle-.7);
+  const familyRidge=.145*Math.exp(-((Math.sin((angle+1.47)/2)/.18)**2));
+  return 1 + .07*Math.sin(3*angle+.6)+.045*Math.sin(7*angle+1.4)+.022*Math.sin(13*angle-.7)+familyRidge;
 }
 export function onIsland(x: number,z: number,margin=.92) {
   return Math.hypot(x/59,z/49)<islandRadius(Math.atan2(z/49,x/59))*margin;
