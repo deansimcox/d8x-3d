@@ -1,5 +1,6 @@
 import {create} from 'zustand';
 import {sceneIds,type Destination} from './content';
+import {airMailGates} from './airMail';
 
 type Mode='welcome'|'transitioning'|'overview'|'scene'|'flight';
 type State={
@@ -8,7 +9,7 @@ type State={
   returnToIntro:()=>void;
   togglePanel:()=>void;setReady:(ready:boolean)=>void;fail:()=>void;
   openArchive:(id:'office'|'city',entry?:number)=>void;closeArchive:()=>void;
-  flightRings:number;flightDelivered:boolean;startFlight:()=>void;recordRing:()=>void;deliverMail:()=>void;exitFlight:()=>void;
+  flightRings:number;flightDelivered:boolean;flightFreestyle:boolean;flightTurn:number;turnFlight:()=>void;continueFlight:()=>void;startFlight:()=>void;recordRing:()=>void;deliverMail:()=>void;exitFlight:()=>void;
 };
 const settled=(d:Destination)=>({destination:d,target:d,mode:(d==='overview'?'overview':'scene') as Mode});
 const sessionKey='d8x.last-scene';
@@ -47,10 +48,12 @@ export const useExperience=create<State>((set,get)=>({
   }),
   openArchive:(id,entry)=>set(s=>s.mode==='scene'&&s.destination===id?{archive:{id,entry}}:s),
   closeArchive:()=>set({archive:null}),
-  flightRings:0,flightDelivered:false,
-  startFlight:()=>set(s=>s.mode==='overview'&&s.ready&&!s.failed?{mode:'flight',flightRings:0,flightDelivered:false}:s),
-  recordRing:()=>set(s=>s.mode==='flight'&&s.flightRings<3?{flightRings:s.flightRings+1}:s),
+  flightRings:0,flightDelivered:false,flightFreestyle:false,flightTurn:0,
+  startFlight:()=>set(s=>s.mode==='overview'&&s.ready&&!s.failed?{mode:'flight',flightRings:0,flightDelivered:false,flightFreestyle:false,flightTurn:0}:s),
+  recordRing:()=>set(s=>s.mode==='flight'&&s.flightRings<airMailGates.length?{flightRings:s.flightRings+1}:s),
   deliverMail:()=>set(s=>s.mode==='flight'?{flightDelivered:true}:s),
+  turnFlight:()=>set(s=>s.mode==='flight'&&!s.flightDelivered?{flightTurn:s.flightTurn+1}:s),
+  continueFlight:()=>set(s=>s.mode==='flight'&&s.flightDelivered?{flightFreestyle:true}:s),
   exitFlight:()=>set(s=>s.mode==='flight'?navigate(s,'overview'):s),
 }));
 useExperience.subscribe((state,previous)=>{

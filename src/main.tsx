@@ -1,9 +1,10 @@
 import React,{Suspense,lazy,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {animate} from 'motion/mini';
-import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,Minus,Plus,Plane} from 'lucide-react';
+import {ArrowLeft,ArrowRight,Volume2,VolumeX,Mountain,House,Building2,Trees,Trophy,Heart,SkipForward,MoveUpRight,Minus,Plus,Plane,RotateCcw} from 'lucide-react';
 import {sceneIds,scenes,type Destination} from './content';
 import {useExperience} from './store';
+import {airMailGates} from './airMail';
 import {mixSound,setAudio} from './audio';
 import {Details} from './Details';
 import {useReducedMotion} from './world/motion';
@@ -39,6 +40,25 @@ function Dock({active,move}: {active:Destination|null;move:(d:Destination)=>void
     {sceneIds.map(id=>{const Icon=icons[id];return <button key={id} className="dock-item" data-destination={id} onClick={()=>move(id)} aria-current={active===id?'page':undefined}><Icon size={19} aria-hidden="true" focusable="false"/><span>{scenes[id].label}</span></button>})}
   </nav>;
 }
+function FlightComplete({onContinue,onExit}:{onContinue:()=>void;onExit:()=>void}){
+  const dialog=useRef<HTMLDialogElement>(null);
+  useEffect(()=>{
+    const element=dialog.current;
+    element?.showModal();
+    return ()=>element?.close();
+  },[]);
+  return <dialog ref={dialog} className="flight-complete" aria-labelledby="flight-complete-title" aria-describedby="flight-complete-copy"
+    onCancel={event=>{event.preventDefault();onContinue()}}>
+    <span className="eyebrow">ISLAND AIR MAIL</span>
+    <h2 id="flight-complete-title">Good job!</h2>
+    <p id="flight-complete-copy">You delivered the mail to the lighthouse.</p>
+    <div className="flight-complete-actions">
+      <button className="primary-button" onClick={onContinue}><Plane size={16} aria-hidden="true" focusable="false"/> Keep flying</button>
+      <button className="detail-button" onClick={onExit}>Back to Overview</button>
+    </div>
+  </dialog>;
+}
+
 function App(){
   const mode=useExperience(s=>s.mode),destination=useExperience(s=>s.destination),target=useExperience(s=>s.target),pending=useExperience(s=>s.pending);
   const go=useExperience(s=>s.go),skip=useExperience(s=>s.skip),ready=useExperience(s=>s.ready),failed=useExperience(s=>s.failed);
@@ -46,6 +66,8 @@ function App(){
   const sound=useExperience(s=>s.sound),setSound=useExperience(s=>s.setSound),panelOpen=useExperience(s=>s.panelOpen),togglePanel=useExperience(s=>s.togglePanel);
   const archive=useExperience(s=>s.archive),openArchive=useExperience(s=>s.openArchive),closeArchive=useExperience(s=>s.closeArchive);
   const startFlight=useExperience(s=>s.startFlight),exitFlight=useExperience(s=>s.exitFlight);
+  const turnFlight=useExperience(s=>s.turnFlight);
+  const continueFlight=useExperience(s=>s.continueFlight),freestyle=useExperience(s=>s.flightFreestyle);
   const rings=useExperience(s=>s.flightRings),delivered=useExperience(s=>s.flightDelivered);
   const [directArchive,setDirectArchive]=useState(linkedArchive);
   const [loadWorld,setLoadWorld]=useState(()=>!linkedArchive());
@@ -154,13 +176,17 @@ function App(){
     {mode==='overview'&&<section className="overview-intro" aria-labelledby="overview-title"><div className="eyebrow">MY PORTFOLIO</div><h2 id="overview-title" ref={overviewTitle} tabIndex={-1}>Work &amp;<br/> <i>life.</i></h2><p>{fallback?'Pick a stop to explore my work and life away from the desk.':'Drag to turn the island. Scroll or pinch to zoom.'}</p>
       {!fallback&&<button className="detail-button flight-launch" ref={flightButton} onClick={startFlight}><Plane size={16} aria-hidden="true" focusable="false"/> Fly the biplane</button>}
     </section>}
-    {mode==='flight'&&<section className="flight-hud" aria-labelledby="flight-title">
-      <div><h2 id="flight-title">Island Air Mail</h2>
-        <p role="status">{delivered?'Mail delivered!':rings===3?'Fly through the green ring by the lighthouse.':`${rings} / 3 airmail rings`}</p>
-        {!delivered&&<p>Drag or hold the arrow keys to steer. Miss a ring? Take another lap.</p>}
+    {mode==='flight'&&(!delivered||freestyle)&&<section className="flight-hud" aria-labelledby="flight-title">
+      <div><h2 id="flight-title">{freestyle?'Freestyle flight':'Island Air Mail'}</h2>
+        <p role="status">{freestyle?'Drag or hold the arrow keys to steer.':rings===airMailGates.length?'Fly through the green ring by the lighthouse.':`${rings} / ${airMailGates.length} airmail rings`}</p>
+        {!delivered&&<p>Drag or hold the arrow keys to steer. Miss a ring? Turn around or press R.</p>}
       </div>
-      <button className="detail-button" onClick={exitFlight}>{delivered?'Back to Overview':'End flight'}</button>
+      <div className="flight-hud-actions">
+        {!freestyle&&<button className="detail-button" aria-keyshortcuts="R" onClick={turnFlight}><RotateCcw size={14} aria-hidden="true" focusable="false"/> Turn around</button>}
+        <button className="detail-button" onClick={exitFlight}>{delivered?'Back to Overview':'End flight'}</button>
+      </div>
     </section>}
+    {mode==='flight'&&delivered&&!freestyle&&<FlightComplete onContinue={continueFlight} onExit={exitFlight}/>}
     {scene&&<section hidden={mode!=='scene'} className={`scene-panel${panelOpen?'':' collapsed'}`} aria-labelledby={panelOpen?'scene-title':undefined} aria-label={panelOpen?undefined:scene.title}>
       <div className="panel-top">{panelOpen?<span className="eyebrow">{scene.index} / 05 <span className="chapter-dot" style={{background:scene.color}}/></span>:<span className="collapsed-label" aria-hidden="true">{scene.title}</span>}<button className="panel-toggle" onClick={togglePanel} aria-expanded={panelOpen} aria-controls="scene-copy" aria-label={panelOpen?'Hide story':'Read story'}>{panelOpen?<Minus size={18} aria-hidden="true" focusable="false"/>:<Plus size={18} aria-hidden="true" focusable="false"/>}</button></div>
       <div className="scene-panel-body"><div id="scene-copy" ref={node=>{if(node)node.inert=!panelOpen}} aria-hidden={!panelOpen}><div className="eyebrow">{scene.eyebrow}</div><h2 id="scene-title">{scene.title}</h2><p>{scene.description}</p>
